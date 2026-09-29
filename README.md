@@ -50,7 +50,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-🚧 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete. Controllers, views, and business logic are in progress.
+🚧 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete. Database configured with EF Core Identity, and the initial migration has been applied. Controllers, views, and business logic are in progress.
 
 ---
 
@@ -64,7 +64,7 @@ dotnet ef database update
 dotnet run
 ```
 
-*(Setup instructions will be expanded as the project matures.)*
+
 
 ---
 
