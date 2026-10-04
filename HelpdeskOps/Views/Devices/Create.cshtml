@@ -1,96 +1,63 @@
+@using HelpdeskOps.Models.Enums
 @model HelpdeskOps.Models.Device
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Yeni Cihaz";
 }
 
-<h1>Create</h1>
-
-<h4>Device</h4>
+<h1>Yeni Cihaz</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
             <div class="form-group">
                 <label asp-for="Hostname" class="control-label"></label>
                 <input asp-for="Hostname" class="form-control" />
                 <span asp-validation-for="Hostname" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="IpAddress" class="control-label"></label>
                 <input asp-for="IpAddress" class="form-control" />
                 <span asp-validation-for="IpAddress" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="SerialNumber" class="control-label"></label>
                 <input asp-for="SerialNumber" class="form-control" />
                 <span asp-validation-for="SerialNumber" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Brand" class="control-label"></label>
                 <input asp-for="Brand" class="form-control" />
                 <span asp-validation-for="Brand" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Model" class="control-label"></label>
                 <input asp-for="Model" class="form-control" />
                 <span asp-validation-for="Model" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="DeviceType" class="control-label"></label>
-                <input asp-for="DeviceType" class="form-control" />
+                <select asp-for="DeviceType" class="form-select" asp-items="Html.GetEnumSelectList<DeviceType>()"></select>
                 <span asp-validation-for="DeviceType" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="WarrantyEndDate" class="control-label"></label>
                 <input asp-for="WarrantyEndDate" class="form-control" />
                 <span asp-validation-for="WarrantyEndDate" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+                <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<DeviceStatus>()"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
-
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="LastUpdated" class="control-label"></label>
-                <input asp-for="LastUpdated" class="form-control" />
-                <span asp-validation-for="LastUpdated" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="AssignedUserId" class="control-label"></label>
-                <input asp-for="AssignedUserId" class="form-control" />
-                <span asp-validation-for="AssignedUserId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="AssignedUser" class="control-label"></label>
-                <input asp-for="AssignedUser" class="form-control" />
-                <span asp-validation-for="AssignedUser" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="form-group mt-3">
+                <input type="submit" value="Kaydet" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Listeye Dön</a>
 </div>

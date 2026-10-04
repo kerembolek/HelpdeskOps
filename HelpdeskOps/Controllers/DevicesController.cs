@@ -48,10 +48,14 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,CreatedAt,LastUpdated,AssignedUserId,AssignedUser")] Device device)
+    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status")] Device device)
     {
         if (ModelState.IsValid)
         {
+            // Timestamps are set by the server, not by the form
+            device.CreatedAt = DateTime.UtcNow;
+            device.LastUpdated = DateTime.UtcNow;
+
             _context.Add(device);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
