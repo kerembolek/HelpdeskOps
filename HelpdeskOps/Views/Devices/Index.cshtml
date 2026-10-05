@@ -1,101 +1,43 @@
 @model IEnumerable<HelpdeskOps.Models.Device>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Cihazlar";
 }
 
-<h1>Index</h1>
+<h1>Cihazlar</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Yeni Cihaz Ekle</a>
 </p>
-<table class="table">
+
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Hostname)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IpAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SerialNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Brand)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Model)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeviceType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WarrantyEndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastUpdated)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedUserId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedUser)
-            </th>
+            <th>Cihaz Adı</th>
+            <th>IP Adresi</th>
+            <th>Seri No</th>
+            <th>Tür</th>
+            <th>Durum</th>
+            <th>Garanti Bitişi</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Hostname)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.IpAddress)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SerialNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Brand)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Model)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DeviceType)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.WarrantyEndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LastUpdated)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.AssignedUserId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.AssignedUser)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Hostname</td>
+                <td>@item.IpAddress</td>
+                <td>@item.SerialNumber</td>
+                <td>@item.DeviceType</td>
+                <td>@item.Status</td>
+                <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
