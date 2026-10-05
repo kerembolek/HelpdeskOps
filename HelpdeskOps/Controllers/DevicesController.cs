@@ -95,6 +95,7 @@ public class DevicesController : Controller
         {
             try
             {
+                device.LastUpdated = DateTime.Now;
                 _context.Update(device);
                 await _context.SaveChangesAsync();
             }
