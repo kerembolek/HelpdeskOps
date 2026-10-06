@@ -24,10 +24,10 @@
     <dd class="col-sm-9">@Model.Model</dd>
 
     <dt class="col-sm-3">Tür</dt>
-    <dd class="col-sm-9">@Model.DeviceType</dd>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.DeviceType)</dd>
 
     <dt class="col-sm-3">Durum</dt>
-    <dd class="col-sm-9">@Model.Status</dd>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.Status)</dd>
 
     <dt class="col-sm-3">Garanti Bitişi</dt>
     <dd class="col-sm-9">@Model.WarrantyEndDate?.ToString("dd.MM.yyyy")</dd>

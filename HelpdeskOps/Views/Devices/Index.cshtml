@@ -29,8 +29,8 @@
                 <td>@item.Hostname</td>
                 <td>@item.IpAddress</td>
                 <td>@item.SerialNumber</td>
-                <td>@item.DeviceType</td>
-                <td>@item.Status</td>
+                <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
                 <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
