@@ -40,11 +40,11 @@
             </div>
             <div class="form-group mb-3">
                 <label asp-for="DeviceType" class="control-label">Tür</label>
-                <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()" class="form-control"></select>
+                <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()" class="form-select"></select>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label">Durum</label>
-                <select asp-for="Status" asp-items="Html.GetEnumSelectList<DeviceStatus>()" class="form-control"></select>
+                <select asp-for="Status" asp-items="Html.GetEnumSelectList<DeviceStatus>()" class="form-select"></select>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="WarrantyEndDate" class="control-label">Garanti Bitişi</label>
