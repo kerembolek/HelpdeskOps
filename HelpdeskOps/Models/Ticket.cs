@@ -38,14 +38,22 @@ public class Ticket
 
     [Display(Name = "Cihaz")]
     public int? DeviceId { get; set; }
+
+    [Display(Name = "Cihaz")]
     public Device? Device { get; set; }
 
     // Ticket'ı kim açtı
     [Required]
+    [Display(Name = "Talep Eden")]
     public required string RequesterId { get; set; }
+
+    [Display(Name = "Talep Eden")]
     public ApplicationUser? Requester { get; set; }
 
-    // Ticket'ı kim üstlendi (IT uzmanı)
+     // Ticket'ı kim üstlendi (IT uzmanı)
+    [Display(Name = "Atanan Kişi")]
     public string? AssignedToId { get; set; }
+
+    [Display(Name = "Atanan Kişi")]
     public ApplicationUser? AssignedTo { get; set; }
 }
