@@ -1,113 +1,46 @@
 @model IEnumerable<HelpdeskOps.Models.Ticket>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Destek Talepleri";
 }
 
-<h1>Index</h1>
+<h1>Destek Talepleri</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Yeni Talep Oluştur</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolvedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DeviceId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Device)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RequesterId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Requester)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedToId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AssignedTo)
-            </th>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Category)</th>
+            <th>@Html.DisplayNameFor(model => model.Priority)</th>
+            <th>@Html.DisplayNameFor(model => model.Status)</th>
+            <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+            <th>@Html.DisplayNameFor(model => model.Device)</th>
+            <th>@Html.DisplayNameFor(model => model.Requester)</th>
+            <th>@Html.DisplayNameFor(model => model.AssignedTo)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Category)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Priority)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ResolvedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DeviceId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Device)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.RequesterId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Requester)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.AssignedToId)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.AssignedTo)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Category)</td>
+                <td>@Html.DisplayFor(modelItem => item.Priority)</td>
+                <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                <td>@(item.Device?.Hostname ?? "-")</td>
+                <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
+                <td>@(item.AssignedTo != null ? item.AssignedTo.FirstName + " " + item.AssignedTo.LastName : "Atanmadı")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
