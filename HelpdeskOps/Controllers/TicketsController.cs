@@ -1,8 +1,11 @@
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using HelpdeskOps.Models;
 using HelpdeskOps.Data;
+using HelpdeskOps.Models;
+using HelpdeskOps.Models.Enums;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 public class TicketsController : Controller
 {
@@ -40,6 +43,7 @@ public class TicketsController : Controller
     // GET: TICKETS/Create
     public IActionResult Create()
     {
+        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname");
         return View();
     }
 
@@ -48,14 +52,22 @@ public class TicketsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Title,Description,Category,Priority,Status,CreatedAt,UpdatedAt,ResolvedAt,DeviceId,Device,RequesterId,Requester,AssignedToId,AssignedTo")] Ticket ticket)
+    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket)
     {
+        ticket.RequesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "dev-user-1";
+        ticket.Status = TicketStatus.Open;
+        ticket.CreatedAt = DateTime.UtcNow;
+
+        ModelState.Remove(nameof(Ticket.RequesterId));
+        ModelState.Remove(nameof(Ticket.Requester));
+
         if (ModelState.IsValid)
         {
             _context.Add(ticket);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname");
         return View(ticket);
     }
 
