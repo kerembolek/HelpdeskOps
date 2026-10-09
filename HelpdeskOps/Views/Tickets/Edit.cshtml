@@ -1,99 +1,61 @@
 @model HelpdeskOps.Models.Ticket
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Talebi Düzenle";
 }
 
-<h1>Edit</h1>
-
-<h4>Ticket</h4>
+<h1>Talebi Düzenle</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <input asp-for="Category" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <select asp-for="Category" class="form-select"
+                        asp-items="Html.GetEnumSelectList(Model.Category.GetType())"></select>
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Priority" class="control-label"></label>
-                <input asp-for="Priority" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Priority" class="form-label"></label>
+                <select asp-for="Priority" class="form-select"
+                        asp-items="Html.GetEnumSelectList(Model.Priority.GetType())"></select>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" class="form-select"
+                        asp-items="Html.GetEnumSelectList(Model.Status.GetType())"></select>
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResolvedAt" class="control-label"></label>
-                <input asp-for="ResolvedAt" class="form-control" />
-                <span asp-validation-for="ResolvedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DeviceId" class="control-label"></label>
-                <input asp-for="DeviceId" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="DeviceId" class="form-label"></label>
+                <select asp-for="DeviceId" class="form-select" asp-items="ViewBag.DeviceId">
+                    <option value="">Seçiniz</option>
+                </select>
                 <span asp-validation-for="DeviceId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Device" class="control-label"></label>
-                <input asp-for="Device" class="form-control" />
-                <span asp-validation-for="Device" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RequesterId" class="control-label"></label>
-                <input asp-for="RequesterId" class="form-control" />
-                <span asp-validation-for="RequesterId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Requester" class="control-label"></label>
-                <input asp-for="Requester" class="form-control" />
-                <span asp-validation-for="Requester" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AssignedToId" class="control-label"></label>
-                <input asp-for="AssignedToId" class="form-control" />
-                <span asp-validation-for="AssignedToId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AssignedTo" class="control-label"></label>
-                <input asp-for="AssignedTo" class="form-control" />
-                <span asp-validation-for="AssignedTo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+            <a asp-action="Index">Listeye Dön</a>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

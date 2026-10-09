@@ -17,9 +17,14 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Tickets.ToListAsync());
+        var tickets = await _context.Tickets
+            .Include(t => t.Device)
+            .Include(t => t.Requester)
+            .Include(t => t.AssignedTo)
+            .ToListAsync();
+        return View(tickets);
     }
 
     // GET: TICKETS/Details/5
@@ -87,6 +92,7 @@ public class TicketsController : Controller
         {
             return NotFound();
         }
+        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname", ticket.DeviceId);
         return View(ticket);
     }
 
@@ -95,33 +101,37 @@ public class TicketsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,CreatedAt,UpdatedAt,ResolvedAt,DeviceId,Device,RequesterId,Requester,AssignedToId,AssignedTo")] Ticket ticket)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,DeviceId")] Ticket ticket)
     {
         if (id != ticket.Id)
         {
             return NotFound();
         }
 
+        var existing = await _context.Tickets.FindAsync(id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        ModelState.Remove(nameof(Ticket.RequesterId));
+        ModelState.Remove(nameof(Ticket.Requester));
+
         if (ModelState.IsValid)
         {
-            try
-            {
-                _context.Update(ticket);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TicketExists(ticket.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            existing.Title = ticket.Title;
+            existing.Description = ticket.Description;
+            existing.Category = ticket.Category;
+            existing.Priority = ticket.Priority;
+            existing.Status = ticket.Status;
+            existing.DeviceId = ticket.DeviceId;
+            existing.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
+        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname", ticket.DeviceId);
         return View(ticket);
     }
 
