@@ -31,7 +31,7 @@
                 <td>@Html.DisplayFor(modelItem => item.Category)</td>
                 <td>@Html.DisplayFor(modelItem => item.Priority)</td>
                 <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                @item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
                 <td>@(item.Device?.Hostname ?? "-")</td>
                 <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
                 <td>@(item.AssignedTo != null ? item.AssignedTo.FirstName + " " + item.AssignedTo.LastName : "Atanmadı")</td>
