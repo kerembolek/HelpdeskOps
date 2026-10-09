@@ -134,7 +134,10 @@ public class TicketsController : Controller
         }
 
         var ticket = await _context.Tickets
-            .FirstOrDefaultAsync(m => m.Id == id);
+     .Include(t => t.Device)
+     .Include(t => t.Requester)
+     .Include(t => t.AssignedTo)
+     .FirstOrDefaultAsync(m => m.Id == id);
         if (ticket == null)
         {
             return NotFound();
