@@ -125,6 +125,16 @@ public class TicketsController : Controller
             existing.Priority = ticket.Priority;
             existing.Status = ticket.Status;
             existing.DeviceId = ticket.DeviceId;
+            
+            if (existing.Status is TicketStatus.Resolved or TicketStatus.Closed)
+            {
+                existing.ResolvedAt ??= DateTime.UtcNow;
+            }
+            else
+            {
+                existing.ResolvedAt = null;
+            }
+
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
