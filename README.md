@@ -54,6 +54,12 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ---
 
+## Documentation
+
+- [User Guide (Turkish)](docs/USER_GUIDE_TR.md): walkthrough of the current UI with screenshots.
+
+---
+
 ## Getting Started
 
 ```bash
