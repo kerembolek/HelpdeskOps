@@ -1,6 +1,6 @@
 # HelpdeskOps Kullanım Kılavuzu
 
-HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini tek bir arayüzden yönetmek için geliştirilmiş bir ASP.NET Core (.NET 10) web uygulamasıdır. Bu kılavuz, uygulamanın mevcut sürümündeki ekranları ve işlemleri açıklar. Kurulum adımları için [README](../README.md) dosyasına bakınız.
+HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini tek bir arayüzden yönetmek için geliştirilmiş bir ASP.NET Core (.NET 10) web uygulamasıdır. Bu kılavuz, uygulamanın mevcut sürümündeki ekranları ve işlemleri açıklar. Kurulum adımları için [README.tr.md](../README.tr.md) dosyasına bakınız.
 
 ## İçindekiler
 
@@ -90,4 +90,4 @@ Bu kılavuz, uygulamanın geliştirme aşamasındaki sürümünü anlatır. Aşa
 - Taleplerin bir BT personeline arayüzden atanması.
 - Panolar ve raporlar.
 
-Planlanan geliştirmelerin tamamı için [README](../README.md) dosyasındaki yol haritasına bakınız.
+Planlanan geliştirmelerin tamamı için [README.tr](../README.tr.md) dosyasındaki yol haritasına bakınız.
