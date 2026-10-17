@@ -46,7 +46,7 @@
     <dd class="col-sm-9">@Model.LastUpdated.ToString("dd.MM.yyyy HH:mm")</dd>
 </dl>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Düzenle</a> |
-    <a asp-action="Index">Listeye Dön</a>
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Düzenle</a>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
