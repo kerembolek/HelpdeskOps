@@ -47,6 +47,12 @@
                 </select>
                 <span asp-validation-for="DeviceId" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="AssignedToId" class="form-label"></label>
+                <select asp-for="AssignedToId" class="form-select" asp-items="ViewBag.Assignees">
+                    <option value="">Atanmadı</option>
+                </select>
+        </div>
 
             <button type="submit" class="btn btn-primary">Kaydet</button>
             <a asp-action="Index">Listeye Dön</a>

@@ -7,16 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 [Authorize]
 public class TicketsController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
+    
 
-    public TicketsController(ApplicationDbContext context)
+    public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
+    }
+    private async Task LoadAssigneesAsync(string? selectedId = null)
+    {
+        var admins = await _userManager.GetUsersInRoleAsync("ITAdmin");
+        ViewBag.Assignees = new SelectList(
+            admins.Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName }),
+            "Id", "FullName", selectedId);
     }
 
     // GET: TICKETS
@@ -96,6 +106,7 @@ public class TicketsController : Controller
             return NotFound();
         }
         ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname", ticket.DeviceId);
+        await LoadAssigneesAsync(ticket.AssignedToId);
         return View(ticket);
     }
 
@@ -104,7 +115,7 @@ public class TicketsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,DeviceId")] Ticket ticket)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,DeviceId,AssignedToId")] Ticket ticket)
     {
         if (id != ticket.Id)
         {
@@ -128,7 +139,8 @@ public class TicketsController : Controller
             existing.Priority = ticket.Priority;
             existing.Status = ticket.Status;
             existing.DeviceId = ticket.DeviceId;
-            
+            existing.AssignedToId = ticket.AssignedToId;
+
             if (existing.Status is TicketStatus.Resolved or TicketStatus.Closed)
             {
                 existing.ResolvedAt ??= DateTime.UtcNow;
@@ -145,6 +157,7 @@ public class TicketsController : Controller
         }
 
         ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname", ticket.DeviceId);
+        await LoadAssigneesAsync(ticket.AssignedToId);
         return View(ticket);
     }
 
