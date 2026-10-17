@@ -36,10 +36,17 @@
                 <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
                 <td>@(item.AssignedTo != null ? item.AssignedTo.FirstName + " " + item.AssignedTo.LastName : "Atanmadı")</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
-                </td>
+    @if (User.IsInRole("ITAdmin"))
+    {
+        <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> <text>|</text>
+        <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> <text>|</text>
+        <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+    }
+    else
+    {
+        <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a>
+    }
+</td>
             </tr>
         }
     </tbody>

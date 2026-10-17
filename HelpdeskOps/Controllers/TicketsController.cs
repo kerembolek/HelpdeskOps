@@ -29,15 +29,22 @@ public class TicketsController : Controller
             "Id", "FullName", selectedId);
     }
 
-    // GET: TICKETS
+    // GET: TICKETS/Index
     public async Task<IActionResult> Index()
     {
-        var tickets = await _context.Tickets
+        var query = _context.Tickets
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
-            .ToListAsync();
-        return View(tickets);
+            .AsQueryable();
+
+        if (!User.IsInRole("ITAdmin"))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            query = query.Where(t => t.RequesterId == userId);
+        }
+
+        return View(await query.ToListAsync());
     }
 
     // GET: TICKETS/Details/5
@@ -49,13 +56,18 @@ public class TicketsController : Controller
         }
 
         var ticket = await _context.Tickets
-    .Include(t => t.Device)
-    .Include(t => t.Requester)
-    .Include(t => t.AssignedTo)
-    .FirstOrDefaultAsync(m => m.Id == id);
+            .Include(t => t.Device)
+            .Include(t => t.Requester)
+            .Include(t => t.AssignedTo)
+            .FirstOrDefaultAsync(m => m.Id == id);
         if (ticket == null)
         {
             return NotFound();
+        }
+
+        if (!User.IsInRole("ITAdmin") && ticket.RequesterId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return Forbid();
         }
 
         return View(ticket);
@@ -93,6 +105,7 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS/Edit/5
+    [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -115,6 +128,7 @@ public class TicketsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,DeviceId,AssignedToId")] Ticket ticket)
     {
         if (id != ticket.Id)
@@ -162,6 +176,7 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS/Delete/5
+    [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -185,6 +200,7 @@ public class TicketsController : Controller
     // POST: TICKETS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var ticket = await _context.Tickets.FindAsync(id);
