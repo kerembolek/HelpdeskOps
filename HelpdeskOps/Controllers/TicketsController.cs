@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
+[Authorize]
 public class TicketsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -62,7 +65,7 @@ public class TicketsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket)
     {
-        ticket.RequesterId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "dev-user-1";
+        ticket.RequesterId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         ticket.Status = TicketStatus.Open;
         ticket.CreatedAt = DateTime.UtcNow;
 

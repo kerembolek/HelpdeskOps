@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpdeskOps.Models;
 using HelpdeskOps.Data;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize]
 public class DevicesController : Controller
 {
     private readonly ApplicationDbContext _context;
