@@ -5,6 +5,11 @@
 <div class="text-center py-5">
     <h1 class="display-5">HelpdeskOps</h1>
     <p class="lead">Kurumsal BT envanter ve destek talebi yönetim sistemi</p>
+
+    @if (User.IsInRole("ITAdmin"))
+    {
     <a asp-controller="Devices" asp-action="Index" class="btn btn-primary me-2">Cihazlar</a>
+    }
+
     <a asp-controller="Tickets" asp-action="Index" class="btn btn-primary">Talepler</a>
 </div>

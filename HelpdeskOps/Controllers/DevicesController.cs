@@ -5,7 +5,8 @@ using HelpdeskOps.Models;
 using HelpdeskOps.Data;
 using Microsoft.AspNetCore.Authorization;
 
-[Authorize]
+[Authorize(Roles = "ITAdmin")]
+
 public class DevicesController : Controller
 {
     private readonly ApplicationDbContext _context;

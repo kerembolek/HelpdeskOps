@@ -24,9 +24,13 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
 
+                        @if (User.IsInRole("ITAdmin"))
+                        {
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Devices" asp-action="Index">Cihazlar</a>
                         </li>
+                        }
+
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Tickets" asp-action="Index">Talepler</a>
                         </li>
