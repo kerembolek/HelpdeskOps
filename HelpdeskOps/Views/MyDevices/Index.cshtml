@@ -1,0 +1,46 @@
+@model IEnumerable<HelpdeskOps.Models.Device>
+
+@{
+    ViewData["Title"] = "Cihazlarım";
+}
+
+<h1>Cihazlarım</h1>
+
+<p class="text-muted">Size zimmetlenmiş cihazlar. Bir cihazla ilgili sorun yaşıyorsanız destek talebi oluşturabilirsiniz.</p>
+
+<p>
+    <a asp-controller="Tickets" asp-action="Create" class="btn btn-primary">Yeni Talep Oluştur</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Size zimmetlenmiş cihaz bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Cihaz Adı</th>
+                <th>Marka / Model</th>
+                <th>Seri No</th>
+                <th>Tür</th>
+                <th>Durum</th>
+                <th>Garanti Bitişi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Hostname</td>
+                    <td>@item.Brand @item.Model</td>
+                    <td>@item.SerialNumber</td>
+                    <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

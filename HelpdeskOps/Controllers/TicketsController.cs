@@ -29,6 +29,24 @@ public class TicketsController : Controller
             "Id", "FullName", selectedId);
     }
 
+    // ITAdmin sees every device; other users only the devices assigned to them
+    private IQueryable<Device> DevicesForCurrentUser()
+    {
+        if (User.IsInRole("ITAdmin"))
+        {
+            return _context.Devices;
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return _context.Devices.Where(d => d.AssignedUserId == userId);
+    }
+
+    private async Task LoadDevicesAsync(int? selectedId = null)
+    {
+        var devices = await DevicesForCurrentUser().OrderBy(d => d.Hostname).ToListAsync();
+        ViewData["DeviceId"] = new SelectList(devices, "Id", "Hostname", selectedId);
+    }
+
     // GET: TICKETS/Index
     public async Task<IActionResult> Index()
     {
@@ -74,9 +92,9 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname");
+        await LoadDevicesAsync();
         return View();
     }
 
@@ -94,13 +112,18 @@ public class TicketsController : Controller
         ModelState.Remove(nameof(Ticket.RequesterId));
         ModelState.Remove(nameof(Ticket.Requester));
 
+        if (ticket.DeviceId != null && !await DevicesForCurrentUser().AnyAsync(d => d.Id == ticket.DeviceId))
+        {
+            ModelState.AddModelError(nameof(Ticket.DeviceId), "Yalnızca size zimmetli bir cihaz seçebilirsiniz.");
+        }
+
         if (ModelState.IsValid)
         {
             _context.Add(ticket);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname");
+        await LoadDevicesAsync(ticket.DeviceId);
         return View(ticket);
     }
 

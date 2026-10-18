@@ -12,8 +12,6 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <input type="hidden" asp-for="CreatedAt" />
-            <input type="hidden" asp-for="AssignedUserId" />
 
             <div class="form-group mb-3">
                 <label asp-for="Hostname" class="control-label">Cihaz Adı</label>
@@ -49,6 +47,13 @@
             <div class="form-group mb-3">
                 <label asp-for="WarrantyEndDate" class="control-label">Garanti Bitişi</label>
                 <input asp-for="WarrantyEndDate" class="form-control" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="AssignedUserId" class="control-label">Zimmetli Kullanıcı</label>
+                <select asp-for="AssignedUserId" asp-items="ViewBag.Users" class="form-select">
+                    <option value="">Atanmamış</option>
+                </select>
+                <span asp-validation-for="AssignedUserId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Kaydet" class="btn btn-primary" />

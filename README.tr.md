@@ -26,6 +26,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Temel cihaz modeli (cihaz adı, IPv4, seri numarası, marka/model, cihaz türü, durum)
 - [x] IPv4 biçim doğrulaması
 - [x] Cihaz yönetim ekranları (listeleme, ekleme, düzenleme, ayrıntı, silme)
+- [x] Cihaz ekleme/düzenleme ekranlarından kullanıcıya zimmet atama
 - [ ] Canlı ağ durumu göstergesi (ping tabanlı, yeşil/kırmızı nokta)
 - [ ] Uzak erişim kısayolu (RDP başlatma bağlantısı)
 - [ ] Cisco switch port eşleme
@@ -48,7 +49,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Giriş ve kayıt (kayıt sırasında ad ve departman bilgisi alınır)
 - [x] Çalışan (Employee) rolü: talep oluşturur ve yalnızca kendi taleplerini görür (kayıt olan kullanıcılara varsayılan olarak verilir)
 - [x] BT Yöneticisi (ITAdmin) rolü: cihazlara ve talep yönetimine tam erişim (düzenleme, atama, silme)
-- [ ] Çalışanın kendine atanan cihazları görebilmesi
+- [x] "Cihazlarım" sayfası: her kullanıcı kendine zimmetli cihazları görür; çalışanlar taleplere yalnızca kendi cihazlarını ekleyebilir
 - [ ] Yönetici rolü: talep geçmişi ve yönetsel raporlar
 
 ### Yönetici Panosu ve Raporlama
@@ -60,9 +61,9 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetiyor, talepleri atıyor, düzenliyor ve kapatıyor.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, talepleri atıyor, düzenliyor ve kapatıyor.
 
-Henüz uygulanmayanlar: çalışanın cihaz görünümü, yönetici rolü, panolar ve raporlar.
+Henüz uygulanmayanlar: yönetici rolü, panolar ve raporlar.
 
 ---
 
@@ -88,7 +89,7 @@ Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kull
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar ve bu hesaplara zimmetli birkaç örnek cihaz otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|
