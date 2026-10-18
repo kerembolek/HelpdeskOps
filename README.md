@@ -26,6 +26,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Core device model (hostname, IPv4, serial number, brand/model, device type, status)
 - [x] IPv4 format validation
 - [x] Device management screens (list, create, edit, details, delete)
+- [x] Device assignment to users (zimmet) from the device create/edit screens
 - [ ] Live network status indicator (ping-based, green/red dot)
 - [ ] Remote access shortcut (RDP launch link)
 - [ ] Cisco switch port mapping
@@ -48,7 +49,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Login and registration (name and department captured at sign-up)
 - [x] Employee role: create tickets and see only their own tickets (assigned by default on registration)
 - [x] ITAdmin role: full access to devices and ticket management (edit, assign, delete)
-- [ ] Employee view of devices assigned to them
+- [x] "My Devices" page: every user sees the devices assigned to them; employees can only attach their own devices to tickets
 - [ ] Manager role: ticket history and administrative reports
 
 ### Admin Dashboard & Reporting
@@ -60,9 +61,9 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices and assign, edit, and close tickets.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, and assign, edit, and close tickets.
 
-Not implemented yet: the employee device view, the manager role, dashboards, and reports.
+Not implemented yet: the manager role, dashboards, and reports.
 
 ---
 
@@ -88,7 +89,7 @@ The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`)
 
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts and a few sample devices assigned to them automatically (never in other environments):
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|

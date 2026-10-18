@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HelpdeskOps.Models;
 using HelpdeskOps.Data;
@@ -16,10 +17,30 @@ public class DevicesController : Controller
         _context = context;
     }
 
-    // GET: DEVICES
-    public async Task<IActionResult> Index()    
+    private async Task LoadUsersAsync(string? selectedId = null)
     {
-        return View(await _context.Devices.ToListAsync());
+        var users = await _context.Users
+            .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+            .Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName + (u.Department != null ? " (" + u.Department + ")" : "") })
+            .ToListAsync();
+        ViewBag.Users = new SelectList(users, "Id", "FullName", selectedId);
+    }
+
+    // Zimmet için seçilen kullanıcının gerçekten var olduğunu doğrular
+    private async Task ValidateAssignedUserAsync(string? userId)
+    {
+        if (!string.IsNullOrEmpty(userId) && !await _context.Users.AnyAsync(u => u.Id == userId))
+        {
+            ModelState.AddModelError(nameof(Device.AssignedUserId), "Seçilen kullanıcı bulunamadı.");
+        }
+    }
+
+    // GET: DEVICES
+    public async Task<IActionResult> Index()
+    {
+        return View(await _context.Devices
+            .Include(d => d.AssignedUser)
+            .ToListAsync());
     }
 
     // GET: DEVICES/Details/5
@@ -31,6 +52,7 @@ public class DevicesController : Controller
         }
 
         var device = await _context.Devices
+            .Include(d => d.AssignedUser)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (device == null)
         {
@@ -41,8 +63,9 @@ public class DevicesController : Controller
     }
 
     // GET: DEVICES/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
+        await LoadUsersAsync();
         return View();
     }
 
@@ -51,8 +74,10 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status")] Device device)
+    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,AssignedUserId")] Device device)
     {
+        await ValidateAssignedUserAsync(device.AssignedUserId);
+
         if (ModelState.IsValid)
         {
             // Timestamps are set by the server, not by the form
@@ -63,6 +88,7 @@ public class DevicesController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        await LoadUsersAsync(device.AssignedUserId);
         return View(device);
     }
 
@@ -79,6 +105,7 @@ public class DevicesController : Controller
         {
             return NotFound();
         }
+        await LoadUsersAsync(device.AssignedUserId);
         return View(device);
     }
 
@@ -87,34 +114,39 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,CreatedAt,LastUpdated,AssignedUserId,AssignedUser")] Device device)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,AssignedUserId")] Device device)
     {
         if (id != device.Id)
         {
             return NotFound();
         }
 
+        var existing = await _context.Devices.FindAsync(id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        await ValidateAssignedUserAsync(device.AssignedUserId);
+
         if (ModelState.IsValid)
         {
-            try
-            {
-                device.LastUpdated = DateTime.Now;
-                _context.Update(device);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!DeviceExists(device.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            // Only form fields are copied; CreatedAt stays as stored and LastUpdated is set by the server
+            existing.Hostname = device.Hostname;
+            existing.IpAddress = device.IpAddress;
+            existing.SerialNumber = device.SerialNumber;
+            existing.Brand = device.Brand;
+            existing.Model = device.Model;
+            existing.DeviceType = device.DeviceType;
+            existing.WarrantyEndDate = device.WarrantyEndDate;
+            existing.Status = device.Status;
+            existing.AssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
+            existing.LastUpdated = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        await LoadUsersAsync(device.AssignedUserId);
         return View(device);
     }
 
@@ -127,6 +159,7 @@ public class DevicesController : Controller
         }
 
         var device = await _context.Devices
+            .Include(d => d.AssignedUser)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (device == null)
         {

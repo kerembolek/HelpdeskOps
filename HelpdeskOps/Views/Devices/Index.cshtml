@@ -25,6 +25,7 @@ else
                 <th>Tür</th>
                 <th>Durum</th>
                 <th>Garanti Bitişi</th>
+                <th>Zimmetli</th>
                 <th></th>
             </tr>
         </thead>
@@ -38,6 +39,7 @@ else
                     <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
                     <td>@Html.DisplayFor(modelItem => item.Status)</td>
                     <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
+                    <td>@(item.AssignedUser != null ? item.AssignedUser.FirstName + " " + item.AssignedUser.LastName : "Atanmamış")</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
                         <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
