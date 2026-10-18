@@ -10,34 +10,41 @@
     <a asp-action="Create" class="btn btn-primary">Yeni Cihaz Ekle</a>
 </p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Cihaz Adı</th>
-            <th>IP Adresi</th>
-            <th>Seri No</th>
-            <th>Tür</th>
-            <th>Durum</th>
-            <th>Garanti Bitişi</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Henüz kayıtlı cihaz bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td>@item.Hostname</td>
-                <td>@item.IpAddress</td>
-                <td>@item.SerialNumber</td>
-                <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
-                <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
-                    <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
-                </td>
+                <th>Cihaz Adı</th>
+                <th>IP Adresi</th>
+                <th>Seri No</th>
+                <th>Tür</th>
+                <th>Durum</th>
+                <th>Garanti Bitişi</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Hostname</td>
+                    <td>@item.IpAddress</td>
+                    <td>@item.SerialNumber</td>
+                    <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
+                        <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

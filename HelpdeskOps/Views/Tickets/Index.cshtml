@@ -9,45 +9,52 @@
 <p>
     <a asp-action="Create">Yeni Talep Oluştur</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Category)</th>
-            <th>@Html.DisplayNameFor(model => model.Priority)</th>
-            <th>@Html.DisplayNameFor(model => model.Status)</th>
-            <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
-            <th>@Html.DisplayNameFor(model => model.Device)</th>
-            <th>@Html.DisplayNameFor(model => model.Requester)</th>
-            <th>@Html.DisplayNameFor(model => model.AssignedTo)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Henüz kayıtlı talep bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                <td>@Html.DisplayFor(modelItem => item.Category)</td>
-                <td>@Html.DisplayFor(modelItem => item.Priority)</td>
-                <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@(item.Device?.Hostname ?? "-")</td>
-                <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
-                <td>@(item.AssignedTo != null ? item.AssignedTo.FirstName + " " + item.AssignedTo.LastName : "Atanmadı")</td>
-                <td>
-    @if (User.IsInRole("ITAdmin"))
-    {
-        <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> <text>|</text>
-        <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> <text>|</text>
-        <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
-    }
-    else
-    {
-        <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a>
-    }
-</td>
+                <th>@Html.DisplayNameFor(model => model.Title)</th>
+                <th>@Html.DisplayNameFor(model => model.Category)</th>
+                <th>@Html.DisplayNameFor(model => model.Priority)</th>
+                <th>@Html.DisplayNameFor(model => model.Status)</th>
+                <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                <th>@Html.DisplayNameFor(model => model.Device)</th>
+                <th>@Html.DisplayNameFor(model => model.Requester)</th>
+                <th>@Html.DisplayNameFor(model => model.AssignedTo)</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Category)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Priority)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@(item.Device?.Hostname ?? "-")</td>
+                    <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
+                    <td>@(item.AssignedTo != null ? item.AssignedTo.FirstName + " " + item.AssignedTo.LastName : "Atanmadı")</td>
+                    <td>
+                        @if (User.IsInRole("ITAdmin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> <text>|</text>
+                            <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> <text>|</text>
+                            <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
