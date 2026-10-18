@@ -14,7 +14,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 - **Çatı:** ASP.NET Core MVC (.NET 10)
 - **Veritabanı:** Entity Framework Core (Code-First)
-- **Kimlik doğrulama:** ASP.NET Core Identity (kullanıcı modeli hazır; giriş ve role dayalı erişim planlanıyor)
+- **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`)
 - **Arayüz:** Razor Views, Bootstrap
 - **Sürüm kontrolü:** Git ve GitHub
 
@@ -36,6 +36,8 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Temel talep modeli (kategori, öncelik, durum, talep eden, atanan kişi)
 - [x] Talep yönetim ekranları (listeleme, oluşturma, düzenleme, ayrıntı, silme)
 - [x] Talep çözüldüğünde veya kapatıldığında çözülme tarihinin otomatik kaydedilmesi
+- [x] Talep edenin oturum açmış kullanıcıdan otomatik belirlenmesi
+- [x] Düzenleme ekranından talebin BT personeline atanması
 - [x] Türkçe kullanıcı arayüzü
 - [ ] Tier 0 self-servis çözüm bankası (talep açmadan önce yönlendirmeli sorun giderme)
 - [ ] Serbest metinli "Diğer" seçeneği olan kademeli kategori yapısı
@@ -43,8 +45,10 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### Role Dayalı Erişim Kontrolü (RBAC)
 - [x] Departman alanı olan temel kullanıcı modeli
-- [ ] Çalışan rolü: yalnızca kendine atanan cihazları görür, talep oluşturur
-- [ ] BT Uzmanı rolü: cihazlara, ağ bilgilerine ve talep yönetimine tam erişim
+- [x] Giriş ve kayıt (kayıt sırasında ad ve departman bilgisi alınır)
+- [x] Çalışan (Employee) rolü: talep oluşturur ve yalnızca kendi taleplerini görür (kayıt olan kullanıcılara varsayılan olarak verilir)
+- [x] BT Yöneticisi (ITAdmin) rolü: cihazlara ve talep yönetimine tam erişim (düzenleme, atama, silme)
+- [ ] Çalışanın kendine atanan cihazları görebilmesi
 - [ ] Yönetici rolü: talep geçmişi ve yönetsel raporlar
 
 ### Yönetici Panosu ve Raporlama
@@ -56,9 +60,9 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı, veritabanı EF Core Identity ile yapılandırıldı ve ilk migration uygulandı. Cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetiyor, talepleri atıyor, düzenliyor ve kapatıyor.
 
-Henüz uygulanmayanlar: kullanıcı girişi ve role dayalı erişim (talepler şu an geçici bir geliştirme kullanıcısı adına oluşturuluyor), arayüzden talep atama, panolar ve raporlar.
+Henüz uygulanmayanlar: çalışanın cihaz görünümü, yönetici rolü, panolar ve raporlar.
 
 ---
 
@@ -79,6 +83,19 @@ dotnet restore
 dotnet ef database update
 dotnet run
 ```
+
+Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kullanır. Farklı bir SQL Server örneği kullanıyorsanız `appsettings.json` dosyasını güncelleyin.
+
+### Demo Hesaplar
+
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+
+| Rol      | E-posta                | Parola          |
+|----------|------------------------|-----------------|
+| Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
+| ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+
+Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir.
 
 ---
 

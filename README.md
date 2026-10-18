@@ -14,7 +14,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 - **Framework:** ASP.NET Core MVC (.NET 10)
 - **Database:** Entity Framework Core (Code-First)
-- **Authentication:** ASP.NET Core Identity (user model in place; login and role-based access planned)
+- **Authentication:** ASP.NET Core Identity with role-based authorization (`Employee`, `ITAdmin`)
 - **Frontend:** Razor Views, Bootstrap
 - **Version Control:** Git & GitHub
 
@@ -36,6 +36,8 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Core ticket model (category, priority, status, requester, assignee)
 - [x] Ticket management screens (list, create, edit, details, delete)
 - [x] Automatic resolution date when a ticket is resolved or closed
+- [x] Requester set automatically from the signed-in user
+- [x] Ticket assignment to IT staff from the edit screen
 - [x] Turkish user interface
 - [ ] Tier 0 self-service solution bank (guided troubleshooting before ticket creation)
 - [ ] Tiered category structure with free-text "Other" option
@@ -43,8 +45,10 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ### Role-Based Access Control (RBAC)
 - [x] Core user model with department field
-- [ ] Employee role: view only assigned devices, create tickets
-- [ ] IT Specialist role: full access to devices, network info, and ticket management
+- [x] Login and registration (name and department captured at sign-up)
+- [x] Employee role: create tickets and see only their own tickets (assigned by default on registration)
+- [x] ITAdmin role: full access to devices and ticket management (edit, assign, delete)
+- [ ] Employee view of devices assigned to them
 - [ ] Manager role: ticket history and administrative reports
 
 ### Admin Dashboard & Reporting
@@ -56,9 +60,9 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, the database is configured with EF Core Identity, and the initial migration has been applied. Device and ticket management screens are working with a Turkish user interface.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices and assign, edit, and close tickets.
 
-Not implemented yet: user login and role-based access (tickets are currently created under a temporary development user), ticket assignment from the interface, dashboards, and reports.
+Not implemented yet: the employee device view, the manager role, dashboards, and reports.
 
 ---
 
@@ -79,6 +83,19 @@ dotnet restore
 dotnet ef database update
 dotnet run
 ```
+
+The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`). Update `appsettings.json` if you use a different SQL Server instance.
+
+### Demo Accounts
+
+When the app runs in the `Development` environment, it creates these accounts automatically (never in other environments):
+
+| Role     | Email                  | Password        |
+|----------|------------------------|-----------------|
+| Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
+| ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+
+New users who register through the sign-up page get the `Employee` role.
 
 ---
 
