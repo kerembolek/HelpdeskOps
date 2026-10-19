@@ -166,6 +166,7 @@ public class DevicesController : Controller
             return NotFound();
         }
 
+        ViewData["LinkedTicketCount"] = await _context.Tickets.CountAsync(t => t.DeviceId == id);
         return View(device);
     }
 
@@ -174,6 +175,13 @@ public class DevicesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
+        // Tickets reference devices without cascade, so deleting a linked device would fail with an FK error.
+        // Keeping the device also keeps its ticket history (and the dashboard's problem device report) intact.
+        if (await _context.Tickets.AnyAsync(t => t.DeviceId == id))
+        {
+            return RedirectToAction(nameof(Delete), new { id });
+        }
+
         var device = await _context.Devices.FindAsync(id);
         if (device != null)
         {

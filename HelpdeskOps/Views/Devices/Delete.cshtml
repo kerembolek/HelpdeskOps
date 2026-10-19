@@ -2,11 +2,22 @@
 
 @{
     ViewData["Title"] = "Cihazı Sil";
+    var linkedTicketCount = (int)(ViewData["LinkedTicketCount"] ?? 0);
 }
 
 <h1>Cihazı Sil</h1>
 
-<h3>Bu cihazı silmek istediğinizden emin misiniz?</h3>
+@if (linkedTicketCount > 0)
+{
+    <div class="alert alert-warning">
+        Bu cihaz @linkedTicketCount destek talebine bağlı olduğu için silinemez. Talep geçmişini korumak için
+        cihazı silmek yerine durumunu <strong>Hizmet Dışı</strong> olarak güncelleyebilirsiniz.
+    </div>
+}
+else
+{
+    <h3>Bu cihazı silmek istediğinizden emin misiniz?</h3>
+}
 <div>
     <hr />
     <dl class="row">
@@ -29,9 +40,17 @@
         <dd class="col-sm-9">@Html.DisplayFor(model => model.Status)</dd>
     </dl>
 
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Sil" class="btn btn-danger" />
-        <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
-    </form>
+    @if (linkedTicketCount > 0)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Düzenle</a>
+        <a asp-action="Index" class="btn btn-secondary">Listeye Dön</a>
+    }
+    else
+    {
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Sil" class="btn btn-danger" />
+            <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+        </form>
+    }
 </div>
