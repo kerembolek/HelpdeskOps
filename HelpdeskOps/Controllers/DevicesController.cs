@@ -40,6 +40,7 @@ public class DevicesController : Controller
     {
         return View(await _context.Devices
             .Include(d => d.AssignedUser)
+            .OrderBy(d => d.Hostname)
             .ToListAsync());
     }
 

@@ -62,7 +62,7 @@ public class TicketsController : Controller
             query = query.Where(t => t.RequesterId == userId);
         }
 
-        return View(await query.ToListAsync());
+        return View(await query.OrderByDescending(t => t.CreatedAt).ToListAsync());
     }
 
     // GET: TICKETS/Details/5
