@@ -28,7 +28,7 @@ public class Ticket
     public TicketStatus Status { get; set; } = TicketStatus.Open;
 
     [Display(Name = "Oluşturulma Tarihi")]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Display(Name = "Güncellenme Tarihi")]
     public DateTime? UpdatedAt { get; set; }

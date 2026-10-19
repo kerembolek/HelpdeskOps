@@ -52,7 +52,8 @@
                 <select asp-for="AssignedToId" class="form-select" asp-items="ViewBag.Assignees">
                     <option value="">Atanmadı</option>
                 </select>
-        </div>
+                <span asp-validation-for="AssignedToId" class="text-danger"></span>
+            </div>
 
             <button type="submit" class="btn btn-primary">Kaydet</button>
             <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>

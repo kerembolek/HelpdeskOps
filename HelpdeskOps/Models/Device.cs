@@ -40,9 +40,9 @@ namespace HelpdeskOps.Models
         public DeviceStatus Status { get; set; }
 
         [Display(Name = "Oluşturulma Tarihi")]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public DateTime LastUpdated { get; set; } = DateTime.Now;
+        public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
         // Zimmet ilişkisi: bu cihaz kime atanmış
         public string? AssignedUserId { get; set; }

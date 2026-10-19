@@ -6,10 +6,18 @@
     <h1 class="display-5">HelpdeskOps</h1>
     <p class="lead">Kurumsal BT envanter ve destek talebi yönetim sistemi</p>
 
-    @if (User.IsInRole("ITAdmin"))
-    {
-    <a asp-controller="Devices" asp-action="Index" class="btn btn-primary me-2">Cihazlar</a>
-    }
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        @if (User.IsInRole("ITAdmin"))
+        {
+        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Pano</a>
+        <a asp-controller="Devices" asp-action="Index" class="btn btn-primary">Cihazlar</a>
+        }
 
-    <a asp-controller="Tickets" asp-action="Index" class="btn btn-primary">Talepler</a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+        <a asp-controller="MyDevices" asp-action="Index" class="btn btn-primary">Cihazlarım</a>
+        }
+
+        <a asp-controller="Tickets" asp-action="Index" class="btn btn-primary">Talepler</a>
+    </div>
 </div>
