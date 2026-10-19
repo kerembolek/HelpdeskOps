@@ -35,5 +35,4 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 - `docs/USER_GUIDE_TR.md` has screenshots. Update it when the UI changes visibly; batching at milestones is fine.
 
 ## Open items
-- `System.Security.Cryptography.Pkcs` 9.0.11 build warnings (NU1902/NU1903). Fix on a `fix/...` branch.
 - `docs/USER_GUIDE_TR.md` doesn't cover login, roles, ticket assignment, or My Devices yet.
