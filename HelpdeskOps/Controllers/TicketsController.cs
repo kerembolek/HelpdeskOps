@@ -252,9 +252,4 @@ public class TicketsController : Controller
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
-
-    private bool TicketExists(int? id)
-    {
-        return _context.Tickets.Any(e => e.Id == id);
-    }
 }

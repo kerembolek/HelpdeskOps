@@ -192,9 +192,4 @@ public class DevicesController : Controller
         await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
-
-    private bool DeviceExists(int? id)
-    {
-        return _context.Devices.Any(e => e.Id == id);
-    }
 }
