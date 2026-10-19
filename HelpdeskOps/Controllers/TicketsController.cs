@@ -168,6 +168,23 @@ public class TicketsController : Controller
         ModelState.Remove(nameof(Ticket.RequesterId));
         ModelState.Remove(nameof(Ticket.Requester));
 
+        ticket.AssignedToId = string.IsNullOrEmpty(ticket.AssignedToId) ? null : ticket.AssignedToId;
+
+        // The dropdowns only offer valid choices, but a crafted POST could send any id
+        if (ticket.DeviceId != null && !await _context.Devices.AnyAsync(d => d.Id == ticket.DeviceId))
+        {
+            ModelState.AddModelError(nameof(Ticket.DeviceId), "Seçilen cihaz bulunamadı.");
+        }
+
+        if (ticket.AssignedToId != null)
+        {
+            var assignee = await _userManager.FindByIdAsync(ticket.AssignedToId);
+            if (assignee == null || !await _userManager.IsInRoleAsync(assignee, "ITAdmin"))
+            {
+                ModelState.AddModelError(nameof(Ticket.AssignedToId), "Talepler yalnızca BT personeline atanabilir.");
+            }
+        }
+
         if (ModelState.IsValid)
         {
             existing.Title = ticket.Title;
