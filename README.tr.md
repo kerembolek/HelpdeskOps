@@ -53,17 +53,18 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [ ] Yönetici rolü: talep geçmişi ve yönetsel raporlar
 
 ### Yönetici Panosu ve Raporlama
-- [ ] Ortalama talep çözüm süresi
-- [ ] Kronik sorunlu cihazlar (marka/modele göre en sık arızalar)
-- [ ] Departman iş yükü dağılımı
+- [x] Talep özet kartları (açık, işlemde, çözülen/kapatılan, atanmamış aktif talepler)
+- [x] Genel ve önceliğe göre ortalama talep çözüm süresi
+- [x] Kronik sorunlu cihazlar (marka/modele göre en sık arızalar)
+- [x] Departman iş yükü dağılımı
 
 ---
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, talepleri atıyor, düzenliyor ve kapatıyor.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, talepleri atıyor, düzenliyor ve kapatıyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları ve departman iş yükünü gösteren bir panoya sahip.
 
-Henüz uygulanmayanlar: yönetici rolü, panolar ve raporlar.
+Henüz uygulanmayanlar: yönetici rolü ve bu role özel raporlar.
 
 ---
 
@@ -89,12 +90,14 @@ Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kull
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar ve bu hesaplara zimmetli birkaç örnek cihaz otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli birkaç örnek cihaz ve pano için örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|
 | Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
 | ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+
+Panoda departmanların karşılaştırılabilmesi için iki çalışan hesabı daha oluşturulur (`ik@helpdeskops.com`, `satis@helpdeskops.com`, parola aynı).
 
 Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir.
 
