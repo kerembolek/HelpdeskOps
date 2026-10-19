@@ -1,0 +1,172 @@
+@model HelpdeskOps.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Pano";
+    var maxDepartmentTickets = Model.DepartmentWorkload.Select(d => d.TotalTickets).DefaultIfEmpty(0).Max();
+}
+
+@functions {
+    // 1590 minutes -> "1 gün 2 saat", 95 -> "1 saat 35 dk", 20 -> "20 dk"
+    private static string FormatDuration(double minutes)
+    {
+        var span = TimeSpan.FromMinutes(Math.Round(minutes));
+        if (span.TotalDays >= 1)
+            return span.Hours > 0 ? $"{(int)span.TotalDays} gün {span.Hours} saat" : $"{(int)span.TotalDays} gün";
+        if (span.TotalHours >= 1)
+            return span.Minutes > 0 ? $"{(int)span.TotalHours} saat {span.Minutes} dk" : $"{(int)span.TotalHours} saat";
+        return $"{span.Minutes} dk";
+    }
+}
+
+<h1>Pano</h1>
+
+<p class="text-muted">Destek talepleri ve cihazlar için özet raporlar.</p>
+
+@if (Model.TotalTickets == 0)
+{
+    <div class="alert alert-info">Henüz kayıtlı talep bulunmuyor. Talepler oluşturuldukça raporlar burada görünecek.</div>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Açık</div>
+                    <div class="fs-2 fw-semibold">@Model.OpenTickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">İşlemde</div>
+                    <div class="fs-2 fw-semibold">@Model.InProgressTickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Çözülen / Kapatılan</div>
+                    <div class="fs-2 fw-semibold">@Model.ResolvedTickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg">
+            <div class="card h-100 @(Model.UnassignedActiveTickets > 0 ? "border-warning" : "")">
+                <div class="card-body">
+                    <div class="text-muted small">Atanmamış Aktif Talep</div>
+                    <div class="fs-2 fw-semibold">@Model.UnassignedActiveTickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Ortalama Çözüm Süresi</div>
+                    <div class="fs-2 fw-semibold">
+                        @(Model.AverageResolutionMinutes is double avg ? FormatDuration(avg) : "-")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <h2 class="h5">Önceliğe Göre Çözüm Süresi</h2>
+            @if (!Model.ResolutionByPriority.Any())
+            {
+                <div class="alert alert-info">Henüz çözülmüş talep bulunmuyor.</div>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Öncelik</th>
+                            <th class="text-end">Çözülen Talep</th>
+                            <th class="text-end">Ortalama Süre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.ResolutionByPriority)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(_ => row.Priority)</td>
+                                <td class="text-end">@row.ResolvedCount</td>
+                                <td class="text-end">@FormatDuration(row.AverageMinutes)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="col-lg-6">
+            <h2 class="h5">Departman İş Yükü</h2>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Departman</th>
+                        <th class="w-50">Toplam Talep</th>
+                        <th class="text-end">Aktif</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.DepartmentWorkload)
+                    {
+                        var percent = maxDepartmentTickets == 0 ? 0 : row.TotalTickets * 100 / maxDepartmentTickets;
+                        <tr>
+                            <td>@row.Department</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" role="progressbar" aria-label="@row.Department toplam talep"
+                                         aria-valuenow="@row.TotalTickets" aria-valuemin="0" aria-valuemax="@maxDepartmentTickets">
+                                        <div class="progress-bar" style="width: @percent%"></div>
+                                    </div>
+                                    <span>@row.TotalTickets</span>
+                                </div>
+                            </td>
+                            <td class="text-end">@row.ActiveTickets</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-12">
+            <h2 class="h5">Kronik Sorunlu Cihazlar</h2>
+            <p class="text-muted small">Cihaza bağlı talepler marka ve modele göre gruplanır; en çok talep alan @Model.ProblemDevices.Count model listelenir.</p>
+            @if (!Model.ProblemDevices.Any())
+            {
+                <div class="alert alert-info">Henüz bir cihaza bağlı talep bulunmuyor.</div>
+            }
+            else
+            {
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Marka</th>
+                            <th>Model</th>
+                            <th class="text-end">Talep Sayısı</th>
+                            <th class="text-end">Etkilenen Cihaz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.ProblemDevices)
+                        {
+                            <tr>
+                                <td>@row.Brand</td>
+                                <td>@row.Model</td>
+                                <td class="text-end">@row.TicketCount</td>
+                                <td class="text-end">@row.DeviceCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}

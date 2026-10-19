@@ -53,17 +53,18 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [ ] Manager role: ticket history and administrative reports
 
 ### Admin Dashboard & Reporting
-- [ ] Average ticket resolution time
-- [ ] Chronic problem devices (most frequent failures by brand/model)
-- [ ] Department workload distribution
+- [x] Ticket summary cards (open, in progress, resolved/closed, unassigned active tickets)
+- [x] Average ticket resolution time, overall and by priority
+- [x] Chronic problem devices (most frequent failures by brand/model)
+- [x] Department workload distribution
 
 ---
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, and assign, edit, and close tickets.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, and assign, edit, and close tickets. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
 
-Not implemented yet: the manager role, dashboards, and reports.
+Not implemented yet: the manager role and its reports.
 
 ---
 
@@ -89,12 +90,14 @@ The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`)
 
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts and a few sample devices assigned to them automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them, and sample tickets for the dashboard automatically (never in other environments):
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|
 | Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
 | ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+
+Two more employee accounts (`ik@helpdeskops.com`, `satis@helpdeskops.com`, same password) are created so the dashboard can compare departments.
 
 New users who register through the sign-up page get the `Employee` role.
 
