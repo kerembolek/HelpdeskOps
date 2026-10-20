@@ -47,6 +47,13 @@ else
                             <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> <text>|</text>
                             <a asp-action="Details" asp-route-id="@item.Id">Detaylar</a> <text>|</text>
                             <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                            @if (item.AssignedToId == null)
+                            {
+                                <form asp-action="AssignToMe" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                    <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Üzerime Al</button>
+                                </form>
+                            }
                         }
                         else
                         {

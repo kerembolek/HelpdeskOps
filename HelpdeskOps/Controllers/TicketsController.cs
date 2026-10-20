@@ -245,6 +245,35 @@ public class TicketsController : Controller
         return View(ticket);
     }
 
+    // POST: TICKETS/AssignToMe/5
+    // One-click self-assignment; an open ticket moves to "in progress" when someone takes it
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "ITAdmin")]
+    public async Task<IActionResult> AssignToMe(int id, string? returnUrl)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        ticket.AssignedToId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (ticket.Status == TicketStatus.Open)
+        {
+            ticket.Status = TicketStatus.InProgress;
+        }
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        if (Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
     // GET: TICKETS/Delete/5
     [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> Delete(int? id)
