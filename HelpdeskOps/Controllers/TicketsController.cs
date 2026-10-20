@@ -136,6 +136,7 @@ public class TicketsController : Controller
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
+            .Include(t => t.Comments.OrderBy(c => c.CreatedAt)).ThenInclude(c => c.Author)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (ticket == null)
         {
@@ -148,6 +149,50 @@ public class TicketsController : Controller
         }
 
         return View(ticket);
+    }
+
+    // POST: TICKETS/AddComment/5
+    // The requester and IT staff can write on a ticket
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(int id, string? body)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (!User.IsInRole("ITAdmin") && ticket.RequesterId != userId)
+        {
+            return Forbid();
+        }
+
+        body = body?.Trim();
+        if (string.IsNullOrEmpty(body))
+        {
+            TempData["CommentError"] = "Yorum boş olamaz.";
+        }
+        else if (body.Length > 2000)
+        {
+            TempData["CommentError"] = "Yorum en fazla 2000 karakter olabilir.";
+            TempData["CommentDraft"] = body;
+        }
+        else
+        {
+            _context.TicketComments.Add(new TicketComment
+            {
+                TicketId = id,
+                AuthorId = userId,
+                Body = body,
+                CreatedAt = DateTime.UtcNow
+            });
+            ticket.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        return Redirect(Url.Action(nameof(Details), new { id }) + "#comments");
     }
 
     // GET: TICKETS/Create
