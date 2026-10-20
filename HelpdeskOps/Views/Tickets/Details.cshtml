@@ -60,6 +60,35 @@
 	<a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
 
+<section id="history" class="mt-5" style="max-width: 48rem;">
+	<h2 class="h4">Hareket Geçmişi</h2>
+
+	@if (!Model.Activities.Any())
+	{
+		<div class="alert alert-info">Bu talep için henüz kayıtlı bir hareket yok.</div>
+	}
+	else
+	{
+		<ul class="list-group list-group-flush">
+			@foreach (var activity in Model.Activities)
+			{
+				<li class="list-group-item px-0">
+					<div class="d-flex justify-content-between small text-muted">
+						<span>@(activity.Actor != null ? $"{activity.Actor.FirstName} {activity.Actor.LastName}" : "Sistem")</span>
+						<span>@activity.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+					</div>
+					<div>
+						@Html.DisplayFor(_ => activity.Type)@if (activity.Type != HelpdeskOps.Models.Enums.TicketActivityType.Created)
+						{
+							<text>: @activity.OldValue <span class="text-muted">→</span> <strong>@activity.NewValue</strong></text>
+						}
+					</div>
+				</li>
+			}
+		</ul>
+	}
+</section>
+
 <section id="comments" class="mt-5" style="max-width: 48rem;">
 	<h2 class="h4">Yorumlar</h2>
 
