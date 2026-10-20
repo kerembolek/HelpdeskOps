@@ -29,6 +29,19 @@ public class TicketsController : Controller
             "Id", "FullName", selectedId);
     }
 
+    private async Task LoadRequestersAsync(string? selectedId = null)
+    {
+        var users = await _context.Users
+            .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+            .Select(u => new
+            {
+                u.Id,
+                FullName = u.FirstName + " " + u.LastName + (u.Department != null ? " (" + u.Department + ")" : "")
+            })
+            .ToListAsync();
+        ViewBag.Requesters = new SelectList(users, "Id", "FullName", selectedId);
+    }
+
     // ITAdmin sees every device; other users only the devices assigned to them
     private IQueryable<Device> DevicesForCurrentUser()
     {
@@ -95,22 +108,35 @@ public class TicketsController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadDevicesAsync();
+        if (User.IsInRole("ITAdmin"))
+        {
+            await LoadRequestersAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
         return View();
     }
 
     // POST: TICKETS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    // requesterId is only honored for ITAdmin, who can open tickets on behalf of a caller.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket)
+    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket, string? requesterId)
     {
-        ticket.RequesterId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var isAdmin = User.IsInRole("ITAdmin");
+
+        ticket.RequesterId = isAdmin && !string.IsNullOrEmpty(requesterId) ? requesterId : currentUserId;
         ticket.Status = TicketStatus.Open;
         ticket.CreatedAt = DateTime.UtcNow;
 
         ModelState.Remove(nameof(Ticket.RequesterId));
         ModelState.Remove(nameof(Ticket.Requester));
+
+        if (ticket.RequesterId != currentUserId && await _userManager.FindByIdAsync(ticket.RequesterId) == null)
+        {
+            ModelState.AddModelError(nameof(Ticket.RequesterId), "Seçilen kullanıcı bulunamadı.");
+        }
 
         if (ticket.DeviceId != null && !await DevicesForCurrentUser().AnyAsync(d => d.Id == ticket.DeviceId))
         {
@@ -124,6 +150,10 @@ public class TicketsController : Controller
             return RedirectToAction(nameof(Index));
         }
         await LoadDevicesAsync(ticket.DeviceId);
+        if (isAdmin)
+        {
+            await LoadRequestersAsync(ticket.RequesterId);
+        }
         return View(ticket);
     }
 
