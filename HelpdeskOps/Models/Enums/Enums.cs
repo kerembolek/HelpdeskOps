@@ -47,6 +47,18 @@ namespace HelpdeskOps.Models.Enums
         [Display(Name = "Kapatıldı")] Closed
     }
 
+    // AssignmentChanged and StatusChanged are recorded automatically; the rest are entered by IT staff
+    public enum DeviceEventType
+    {
+        [Display(Name = "Format / Yeniden Kurulum")] Format,
+        [Display(Name = "Donanım Yükseltme")] HardwareUpgrade,
+        [Display(Name = "Parça Değişimi")] PartReplacement,
+        [Display(Name = "Onarım / Bakım")] Repair,
+        [Display(Name = "Zimmet Değişikliği")] AssignmentChanged,
+        [Display(Name = "Durum Değişikliği")] StatusChanged,
+        [Display(Name = "Diğer")] Other
+    }
+
     public enum TicketActivityType
     {
         [Display(Name = "Talep oluşturuldu")] Created,

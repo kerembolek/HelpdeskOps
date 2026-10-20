@@ -149,6 +149,43 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("Devices");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.DeviceEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PerformedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceId");
+
+                    b.HasIndex("PerformedById");
+
+                    b.ToTable("DeviceEvents");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -421,6 +458,24 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("AssignedUser");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.DeviceEvent", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.Device", "Device")
+                        .WithMany("Events")
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "PerformedBy")
+                        .WithMany()
+                        .HasForeignKey("PerformedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Device");
+
+                    b.Navigation("PerformedBy");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>
                 {
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "AssignedTo")
@@ -540,6 +595,11 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("AssignedTickets");
 
                     b.Navigation("RequestedTickets");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>

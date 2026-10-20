@@ -50,3 +50,60 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Düzenle</a>
     <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
+
+<section id="history" class="mt-5" style="max-width: 48rem;">
+    <h2 class="h4">Cihaz Geçmişi</h2>
+    <p class="text-muted small">Format, yükseltme, parça değişimi ve bakım kayıtları ile zimmet ve durum değişiklikleri.</p>
+
+    @if (!Model.Events.Any())
+    {
+        <div class="alert alert-info">Bu cihaz için henüz kayıtlı bir işlem yok.</div>
+    }
+    else
+    {
+        <ul class="list-group list-group-flush">
+            @foreach (var item in Model.Events)
+            {
+                var isAutomatic = item.Type is HelpdeskOps.Models.Enums.DeviceEventType.AssignmentChanged
+                    or HelpdeskOps.Models.Enums.DeviceEventType.StatusChanged;
+                <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>
+                            <span class="badge @(isAutomatic ? "text-bg-light border" : "text-bg-primary")">@Html.DisplayFor(_ => item.Type)</span>
+                            <span class="ms-1">@(item.PerformedBy != null ? $"{item.PerformedBy.FirstName} {item.PerformedBy.LastName}" : "Sistem")</span>
+                        </span>
+                        <span>@item.EventDate.ToLocalTime().ToString("dd.MM.yyyy")</span>
+                    </div>
+                    <div style="white-space: pre-line;">@item.Description</div>
+                </li>
+            }
+        </ul>
+    }
+
+    <form asp-action="AddEvent" asp-route-id="@Model.Id" method="post" class="card card-body mt-3">
+        <h3 class="h6">Yeni Kayıt</h3>
+        @if (TempData["EventError"] is string eventError)
+        {
+            <div class="text-danger mb-2">@eventError</div>
+        }
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label for="type" class="form-label">İşlem Türü</label>
+                <select id="type" name="type" class="form-select" asp-items="ViewBag.EventTypes"></select>
+            </div>
+            <div class="col-md-6">
+                <label for="eventDate" class="form-label">İşlem Tarihi</label>
+                <input id="eventDate" name="eventDate" type="date" class="form-control"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-12">
+                <label for="description" class="form-label">Açıklama</label>
+                <textarea id="description" name="description" class="form-control" rows="2" maxlength="500" required
+                          placeholder="Örn. RAM 8 GB'tan 16 GB'a yükseltildi.">@TempData["EventDraft"]</textarea>
+            </div>
+        </div>
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+    </form>
+</section>
