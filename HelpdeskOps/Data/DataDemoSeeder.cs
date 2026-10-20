@@ -79,6 +79,18 @@ public static class DemoDataSeeder
             "Teşekkürler, ses kesildi ve cihaz artık ısınmıyor.", 29),
     };
 
+    // Matched by device serial, type, and description. Assignment entries for assigned demo devices are added separately.
+    private static readonly (string DeviceSerial, DeviceEventType Type, string Description, int DaysAgo)[] DemoDeviceEvents =
+    {
+        ("DEMO-DT-001", DeviceEventType.HardwareUpgrade, "HDD yerine 512 GB SSD takıldı.", 60),
+        ("DEMO-LT-003", DeviceEventType.HardwareUpgrade, "RAM 8 GB'tan 16 GB'a yükseltildi.", 40),
+        ("DEMO-LT-001", DeviceEventType.PartReplacement, "Anakart garanti kapsamında değiştirildi.", 29),
+        ("DEMO-LT-001", DeviceEventType.Format, "Windows 11 temiz kurulum yapıldı, kullanıcı verileri geri yüklendi.", 28),
+        ("DEMO-LT-002", DeviceEventType.Repair, "Fan ve soğutucu temizlendi, termal macun yenilendi.", 20),
+        ("DEMO-PR-001", DeviceEventType.PartReplacement, "Fuser ünitesi ve kağıt besleme silindiri değiştirildi.", 17),
+        ("DEMO-LT-003", DeviceEventType.PartReplacement, "Batarya yenisiyle değiştirildi.", 11),
+    };
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -113,6 +125,7 @@ public static class DemoDataSeeder
         await SeedTicketsAsync(services, userManager);
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
+        await SeedDeviceEventsAsync(services, userManager);
     }
 
     private static async Task SeedDevicesAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
@@ -253,6 +266,50 @@ public static class DemoDataSeeder
                 Body = demo.Body,
                 CreatedAt = ticket.CreatedAt.AddHours(demo.HoursAfterCreated)
             });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedDeviceEventsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var itAdmin = await userManager.FindByEmailAsync("it@helpdeskops.com");
+
+        async Task AddIfMissing(Device device, DeviceEventType type, string description, int daysAgo)
+        {
+            if (await context.DeviceEvents.AnyAsync(e => e.DeviceId == device.Id && e.Type == type && e.Description == description))
+                return;
+
+            context.DeviceEvents.Add(new DeviceEvent
+            {
+                DeviceId = device.Id,
+                Type = type,
+                Description = description,
+                EventDate = DateTime.UtcNow.AddDays(-daysAgo),
+                PerformedById = itAdmin?.Id,
+                CreatedAt = DateTime.UtcNow
+            });
+        }
+
+        // The first assignment of each assigned demo device, before its maintenance entries
+        foreach (var demo in DemoDevices.Where(d => d.AssignedEmail != null))
+        {
+            var device = await context.Devices.Include(d => d.AssignedUser).FirstOrDefaultAsync(d => d.SerialNumber == demo.Serial);
+            if (device?.AssignedUser != null)
+            {
+                await AddIfMissing(device, DeviceEventType.AssignmentChanged,
+                    $"Zimmetlendi: {device.AssignedUser.FirstName} {device.AssignedUser.LastName}", 90);
+            }
+        }
+
+        foreach (var demo in DemoDeviceEvents)
+        {
+            var device = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == demo.DeviceSerial);
+            if (device != null)
+            {
+                await AddIfMissing(device, demo.Type, demo.Description, demo.DaysAgo);
+            }
         }
 
         await context.SaveChangesAsync();
