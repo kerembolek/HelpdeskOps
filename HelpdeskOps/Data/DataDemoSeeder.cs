@@ -64,6 +64,21 @@ public static class DemoDataSeeder
             "test@helpdeskops.com", null, "DEMO-MN-001", 0, null),
     };
 
+    // Matched by ticket title, author, and body. HoursAfterCreated places the comment in the ticket's timeline.
+    private static readonly (string TicketTitle, string AuthorEmail, string Body, double HoursAfterCreated)[] DemoComments =
+    {
+        ("Ekran kartı sürücüsü hata veriyor", "satis@helpdeskops.com",
+            "Sunum öncesi harici monitöre ihtiyacım var, öğleden sonra müsait misiniz?", 0.2),
+        ("Ekran kartı sürücüsü hata veriyor", "it@helpdeskops.com",
+            "Sürücüyü kaldırıp üreticinin son sürümünü kuracağım. 14:00'te masanıza geliyorum.", 0.6),
+        ("Ekran kartı sürücüsü hata veriyor", "satis@helpdeskops.com",
+            "Sürücü sonrası bir kez daha karardı ama yeniden başlatınca düzeldi.", 20),
+        ("Laptop fanı çok ses yapıyor", "it@helpdeskops.com",
+            "Fan ve soğutucu temizlendi, termal macun yenilendi. Birkaç gün kullanıp haber verir misiniz?", 26),
+        ("Laptop fanı çok ses yapıyor", "ik@helpdeskops.com",
+            "Teşekkürler, ses kesildi ve cihaz artık ısınmıyor.", 29),
+    };
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -96,6 +111,8 @@ public static class DemoDataSeeder
 
         await SeedDevicesAsync(services, userManager);
         await SeedTicketsAsync(services, userManager);
+        await SeedTicketHistoryAsync(services, userManager);
+        await SeedCommentsAsync(services, userManager);
     }
 
     private static async Task SeedDevicesAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
@@ -157,6 +174,84 @@ public static class DemoDataSeeder
                 CreatedAt = createdAt,
                 UpdatedAt = resolvedAt,
                 ResolvedAt = resolvedAt
+            });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    // Rebuilds a plausible history for demo tickets that have none yet:
+    // created -> assigned and in progress after 30 minutes -> resolved or closed at ResolvedAt
+    private static async Task SeedTicketHistoryAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        foreach (var demo in DemoTickets)
+        {
+            var requester = await userManager.FindByEmailAsync(demo.RequesterEmail);
+            if (requester == null)
+                continue;
+
+            var ticket = await context.Tickets
+                .Include(t => t.AssignedTo)
+                .FirstOrDefaultAsync(t => t.Title == demo.Title && t.RequesterId == requester.Id);
+            if (ticket == null || await context.TicketActivities.AnyAsync(a => a.TicketId == ticket.Id))
+                continue;
+
+            void Add(string? actorId, TicketActivityType type, string? oldValue, string? newValue, DateTime at) =>
+                context.TicketActivities.Add(new TicketActivity
+                {
+                    TicketId = ticket.Id,
+                    ActorId = actorId,
+                    Type = type,
+                    OldValue = oldValue,
+                    NewValue = newValue,
+                    CreatedAt = at
+                });
+
+            Add(requester.Id, TicketActivityType.Created, null, null, ticket.CreatedAt);
+
+            if (ticket.AssignedTo != null)
+            {
+                var takenAt = ticket.CreatedAt.AddMinutes(30);
+                Add(ticket.AssignedToId, TicketActivityType.AssigneeChanged,
+                    "Atanmadı", $"{ticket.AssignedTo.FirstName} {ticket.AssignedTo.LastName}", takenAt);
+
+                if (ticket.Status != TicketStatus.Open)
+                {
+                    Add(ticket.AssignedToId, TicketActivityType.StatusChanged,
+                        TicketStatus.Open.GetDisplayName(), TicketStatus.InProgress.GetDisplayName(), takenAt);
+                }
+
+                if (ticket.ResolvedAt is DateTime resolvedAt)
+                {
+                    Add(ticket.AssignedToId, TicketActivityType.StatusChanged,
+                        TicketStatus.InProgress.GetDisplayName(), ticket.Status.GetDisplayName(), resolvedAt);
+                }
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedCommentsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        foreach (var demo in DemoComments)
+        {
+            var author = await userManager.FindByEmailAsync(demo.AuthorEmail);
+            var ticket = await context.Tickets.FirstOrDefaultAsync(t => t.Title == demo.TicketTitle);
+            if (author == null || ticket == null
+                || await context.TicketComments.AnyAsync(c => c.TicketId == ticket.Id && c.AuthorId == author.Id && c.Body == demo.Body))
+                continue;
+
+            context.TicketComments.Add(new TicketComment
+            {
+                TicketId = ticket.Id,
+                AuthorId = author.Id,
+                Body = demo.Body,
+                CreatedAt = ticket.CreatedAt.AddHours(demo.HoursAfterCreated)
             });
         }
 

@@ -42,6 +42,8 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] IT staff can open tickets on behalf of an employee (phone and walk-in requests)
 - [x] One-click "Assign to me" for unassigned active tickets
 - [x] Ticket list search and filters (status, priority, active, resolved/closed, assigned to me, unassigned)
+- [x] Ticket comments between the requester and IT staff
+- [x] Ticket history: creation and every status, priority, and assignee change with who made it and when
 - [x] Turkish user interface
 - [ ] Tier 0 self-service solution bank (guided troubleshooting before ticket creation)
 - [ ] Tiered category structure with free-text "Other" option
@@ -65,7 +67,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
 
 Not implemented yet: the manager role and its reports.
 
@@ -93,7 +95,7 @@ The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`)
 
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them, and sample tickets for the dashboard automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them, and sample tickets with comments and history for the dashboard automatically (never in other environments):
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|
