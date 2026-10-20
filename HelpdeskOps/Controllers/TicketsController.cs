@@ -29,6 +29,36 @@ public class TicketsController : Controller
             "Id", "FullName", selectedId);
     }
 
+    // Adds a history entry when a value actually changed
+    private void LogActivity(Ticket ticket, TicketActivityType type, string? oldValue, string? newValue)
+    {
+        if (type != TicketActivityType.Created && oldValue == newValue)
+        {
+            return;
+        }
+
+        _context.TicketActivities.Add(new TicketActivity
+        {
+            Ticket = ticket,
+            ActorId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            Type = type,
+            OldValue = oldValue,
+            NewValue = newValue,
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+
+    private async Task<string> AssigneeNameAsync(string? userId)
+    {
+        if (userId == null)
+        {
+            return "Atanmadı";
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        return user != null ? $"{user.FirstName} {user.LastName}" : "-";
+    }
+
     private async Task LoadRequestersAsync(string? selectedId = null)
     {
         var users = await _context.Users
@@ -136,6 +166,9 @@ public class TicketsController : Controller
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
+            .Include(t => t.Comments.OrderBy(c => c.CreatedAt)).ThenInclude(c => c.Author)
+            .Include(t => t.Activities.OrderBy(a => a.CreatedAt)).ThenInclude(a => a.Actor)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(m => m.Id == id);
         if (ticket == null)
         {
@@ -148,6 +181,50 @@ public class TicketsController : Controller
         }
 
         return View(ticket);
+    }
+
+    // POST: TICKETS/AddComment/5
+    // The requester and IT staff can write on a ticket
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddComment(int id, string? body)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (!User.IsInRole("ITAdmin") && ticket.RequesterId != userId)
+        {
+            return Forbid();
+        }
+
+        body = body?.Trim();
+        if (string.IsNullOrEmpty(body))
+        {
+            TempData["CommentError"] = "Yorum boş olamaz.";
+        }
+        else if (body.Length > 2000)
+        {
+            TempData["CommentError"] = "Yorum en fazla 2000 karakter olabilir.";
+            TempData["CommentDraft"] = body;
+        }
+        else
+        {
+            _context.TicketComments.Add(new TicketComment
+            {
+                TicketId = id,
+                AuthorId = userId,
+                Body = body,
+                CreatedAt = DateTime.UtcNow
+            });
+            ticket.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        return Redirect(Url.Action(nameof(Details), new { id }) + "#comments");
     }
 
     // GET: TICKETS/Create
@@ -192,6 +269,7 @@ public class TicketsController : Controller
         if (ModelState.IsValid)
         {
             _context.Add(ticket);
+            LogActivity(ticket, TicketActivityType.Created, null, null);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -263,6 +341,16 @@ public class TicketsController : Controller
 
         if (ModelState.IsValid)
         {
+            LogActivity(existing, TicketActivityType.StatusChanged,
+                existing.Status.GetDisplayName(), ticket.Status.GetDisplayName());
+            LogActivity(existing, TicketActivityType.PriorityChanged,
+                existing.Priority.GetDisplayName(), ticket.Priority.GetDisplayName());
+            if (existing.AssignedToId != ticket.AssignedToId)
+            {
+                LogActivity(existing, TicketActivityType.AssigneeChanged,
+                    await AssigneeNameAsync(existing.AssignedToId), await AssigneeNameAsync(ticket.AssignedToId));
+            }
+
             existing.Title = ticket.Title;
             existing.Description = ticket.Description;
             existing.Category = ticket.Category;
@@ -304,9 +392,17 @@ public class TicketsController : Controller
             return NotFound();
         }
 
-        ticket.AssignedToId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (ticket.AssignedToId != userId)
+        {
+            LogActivity(ticket, TicketActivityType.AssigneeChanged,
+                await AssigneeNameAsync(ticket.AssignedToId), await AssigneeNameAsync(userId));
+        }
+        ticket.AssignedToId = userId;
         if (ticket.Status == TicketStatus.Open)
         {
+            LogActivity(ticket, TicketActivityType.StatusChanged,
+                TicketStatus.Open.GetDisplayName(), TicketStatus.InProgress.GetDisplayName());
             ticket.Status = TicketStatus.InProgress;
         }
         ticket.UpdatedAt = DateTime.UtcNow;

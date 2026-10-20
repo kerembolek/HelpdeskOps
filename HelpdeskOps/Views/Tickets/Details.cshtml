@@ -59,3 +59,77 @@
 	}
 	<a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
+
+<section id="history" class="mt-5" style="max-width: 48rem;">
+	<h2 class="h4">Hareket Geçmişi</h2>
+
+	@if (!Model.Activities.Any())
+	{
+		<div class="alert alert-info">Bu talep için henüz kayıtlı bir hareket yok.</div>
+	}
+	else
+	{
+		<ul class="list-group list-group-flush">
+			@foreach (var activity in Model.Activities)
+			{
+				<li class="list-group-item px-0">
+					<div class="d-flex justify-content-between small text-muted">
+						<span>@(activity.Actor != null ? $"{activity.Actor.FirstName} {activity.Actor.LastName}" : "Sistem")</span>
+						<span>@activity.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+					</div>
+					<div>
+						@Html.DisplayFor(_ => activity.Type)@if (activity.Type != HelpdeskOps.Models.Enums.TicketActivityType.Created)
+						{
+							<text>: @activity.OldValue <span class="text-muted">→</span> <strong>@activity.NewValue</strong></text>
+						}
+					</div>
+				</li>
+			}
+		</ul>
+	}
+</section>
+
+<section id="comments" class="mt-5" style="max-width: 48rem;">
+	<h2 class="h4">Yorumlar</h2>
+
+	@if (!Model.Comments.Any())
+	{
+		<div class="alert alert-info">Henüz yorum yok. Talep hakkında bilgi vermek veya soru sormak için yorum yazabilirsiniz.</div>
+	}
+	else
+	{
+		@foreach (var comment in Model.Comments)
+		{
+			var byRequester = comment.AuthorId == Model.RequesterId;
+			<div class="card mb-2 @(byRequester ? "" : "border-primary-subtle")">
+				<div class="card-body py-2">
+					<div class="d-flex justify-content-between small text-muted mb-1">
+						<span>
+							<strong class="text-body">@(comment.Author != null ? $"{comment.Author.FirstName} {comment.Author.LastName}" : "-")</strong>
+							@if (byRequester)
+							{
+								<span class="badge text-bg-light border ms-1">Talep Eden</span>
+							}
+							else
+							{
+								<span class="badge text-bg-primary ms-1">BT</span>
+							}
+						</span>
+						<span>@comment.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+					</div>
+					<div style="white-space: pre-line;">@comment.Body</div>
+				</div>
+			</div>
+		}
+	}
+
+	<form asp-action="AddComment" asp-route-id="@Model.Id" method="post" class="mt-3">
+		@if (TempData["CommentError"] is string commentError)
+		{
+			<div class="text-danger mb-2">@commentError</div>
+		}
+		<label for="body" class="form-label">Yeni yorum</label>
+		<textarea id="body" name="body" class="form-control" rows="3" maxlength="2000" required>@TempData["CommentDraft"]</textarea>
+		<button type="submit" class="btn btn-primary mt-2">Yorum Ekle</button>
+	</form>
+</section>

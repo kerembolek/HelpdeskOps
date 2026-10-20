@@ -15,6 +15,8 @@ namespace HelpdeskOps.Data
         // Veritabanındaki diğer tablolarımız
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Device> Devices { get; set; }
+        public DbSet<TicketComment> TicketComments { get; set; }
+        public DbSet<TicketActivity> TicketActivities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -36,6 +38,31 @@ namespace HelpdeskOps.Data
                 .HasOne(d => d.AssignedUser)
                 .WithMany(u => u.AssignedDevices)
                 .HasForeignKey(d => d.AssignedUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Comments and history belong to the ticket and go away with it
+            builder.Entity<TicketComment>()
+                .HasOne(c => c.Ticket)
+                .WithMany(t => t.Comments)
+                .HasForeignKey(c => c.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TicketComment>()
+                .HasOne(c => c.Author)
+                .WithMany()
+                .HasForeignKey(c => c.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<TicketActivity>()
+                .HasOne(a => a.Ticket)
+                .WithMany(t => t.Activities)
+                .HasForeignKey(a => a.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TicketActivity>()
+                .HasOne(a => a.Actor)
+                .WithMany()
+                .HasForeignKey(a => a.ActorId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
