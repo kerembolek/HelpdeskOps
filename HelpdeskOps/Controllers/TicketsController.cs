@@ -29,6 +29,19 @@ public class TicketsController : Controller
             "Id", "FullName", selectedId);
     }
 
+    private async Task LoadRequestersAsync(string? selectedId = null)
+    {
+        var users = await _context.Users
+            .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+            .Select(u => new
+            {
+                u.Id,
+                FullName = u.FirstName + " " + u.LastName + (u.Department != null ? " (" + u.Department + ")" : "")
+            })
+            .ToListAsync();
+        ViewBag.Requesters = new SelectList(users, "Id", "FullName", selectedId);
+    }
+
     // ITAdmin sees every device; other users only the devices assigned to them
     private IQueryable<Device> DevicesForCurrentUser()
     {
@@ -47,20 +60,66 @@ public class TicketsController : Controller
         ViewData["DeviceId"] = new SelectList(devices, "Id", "Hostname", selectedId);
     }
 
-    // GET: TICKETS/Index
-    public async Task<IActionResult> Index()
+    // GET: TICKETS/Index?q=&status=&priority=&scope=
+    // scope: "active" (open + in progress), "done" (resolved + closed),
+    // "mine" and "unassigned" (ITAdmin only; unassigned means active and without an assignee)
+    public async Task<IActionResult> Index(string? q, TicketStatus? status, TicketPriority? priority, string? scope)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var isAdmin = User.IsInRole("ITAdmin");
+
         var query = _context.Tickets
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
             .AsQueryable();
 
-        if (!User.IsInRole("ITAdmin"))
+        if (!isAdmin)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             query = query.Where(t => t.RequesterId == userId);
         }
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            query = query.Where(t => t.Title.Contains(term) || t.Description.Contains(term));
+        }
+
+        if (status != null)
+        {
+            query = query.Where(t => t.Status == status);
+        }
+
+        if (priority != null)
+        {
+            query = query.Where(t => t.Priority == priority);
+        }
+
+        switch (scope)
+        {
+            case "active":
+                query = query.Where(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress);
+                break;
+            case "done":
+                query = query.Where(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed);
+                break;
+            case "mine" when isAdmin:
+                query = query.Where(t => t.AssignedToId == userId);
+                break;
+            case "unassigned" when isAdmin:
+                query = query.Where(t => t.AssignedToId == null
+                    && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress));
+                break;
+            default:
+                scope = null;
+                break;
+        }
+
+        ViewBag.Query = q;
+        ViewBag.Status = status;
+        ViewBag.Priority = priority;
+        ViewBag.Scope = scope;
+        ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || status != null || priority != null || scope != null;
 
         return View(await query.OrderByDescending(t => t.CreatedAt).ToListAsync());
     }
@@ -95,22 +154,35 @@ public class TicketsController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadDevicesAsync();
+        if (User.IsInRole("ITAdmin"))
+        {
+            await LoadRequestersAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
         return View();
     }
 
     // POST: TICKETS/Create
     // To protect from overposting attacks, enable the specific properties you want to bind to.
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    // requesterId is only honored for ITAdmin, who can open tickets on behalf of a caller.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket)
+    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket, string? requesterId)
     {
-        ticket.RequesterId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var isAdmin = User.IsInRole("ITAdmin");
+
+        ticket.RequesterId = isAdmin && !string.IsNullOrEmpty(requesterId) ? requesterId : currentUserId;
         ticket.Status = TicketStatus.Open;
         ticket.CreatedAt = DateTime.UtcNow;
 
         ModelState.Remove(nameof(Ticket.RequesterId));
         ModelState.Remove(nameof(Ticket.Requester));
+
+        if (ticket.RequesterId != currentUserId && await _userManager.FindByIdAsync(ticket.RequesterId) == null)
+        {
+            ModelState.AddModelError(nameof(Ticket.RequesterId), "Seçilen kullanıcı bulunamadı.");
+        }
 
         if (ticket.DeviceId != null && !await DevicesForCurrentUser().AnyAsync(d => d.Id == ticket.DeviceId))
         {
@@ -124,6 +196,10 @@ public class TicketsController : Controller
             return RedirectToAction(nameof(Index));
         }
         await LoadDevicesAsync(ticket.DeviceId);
+        if (isAdmin)
+        {
+            await LoadRequestersAsync(ticket.RequesterId);
+        }
         return View(ticket);
     }
 
@@ -213,6 +289,35 @@ public class TicketsController : Controller
         ViewData["DeviceId"] = new SelectList(_context.Devices, "Id", "Hostname", ticket.DeviceId);
         await LoadAssigneesAsync(ticket.AssignedToId);
         return View(ticket);
+    }
+
+    // POST: TICKETS/AssignToMe/5
+    // One-click self-assignment; an open ticket moves to "in progress" when someone takes it
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "ITAdmin")]
+    public async Task<IActionResult> AssignToMe(int id, string? returnUrl)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        ticket.AssignedToId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (ticket.Status == TicketStatus.Open)
+        {
+            ticket.Status = TicketStatus.InProgress;
+        }
+        ticket.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        if (Url.IsLocalUrl(returnUrl))
+        {
+            return LocalRedirect(returnUrl);
+        }
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     // GET: TICKETS/Delete/5

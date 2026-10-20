@@ -39,6 +39,9 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Automatic resolution date when a ticket is resolved or closed
 - [x] Requester set automatically from the signed-in user
 - [x] Ticket assignment to IT staff from the edit screen
+- [x] IT staff can open tickets on behalf of an employee (phone and walk-in requests)
+- [x] One-click "Assign to me" for unassigned active tickets
+- [x] Ticket list search and filters (status, priority, active, resolved/closed, assigned to me, unassigned)
 - [x] Turkish user interface
 - [ ] Tier 0 self-service solution bank (guided troubleshooting before ticket creation)
 - [ ] Tiered category structure with free-text "Other" option
@@ -53,7 +56,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [ ] Manager role: ticket history and administrative reports
 
 ### Admin Dashboard & Reporting
-- [x] Ticket summary cards (open, in progress, resolved/closed, unassigned active tickets)
+- [x] Ticket summary cards (open, in progress, resolved/closed, unassigned active tickets) that open the matching filtered ticket list
 - [x] Average ticket resolution time, overall and by priority
 - [x] Chronic problem devices (most frequent failures by brand/model)
 - [x] Department workload distribution
@@ -62,7 +65,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, and assign, edit, and close tickets. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
 
 Not implemented yet: the manager role and its reports.
 

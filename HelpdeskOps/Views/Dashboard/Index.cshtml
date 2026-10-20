@@ -1,4 +1,4 @@
-@model HelpdeskOps.Models.DashboardViewModel
+﻿@model HelpdeskOps.Models.DashboardViewModel
 
 @{
     ViewData["Title"] = "Pano";
@@ -32,7 +32,7 @@ else
         <div class="col-6 col-lg">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="text-muted small">Açık</div>
+                    <a asp-controller="Tickets" asp-action="Index" asp-route-status="Open" class="stretched-link text-muted small text-decoration-none">Açık</a>
                     <div class="fs-2 fw-semibold">@Model.OpenTickets</div>
                 </div>
             </div>
@@ -40,7 +40,7 @@ else
         <div class="col-6 col-lg">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="text-muted small">İşlemde</div>
+                    <a asp-controller="Tickets" asp-action="Index" asp-route-status="InProgress" class="stretched-link text-muted small text-decoration-none">İşlemde</a>
                     <div class="fs-2 fw-semibold">@Model.InProgressTickets</div>
                 </div>
             </div>
@@ -48,7 +48,7 @@ else
         <div class="col-6 col-lg">
             <div class="card h-100">
                 <div class="card-body">
-                    <div class="text-muted small">Çözülen / Kapatılan</div>
+                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="done" class="stretched-link text-muted small text-decoration-none">Çözülen / Kapatılan</a>
                     <div class="fs-2 fw-semibold">@Model.ResolvedTickets</div>
                 </div>
             </div>
@@ -56,7 +56,7 @@ else
         <div class="col-6 col-lg">
             <div class="card h-100 @(Model.UnassignedActiveTickets > 0 ? "border-warning" : "")">
                 <div class="card-body">
-                    <div class="text-muted small">Atanmamış Aktif Talep</div>
+                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="unassigned" class="stretched-link text-muted small text-decoration-none">Atanmamış Aktif Talep</a>
                     <div class="fs-2 fw-semibold">@Model.UnassignedActiveTickets</div>
                 </div>
             </div>

@@ -14,6 +14,16 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+            @if (User.IsInRole("ITAdmin"))
+            {
+                <div class="mb-3">
+                    <label for="requesterId" class="form-label">Talep Eden</label>
+                    <select id="requesterId" name="requesterId" class="form-select" asp-items="ViewBag.Requesters"></select>
+                    <div class="form-text">Telefonla veya yüz yüze gelen talepleri kullanıcı adına açabilirsiniz.</div>
+                    <span asp-validation-for="RequesterId" class="text-danger"></span>
+                </div>
+            }
+
             <div class="mb-3">
                 <label asp-for="Title" class="form-label"></label>
                 <input asp-for="Title" class="form-control" />
