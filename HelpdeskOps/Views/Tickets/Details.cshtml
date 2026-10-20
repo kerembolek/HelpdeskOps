@@ -50,7 +50,7 @@
 	@if (User.IsInRole("ITAdmin"))
 	{
 		<a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Düzenle</a>
-		@if (Model?.AssignedToId == null)
+		@if (Model.AssignedToId == null && Model.Status is HelpdeskOps.Models.Enums.TicketStatus.Open or HelpdeskOps.Models.Enums.TicketStatus.InProgress)
 		{
 			<form asp-action="AssignToMe" asp-route-id="@Model?.Id" method="post" class="d-inline">
 				<button type="submit" class="btn btn-outline-primary ms-2">Üzerime Al</button>

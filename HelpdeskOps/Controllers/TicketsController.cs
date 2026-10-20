@@ -60,20 +60,66 @@ public class TicketsController : Controller
         ViewData["DeviceId"] = new SelectList(devices, "Id", "Hostname", selectedId);
     }
 
-    // GET: TICKETS/Index
-    public async Task<IActionResult> Index()
+    // GET: TICKETS/Index?q=&status=&priority=&scope=
+    // scope: "active" (open + in progress), "done" (resolved + closed),
+    // "mine" and "unassigned" (ITAdmin only; unassigned means active and without an assignee)
+    public async Task<IActionResult> Index(string? q, TicketStatus? status, TicketPriority? priority, string? scope)
     {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var isAdmin = User.IsInRole("ITAdmin");
+
         var query = _context.Tickets
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
             .AsQueryable();
 
-        if (!User.IsInRole("ITAdmin"))
+        if (!isAdmin)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             query = query.Where(t => t.RequesterId == userId);
         }
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            var term = q.Trim();
+            query = query.Where(t => t.Title.Contains(term) || t.Description.Contains(term));
+        }
+
+        if (status != null)
+        {
+            query = query.Where(t => t.Status == status);
+        }
+
+        if (priority != null)
+        {
+            query = query.Where(t => t.Priority == priority);
+        }
+
+        switch (scope)
+        {
+            case "active":
+                query = query.Where(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress);
+                break;
+            case "done":
+                query = query.Where(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed);
+                break;
+            case "mine" when isAdmin:
+                query = query.Where(t => t.AssignedToId == userId);
+                break;
+            case "unassigned" when isAdmin:
+                query = query.Where(t => t.AssignedToId == null
+                    && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress));
+                break;
+            default:
+                scope = null;
+                break;
+        }
+
+        ViewBag.Query = q;
+        ViewBag.Status = status;
+        ViewBag.Priority = priority;
+        ViewBag.Scope = scope;
+        ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || status != null || priority != null || scope != null;
 
         return View(await query.OrderByDescending(t => t.CreatedAt).ToListAsync());
     }
