@@ -47,5 +47,7 @@ namespace HelpdeskOps.Models
         // Zimmet ilişkisi: bu cihaz kime atanmış
         public string? AssignedUserId { get; set; }
         public ApplicationUser? AssignedUser { get; set; }
+
+        public ICollection<DeviceEvent> Events { get; set; } = new List<DeviceEvent>();
     }
 }

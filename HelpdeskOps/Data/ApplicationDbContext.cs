@@ -17,6 +17,7 @@ namespace HelpdeskOps.Data
         public DbSet<Device> Devices { get; set; }
         public DbSet<TicketComment> TicketComments { get; set; }
         public DbSet<TicketActivity> TicketActivities { get; set; }
+        public DbSet<DeviceEvent> DeviceEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -58,6 +59,19 @@ namespace HelpdeskOps.Data
                 .WithMany(t => t.Activities)
                 .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // A device's lifecycle history goes away with the device
+            builder.Entity<DeviceEvent>()
+                .HasOne(e => e.Device)
+                .WithMany(d => d.Events)
+                .HasForeignKey(e => e.DeviceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<DeviceEvent>()
+                .HasOne(e => e.PerformedBy)
+                .WithMany()
+                .HasForeignKey(e => e.PerformedById)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<TicketActivity>()
                 .HasOne(a => a.Actor)

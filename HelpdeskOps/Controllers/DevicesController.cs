@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HelpdeskOps.Models;
+using HelpdeskOps.Models.Enums;
 using HelpdeskOps.Data;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 [Authorize(Roles = "ITAdmin")]
 
@@ -35,6 +37,44 @@ public class DevicesController : Controller
         }
     }
 
+    // Event types IT staff can enter by hand; assignment and status changes are logged automatically
+    private static readonly DeviceEventType[] ManualEventTypes =
+    {
+        DeviceEventType.Format, DeviceEventType.HardwareUpgrade, DeviceEventType.PartReplacement,
+        DeviceEventType.Repair, DeviceEventType.Other
+    };
+
+    private void LogEvent(Device device, DeviceEventType type, string description)
+    {
+        _context.DeviceEvents.Add(new DeviceEvent
+        {
+            Device = device,
+            Type = type,
+            Description = description,
+            EventDate = DateTime.UtcNow,
+            PerformedById = User.FindFirstValue(ClaimTypes.NameIdentifier),
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+
+    private async Task<string> UserNameAsync(string? userId)
+    {
+        if (userId == null)
+        {
+            return "Depo (atanmamış)";
+        }
+
+        var user = await _context.Users.FindAsync(userId);
+        return user != null ? $"{user.FirstName} {user.LastName}" : "-";
+    }
+
+    private void LoadEventTypes()
+    {
+        ViewBag.EventTypes = ManualEventTypes
+            .Select(t => new SelectListItem(t.GetDisplayName(), ((int)t).ToString()))
+            .ToList();
+    }
+
     // GET: DEVICES
     public async Task<IActionResult> Index()
     {
@@ -54,13 +94,69 @@ public class DevicesController : Controller
 
         var device = await _context.Devices
             .Include(d => d.AssignedUser)
+            .Include(d => d.Events.OrderByDescending(e => e.EventDate).ThenByDescending(e => e.Id))
+                .ThenInclude(e => e.PerformedBy)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (device == null)
         {
             return NotFound();
         }
 
+        LoadEventTypes();
         return View(device);
+    }
+
+    // POST: DEVICES/AddEvent/5
+    // eventDate comes from a date input in the user's local time
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddEvent(int id, DeviceEventType type, DateTime? eventDate, string? description)
+    {
+        var device = await _context.Devices.FindAsync(id);
+        if (device == null)
+        {
+            return NotFound();
+        }
+
+        description = description?.Trim();
+        var date = eventDate?.Date ?? DateTime.Today;
+
+        string? error = null;
+        if (!ManualEventTypes.Contains(type))
+            error = "Geçersiz işlem türü.";
+        else if (string.IsNullOrEmpty(description))
+            error = "Açıklama zorunludur.";
+        else if (description.Length > 500)
+            error = "Açıklama en fazla 500 karakter olabilir.";
+        else if (date > DateTime.Today)
+            error = "İşlem tarihi ileri bir tarih olamaz.";
+
+        if (error != null)
+        {
+            TempData["EventError"] = error;
+            TempData["EventDraft"] = description;
+        }
+        else
+        {
+            // Noon local time keeps the stored UTC value on the same calendar day
+            var eventDateUtc = date == DateTime.Today
+                ? DateTime.UtcNow
+                : DateTime.SpecifyKind(date.AddHours(12), DateTimeKind.Local).ToUniversalTime();
+
+            _context.DeviceEvents.Add(new DeviceEvent
+            {
+                DeviceId = id,
+                Type = type,
+                Description = description!,
+                EventDate = eventDateUtc,
+                PerformedById = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                CreatedAt = DateTime.UtcNow
+            });
+            device.LastUpdated = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        return Redirect(Url.Action(nameof(Details), new { id }) + "#history");
     }
 
     // GET: DEVICES/Create
@@ -84,8 +180,14 @@ public class DevicesController : Controller
             // Timestamps are set by the server, not by the form
             device.CreatedAt = DateTime.UtcNow;
             device.LastUpdated = DateTime.UtcNow;
+            device.AssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
 
             _context.Add(device);
+            if (device.AssignedUserId != null)
+            {
+                LogEvent(device, DeviceEventType.AssignmentChanged,
+                    $"Zimmetlendi: {await UserNameAsync(device.AssignedUserId)}");
+            }
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -132,6 +234,18 @@ public class DevicesController : Controller
 
         if (ModelState.IsValid)
         {
+            var newAssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
+            if (existing.AssignedUserId != newAssignedUserId)
+            {
+                LogEvent(existing, DeviceEventType.AssignmentChanged,
+                    $"Zimmet: {await UserNameAsync(existing.AssignedUserId)} → {await UserNameAsync(newAssignedUserId)}");
+            }
+            if (existing.Status != device.Status)
+            {
+                LogEvent(existing, DeviceEventType.StatusChanged,
+                    $"Durum: {existing.Status.GetDisplayName()} → {device.Status.GetDisplayName()}");
+            }
+
             // Only form fields are copied; CreatedAt stays as stored and LastUpdated is set by the server
             existing.Hostname = device.Hostname;
             existing.IpAddress = device.IpAddress;
@@ -141,7 +255,7 @@ public class DevicesController : Controller
             existing.DeviceType = device.DeviceType;
             existing.WarrantyEndDate = device.WarrantyEndDate;
             existing.Status = device.Status;
-            existing.AssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
+            existing.AssignedUserId = newAssignedUserId;
             existing.LastUpdated = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
