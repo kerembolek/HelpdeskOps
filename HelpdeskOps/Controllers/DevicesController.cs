@@ -37,6 +37,18 @@ public class DevicesController : Controller
         }
     }
 
+    private void ValidateWarrantyDates(Device device)
+    {
+        if (device.PurchaseDate?.Date > DateTime.Today)
+        {
+            ModelState.AddModelError(nameof(Device.PurchaseDate), "Satın alma tarihi ileri bir tarih olamaz.");
+        }
+        if (device.PurchaseDate != null && device.WarrantyEndDate?.Date < device.PurchaseDate.Value.Date)
+        {
+            ModelState.AddModelError(nameof(Device.WarrantyEndDate), "Garanti bitişi satın alma tarihinden önce olamaz.");
+        }
+    }
+
     // Event types IT staff can enter by hand; assignment and status changes are logged automatically
     private static readonly DeviceEventType[] ManualEventTypes =
     {
@@ -75,13 +87,33 @@ public class DevicesController : Controller
             .ToList();
     }
 
-    // GET: DEVICES
-    public async Task<IActionResult> Index()
+    // GET: DEVICES/Index?warranty=
+    // warranty: "expiring" (ends within WarrantyExpiringSoonDays) or "expired"; retired devices are left out of both
+    public async Task<IActionResult> Index(string? warranty)
     {
-        return View(await _context.Devices
-            .Include(d => d.AssignedUser)
-            .OrderBy(d => d.Hostname)
-            .ToListAsync());
+        var devices = _context.Devices.Include(d => d.AssignedUser).AsQueryable();
+        var today = DateTime.Today;
+
+        switch (warranty)
+        {
+            case "expiring":
+                var soon = today.AddDays(Device.WarrantyExpiringSoonDays);
+                devices = devices.Where(d => d.Status != DeviceStatus.Retired
+                    && d.WarrantyEndDate >= today && d.WarrantyEndDate <= soon)
+                    .OrderBy(d => d.WarrantyEndDate);
+                break;
+            case "expired":
+                devices = devices.Where(d => d.Status != DeviceStatus.Retired && d.WarrantyEndDate < today)
+                    .OrderByDescending(d => d.WarrantyEndDate);
+                break;
+            default:
+                warranty = null;
+                devices = devices.OrderBy(d => d.Hostname);
+                break;
+        }
+
+        ViewBag.Warranty = warranty;
+        return View(await devices.ToListAsync());
     }
 
     // GET: DEVICES/Details/5
@@ -171,9 +203,10 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,AssignedUserId")] Device device)
+    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId")] Device device)
     {
         await ValidateAssignedUserAsync(device.AssignedUserId);
+        ValidateWarrantyDates(device);
 
         if (ModelState.IsValid)
         {
@@ -181,6 +214,9 @@ public class DevicesController : Controller
             device.CreatedAt = DateTime.UtcNow;
             device.LastUpdated = DateTime.UtcNow;
             device.AssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
+            device.VendorName = device.VendorName?.Trim();
+            device.VendorPhone = device.VendorPhone?.Trim();
+            device.VendorEmail = device.VendorEmail?.Trim();
 
             _context.Add(device);
             if (device.AssignedUserId != null)
@@ -217,7 +253,7 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,WarrantyEndDate,Status,AssignedUserId")] Device device)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId")] Device device)
     {
         if (id != device.Id)
         {
@@ -231,6 +267,7 @@ public class DevicesController : Controller
         }
 
         await ValidateAssignedUserAsync(device.AssignedUserId);
+        ValidateWarrantyDates(device);
 
         if (ModelState.IsValid)
         {
@@ -253,7 +290,11 @@ public class DevicesController : Controller
             existing.Brand = device.Brand;
             existing.Model = device.Model;
             existing.DeviceType = device.DeviceType;
+            existing.PurchaseDate = device.PurchaseDate;
             existing.WarrantyEndDate = device.WarrantyEndDate;
+            existing.VendorName = device.VendorName?.Trim();
+            existing.VendorPhone = device.VendorPhone?.Trim();
+            existing.VendorEmail = device.VendorEmail?.Trim();
             existing.Status = device.Status;
             existing.AssignedUserId = newAssignedUserId;
             existing.LastUpdated = DateTime.UtcNow;

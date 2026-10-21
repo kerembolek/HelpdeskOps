@@ -1,0 +1,23 @@
+@using HelpdeskOps.Models.Enums
+@model HelpdeskOps.Models.Device
+
+@{
+    var state = Model.GetWarrantyState();
+    var badgeClass = state switch
+    {
+        WarrantyState.Active => "text-bg-success",
+        WarrantyState.ExpiringSoon => "text-bg-warning",
+        WarrantyState.Expired => "text-bg-danger",
+        _ => null
+    };
+}
+
+@if (badgeClass == null)
+{
+    <span class="text-muted">-</span>
+}
+else
+{
+    <span class="text-nowrap">@Model.WarrantyEndDate!.Value.ToString("dd.MM.yyyy")</span>
+    <span class="badge @badgeClass ms-1">@state.GetDisplayName()</span>
+}

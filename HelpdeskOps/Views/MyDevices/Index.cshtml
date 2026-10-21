@@ -38,7 +38,7 @@ else
                     <td>@item.SerialNumber</td>
                     <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
                     <td>@Html.DisplayFor(modelItem => item.Status)</td>
-                    <td>@item.WarrantyEndDate?.ToString("dd.MM.yyyy")</td>
+                    <td><partial name="_WarrantyBadge" model="item" /></td>
                 </tr>
             }
         </tbody>
