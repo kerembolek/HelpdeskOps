@@ -6,7 +6,10 @@ using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using HelpdeskOps.Data;
 using Microsoft.AspNetCore.Authorization;
+using System.Net;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
+using System.Text;
 
 [Authorize(Roles = "ITAdmin")]
 
@@ -114,6 +117,58 @@ public class DevicesController : Controller
 
         ViewBag.Warranty = warranty;
         return View(await devices.ToListAsync());
+    }
+
+    private const int PingTimeoutMs = 1000;
+    private const int PingBatchLimit = 100;
+
+    // GET: DEVICES/PingStatus?ids=1&ids=2
+    // Returns { "1": true, "2": false }. Pings run in parallel so one offline device does not hold up the rest.
+    public async Task<IActionResult> PingStatus([FromQuery] int[] ids)
+    {
+        ids = ids.Distinct().Take(PingBatchLimit).ToArray();
+
+        var devices = await _context.Devices.AsNoTracking()
+            .Where(d => ids.Contains(d.Id))
+            .Select(d => new { d.Id, d.IpAddress })
+            .ToListAsync();
+
+        var results = await Task.WhenAll(devices.Select(async d => (d.Id, Online: await IsReachableAsync(d.IpAddress))));
+        return Json(results.ToDictionary(r => r.Id.ToString(), r => r.Online));
+    }
+
+    private static async Task<bool> IsReachableAsync(string ipAddress)
+    {
+        if (!IPAddress.TryParse(ipAddress, out var address))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var ping = new Ping();
+            var reply = await ping.SendPingAsync(address, PingTimeoutMs);
+            return reply.Status == IPStatus.Success;
+        }
+        catch (PingException)
+        {
+            return false;
+        }
+    }
+
+    // GET: DEVICES/Rdp/5
+    // Downloads a .rdp file; Windows opens it with Remote Desktop Connection
+    public async Task<IActionResult> Rdp(int id)
+    {
+        var device = await _context.Devices.FindAsync(id);
+        if (device == null || !device.SupportsRemoteDesktop())
+        {
+            return NotFound();
+        }
+
+        var content = $"full address:s:{device.IpAddress}\r\nprompt for credentials:i:1\r\n";
+        var fileName = string.Concat(device.Hostname.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c)) + ".rdp";
+        return File(Encoding.UTF8.GetBytes(content), "application/x-rdp", fileName);
     }
 
     // GET: DEVICES/Details/5

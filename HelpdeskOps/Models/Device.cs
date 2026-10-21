@@ -69,6 +69,9 @@ namespace HelpdeskOps.Models
 
         public ICollection<DeviceEvent> Events { get; set; } = new List<DeviceEvent>();
 
+        // Remote Desktop only makes sense for computers
+        public bool SupportsRemoteDesktop() => DeviceType is DeviceType.Laptop or DeviceType.Desktop;
+
         // Warranty dates are calendar dates, so they are compared with the local date
         public const int WarrantyExpiringSoonDays = 30;
 

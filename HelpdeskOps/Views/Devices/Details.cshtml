@@ -12,7 +12,7 @@
     <dd class="col-sm-9">@Model.Hostname</dd>
 
     <dt class="col-sm-3">IP Adresi</dt>
-    <dd class="col-sm-9">@Model.IpAddress</dd>
+    <dd class="col-sm-9"><partial name="_PingDot" model="Model" />@Model.IpAddress</dd>
 
     <dt class="col-sm-3">Seri No</dt>
     <dd class="col-sm-9">@Model.SerialNumber</dd>
@@ -71,6 +71,10 @@
 
 <div class="mt-3">
     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-primary">Düzenle</a>
+    @if (Model!.SupportsRemoteDesktop())
+    {
+        <a asp-action="Rdp" asp-route-id="@Model.Id" class="btn btn-outline-primary ms-2">Uzak Masaüstü (RDP)</a>
+    }
     <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
 
