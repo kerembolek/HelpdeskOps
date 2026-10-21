@@ -9,6 +9,12 @@
 
 <h4>Talep Bilgileri</h4>
 <hr />
+@if (ViewBag.TriedSolution is string triedSolution)
+{
+    <div class="alert alert-info">
+        <strong>@triedSolution</strong> çözümünü denediğiniz talep formuna eklendi. Sorunu birkaç cümleyle anlatmanız yeterli.
+    </div>
+}
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">

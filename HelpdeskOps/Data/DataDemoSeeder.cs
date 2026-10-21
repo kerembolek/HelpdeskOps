@@ -113,6 +113,74 @@ public static class DemoDataSeeder
         ("DEMO-LT-003", DeviceEventType.PartReplacement, "Batarya yenisiyle değiştirildi.", 11),
     };
 
+    // Matched by title. Counters give the solution bank management page some self-service numbers to show.
+    private static readonly (string Title, TicketCategory Category, string Symptoms, string[] Steps, int Solved, int Escalated)[] DemoSolutions =
+    {
+        ("Monitör görüntü vermiyor", TicketCategory.Hardware,
+            "Bilgisayar açık ama ekran siyah veya \"Sinyal yok\" yazıyor.",
+            new[]
+            {
+                "Monitörün güç ışığının yandığını kontrol edin; yanmıyorsa güç kablosunu ve prizi kontrol edin.",
+                "Görüntü kablosunun (HDMI/DisplayPort) hem monitöre hem bilgisayara tam oturduğunu kontrol edin.",
+                "Monitörün menü tuşundan doğru girişin (HDMI/DisplayPort) seçili olduğundan emin olun.",
+                "Dizüstü kullanıyorsanız Windows + P tuşlarına basıp \"Çoğalt\" veya \"Genişlet\" seçin."
+            }, 4, 1),
+        ("Bilgisayar çok yavaş çalışıyor", TicketCategory.Hardware,
+            "Programlar geç açılıyor, fare takılıyor.",
+            new[]
+            {
+                "Kullanmadığınız programları ve tarayıcı sekmelerini kapatın.",
+                "Ctrl + Shift + Esc ile Görev Yöneticisi'ni açıp CPU veya Bellek kullanımı yüksek olan programa bakın.",
+                "Bilgisayarı tamamen yeniden başlatın (Başlat > Güç > Yeniden başlat).",
+                "Windows Update'te bekleyen güncelleme varsa mesai sonunda yükleyin."
+            }, 3, 4),
+        ("Yazıcı kağıt sıkıştırıyor", TicketCategory.Printer,
+            "Çıktı yarıda kalıyor, yazıcı ekranında kağıt sıkışması uyarısı var.",
+            new[]
+            {
+                "Yazıcıyı kapatın ve fişini çekin.",
+                "Ön kapağı ve kağıt tepsisini açıp sıkışan kağıdı iki elinizle, kağıdın çıkış yönünde yavaşça çekin.",
+                "Tepsideki kağıtları havalandırıp düzgün bir deste halinde geri koyun; tepsiyi aşırı doldurmayın.",
+                "Yazıcıyı açıp bir deneme sayfası yazdırın."
+            }, 6, 2),
+        ("Yazıcı listede görünmüyor", TicketCategory.Printer,
+            "Yazdır dediğinizde yazıcı seçeneklerde çıkmıyor.",
+            new[]
+            {
+                "Yazıcının açık olduğunu ve ekranında hata olmadığını kontrol edin.",
+                "Ayarlar > Bluetooth ve cihazlar > Yazıcılar ve tarayıcılar ekranını açın.",
+                "\"Cihaz ekle\" deyip listede çıkan ofis yazıcısını seçin.",
+                "Bilgisayarı yeniden başlatıp tekrar yazdırmayı deneyin."
+            }, 3, 1),
+        ("İnternete bağlanamıyorum", TicketCategory.Network,
+            "Tarayıcıda sayfalar açılmıyor, ağ simgesinde ünlem işareti var.",
+            new[]
+            {
+                "Kablolu bağlanıyorsanız ağ kablosunun bilgisayara ve duvardaki prize tam oturduğunu kontrol edin.",
+                "Kablosuz bağlanıyorsanız Wi-Fi'ı kapatıp açın ve şirket ağına yeniden bağlanın.",
+                "Bilgisayarı yeniden başlatın.",
+                "Yan masadaki arkadaşınızın internetinin çalışıp çalışmadığını kontrol edin; çalışmıyorsa genel bir arıza olabilir, talep açın."
+            }, 4, 3),
+        ("Outlook e-posta göndermiyor", TicketCategory.EmailOutlook,
+            "Gönderilen e-postalar Giden Kutusu'nda bekliyor.",
+            new[]
+            {
+                "Outlook'un sağ alt köşesinde \"Bağlantı kesildi\" veya \"Çevrimdışı çalışma\" yazısı olup olmadığına bakın.",
+                "Gönder/Al sekmesinde \"Çevrimdışı Çalış\" seçiliyse kapatın.",
+                "Giden Kutusu'ndaki büyük ekli e-postayı açıp eki küçültün veya paylaşım bağlantısı olarak gönderin.",
+                "Outlook'u kapatıp yeniden açın."
+            }, 5, 1),
+        ("Program donuyor veya yanıt vermiyor", TicketCategory.Software,
+            "Program açık ama tıklamalara tepki vermiyor.",
+            new[]
+            {
+                "Birkaç dakika bekleyin; büyük dosyalarda program geçici olarak yanıt vermeyebilir.",
+                "Ctrl + Shift + Esc ile Görev Yöneticisi'ni açın, programı seçip \"Görevi sonlandır\" deyin.",
+                "Programı yeniden açın ve son çalıştığınız dosyayı kontrol edin.",
+                "Sorun tekrarlıyorsa bilgisayarı yeniden başlatın."
+            }, 2, 2),
+    };
+
     public static async Task SeedAsync(IServiceProvider services)
     {
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -149,6 +217,33 @@ public static class DemoDataSeeder
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
         await SeedDeviceEventsAsync(services, userManager);
+        await SeedSolutionsAsync(services);
+    }
+
+    private static async Task SeedSolutionsAsync(IServiceProvider services)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        foreach (var demo in DemoSolutions)
+        {
+            if (await context.SolutionArticles.AnyAsync(a => a.Title == demo.Title))
+                continue;
+
+            context.SolutionArticles.Add(new SolutionArticle
+            {
+                Title = demo.Title,
+                Category = demo.Category,
+                Symptoms = demo.Symptoms,
+                Steps = string.Join("\n", demo.Steps),
+                IsPublished = true,
+                SolvedCount = demo.Solved,
+                EscalatedCount = demo.Escalated,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            });
+        }
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task SeedDevicesAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)

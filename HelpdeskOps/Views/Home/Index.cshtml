@@ -16,6 +16,7 @@
         @if (User.Identity?.IsAuthenticated == true)
         {
         <a asp-controller="MyDevices" asp-action="Index" class="btn btn-primary">Cihazlarım</a>
+        <a asp-controller="Solutions" asp-action="Index" class="btn btn-primary">Kendin Çöz</a>
         }
 
         <a asp-controller="Tickets" asp-action="Index" class="btn btn-primary">Talepler</a>
