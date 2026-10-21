@@ -27,8 +27,8 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] IPv4 format validation
 - [x] Device management screens (list, create, edit, details, delete)
 - [x] Device assignment to users (zimmet) from the device create/edit screens
-- [ ] Live network status indicator (ping-based, green/red dot)
-- [ ] Remote access shortcut (RDP launch link)
+- [x] Live network status indicator (ping-based, green/red dot) on the device list and details, with a refresh button
+- [x] Remote access shortcut: a downloadable `.rdp` file for laptops and desktops that opens Remote Desktop Connection
 - [ ] Cisco switch port mapping
 - [x] Device lifecycle history: format, upgrade, part replacement, and repair entries, plus automatic assignment and status changes
 - [x] Warranty tracking: purchase date, warranty end with active / expiring soon (30 days) / expired badges, service/vendor contact (name, phone, email), and warranty filters on the device list
@@ -68,7 +68,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
 
 Not implemented yet: the manager role and its reports.
 
@@ -102,6 +102,8 @@ When the app runs in the `Development` environment, it creates these accounts, a
 |----------|------------------------|-----------------|
 | Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
 | ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+
+The demo devices use made-up `10.10.x.x` addresses, so their network status dots show red unless such hosts exist on your network.
 
 Two more employee accounts (`ik@helpdeskops.com`, `satis@helpdeskops.com`, same password) are created so the dashboard can compare departments.
 
