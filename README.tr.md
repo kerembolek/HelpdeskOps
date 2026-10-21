@@ -31,7 +31,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [ ] Uzak erişim kısayolu (RDP başlatma bağlantısı)
 - [ ] Cisco switch port eşleme
 - [x] Cihaz geçmişi: format, yükseltme, parça değişimi ve onarım kayıtları ile otomatik zimmet ve durum değişiklikleri
-- [ ] Garanti takibi ve servis/tedarikçi iletişim entegrasyonu
+- [x] Garanti takibi: satın alma tarihi, garantide / yakında bitiyor (30 gün) / garanti bitti rozetli garanti bitişi, servis/tedarikçi iletişim bilgileri (firma, telefon, e-posta) ve cihaz listesinde garanti filtreleri
 
 ### Yardım Masası ve Talep Sistemi
 - [x] Temel talep modeli (kategori, öncelik, durum, talep eden, atanan kişi)
@@ -62,12 +62,13 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Genel ve önceliğe göre ortalama talep çözüm süresi
 - [x] Kronik sorunlu cihazlar (marka/modele göre en sık arızalar)
 - [x] Departman iş yükü dağılımı
+- [x] Tıklanınca ilgili filtreli cihaz listesini açan garanti kartları (30 gün içinde bitecek, garantisi bitmiş)
 
 ---
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları ve departman iş yükünü gösteren bir panoya sahip.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
 
 Henüz uygulanmayanlar: yönetici rolü ve bu role özel raporlar.
 
@@ -95,7 +96,7 @@ Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kull
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi olan birkaç örnek cihaz ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|

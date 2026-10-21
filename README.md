@@ -31,7 +31,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [ ] Remote access shortcut (RDP launch link)
 - [ ] Cisco switch port mapping
 - [x] Device lifecycle history: format, upgrade, part replacement, and repair entries, plus automatic assignment and status changes
-- [ ] Warranty tracking & service/vendor contact integration
+- [x] Warranty tracking: purchase date, warranty end with active / expiring soon (30 days) / expired badges, service/vendor contact (name, phone, email), and warranty filters on the device list
 
 ### Helpdesk & Ticket System
 - [x] Core ticket model (category, priority, status, requester, assignee)
@@ -62,12 +62,13 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Average ticket resolution time, overall and by priority
 - [x] Chronic problem devices (most frequent failures by brand/model)
 - [x] Department workload distribution
+- [x] Warranty cards (expiring within 30 days, expired) that open the matching filtered device list
 
 ---
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, and department workload.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
 
 Not implemented yet: the manager role and its reports.
 
@@ -95,7 +96,7 @@ The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`)
 
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history, and sample tickets with comments and history for the dashboard automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history and a mix of active, expiring, and expired warranties, and sample tickets with comments and history for the dashboard automatically (never in other environments):
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|

@@ -19,15 +19,25 @@ public static class DemoDataSeeder
         ("satis@helpdeskops.com", "Emre", "Kaya", "Satış", "Employee"),
     };
 
-    // Matched by serial number, so devices added or edited by hand are left alone
-    private static readonly (string Hostname, string Ip, string Serial, string Brand, string Model, DeviceType Type, int WarrantyYears, string? AssignedEmail)[] DemoDevices =
+    // Matched by serial number, so devices added or edited by hand are left alone.
+    // Purchase dates are picked so the demo has active, expiring-soon, and expired warranties.
+    private static readonly (string Hostname, string Ip, string Serial, string Brand, string Model, DeviceType Type,
+        int PurchasedDaysAgo, int WarrantyMonths, string? AssignedEmail)[] DemoDevices =
     {
-        ("MUH-LT-001", "10.10.20.11", "DEMO-LT-001", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 2, "test@helpdeskops.com"),
-        ("MUH-MN-001", "10.10.20.12", "DEMO-MN-001", "Dell", "P2422H", DeviceType.Monitor, 3, "test@helpdeskops.com"),
-        ("BT-DT-001", "10.10.10.21", "DEMO-DT-001", "HP", "EliteDesk 800 G6", DeviceType.Desktop, 1, "it@helpdeskops.com"),
-        ("MUH-PR-001", "10.10.20.50", "DEMO-PR-001", "HP", "LaserJet Pro M404dn", DeviceType.Printer, 1, null),
-        ("IK-LT-001", "10.10.30.11", "DEMO-LT-002", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 2, "ik@helpdeskops.com"),
-        ("SAT-LT-001", "10.10.40.11", "DEMO-LT-003", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 2, "satis@helpdeskops.com"),
+        ("MUH-LT-001", "10.10.20.11", "DEMO-LT-001", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 715, 24, "test@helpdeskops.com"),
+        ("MUH-MN-001", "10.10.20.12", "DEMO-MN-001", "Dell", "P2422H", DeviceType.Monitor, 400, 36, "test@helpdeskops.com"),
+        ("BT-DT-001", "10.10.10.21", "DEMO-DT-001", "HP", "EliteDesk 800 G6", DeviceType.Desktop, 500, 12, "it@helpdeskops.com"),
+        ("MUH-PR-001", "10.10.20.50", "DEMO-PR-001", "HP", "LaserJet Pro M404dn", DeviceType.Printer, 340, 12, null),
+        ("IK-LT-001", "10.10.30.11", "DEMO-LT-002", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 200, 24, "ik@helpdeskops.com"),
+        ("SAT-LT-001", "10.10.40.11", "DEMO-LT-003", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 800, 24, "satis@helpdeskops.com"),
+    };
+
+    // Service contact per brand; example.com addresses only
+    private static readonly Dictionary<string, (string Name, string Phone, string Email)> DemoVendors = new()
+    {
+        ["Lenovo"] = ("Lenovo Yetkili Servis", "0212 555 01 10", "lenovo-servis@example.com"),
+        ["Dell"] = ("Dell Teknik Destek", "0212 555 01 20", "dell-destek@example.com"),
+        ["HP"] = ("HP Yetkili Servis", "0212 555 01 30", "hp-servis@example.com"),
     };
 
     // Matched by title and requester. CreatedDaysAgo/ResolvedAfterHours place them in the past
@@ -134,25 +144,42 @@ public static class DemoDataSeeder
 
         foreach (var demo in DemoDevices)
         {
-            if (await context.Devices.AnyAsync(d => d.SerialNumber == demo.Serial))
-                continue;
+            var device = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == demo.Serial);
 
-            var assignedUser = demo.AssignedEmail != null ? await userManager.FindByEmailAsync(demo.AssignedEmail) : null;
-
-            context.Devices.Add(new Device
+            if (device == null)
             {
-                Hostname = demo.Hostname,
-                IpAddress = demo.Ip,
-                SerialNumber = demo.Serial,
-                Brand = demo.Brand,
-                Model = demo.Model,
-                DeviceType = demo.Type,
-                Status = assignedUser != null ? DeviceStatus.Active : DeviceStatus.InStorage,
-                WarrantyEndDate = DateTime.Today.AddYears(demo.WarrantyYears),
-                AssignedUserId = assignedUser?.Id,
-                CreatedAt = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow
-            });
+                var assignedUser = demo.AssignedEmail != null ? await userManager.FindByEmailAsync(demo.AssignedEmail) : null;
+
+                device = new Device
+                {
+                    Hostname = demo.Hostname,
+                    IpAddress = demo.Ip,
+                    SerialNumber = demo.Serial,
+                    Brand = demo.Brand,
+                    Model = demo.Model,
+                    DeviceType = demo.Type,
+                    Status = assignedUser != null ? DeviceStatus.Active : DeviceStatus.InStorage,
+                    AssignedUserId = assignedUser?.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    LastUpdated = DateTime.UtcNow
+                };
+                context.Devices.Add(device);
+            }
+            else if (device.PurchaseDate != null)
+            {
+                continue;
+            }
+
+            // New devices, and demo devices seeded before warranty details existed, get purchase and vendor data
+            var purchaseDate = DateTime.Today.AddDays(-demo.PurchasedDaysAgo);
+            device.PurchaseDate = purchaseDate;
+            device.WarrantyEndDate = purchaseDate.AddMonths(demo.WarrantyMonths);
+            if (DemoVendors.TryGetValue(demo.Brand, out var vendor))
+            {
+                device.VendorName = vendor.Name;
+                device.VendorPhone = vendor.Phone;
+                device.VendorEmail = vendor.Email;
+            }
         }
 
         await context.SaveChangesAsync();
