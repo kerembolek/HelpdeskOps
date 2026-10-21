@@ -29,8 +29,31 @@
     <dt class="col-sm-3">Durum</dt>
     <dd class="col-sm-9">@Html.DisplayFor(model => model.Status)</dd>
 
+    <dt class="col-sm-3">Satın Alma Tarihi</dt>
+    <dd class="col-sm-9">@(Model.PurchaseDate?.ToString("dd.MM.yyyy") ?? "-")</dd>
+
     <dt class="col-sm-3">Garanti Bitişi</dt>
-    <dd class="col-sm-9">@Model.WarrantyEndDate?.ToString("dd.MM.yyyy")</dd>
+    <dd class="col-sm-9"><partial name="_WarrantyBadge" model="Model" /></dd>
+
+    <dt class="col-sm-3">Servis / Tedarikçi</dt>
+    <dd class="col-sm-9">
+        @if (string.IsNullOrEmpty(Model.VendorName) && string.IsNullOrEmpty(Model.VendorPhone) && string.IsNullOrEmpty(Model.VendorEmail))
+        {
+            <span class="text-muted">-</span>
+        }
+        else
+        {
+            <div>@Model.VendorName</div>
+            @if (!string.IsNullOrEmpty(Model.VendorPhone))
+            {
+                <div><a href="tel:@Model.VendorPhone">@Model.VendorPhone</a></div>
+            }
+            @if (!string.IsNullOrEmpty(Model.VendorEmail))
+            {
+                <div><a href="mailto:@Model.VendorEmail">@Model.VendorEmail</a></div>
+            }
+        }
+    </dd>
 
     <dt class="col-sm-3">Zimmetli Kullanıcı</dt>
     <dd class="col-sm-9">

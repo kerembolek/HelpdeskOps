@@ -170,3 +170,24 @@ else
         </div>
     </div>
 }
+
+<h2 class="h5 mt-4">Cihaz Garantileri</h2>
+<p class="text-muted small">Hizmet dışı cihazlar sayılmaz.</p>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 @(Model.ExpiringWarrantyDevices > 0 ? "border-warning" : "")">
+            <div class="card-body">
+                <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expiring" class="stretched-link text-muted small text-decoration-none">@HelpdeskOps.Models.Device.WarrantyExpiringSoonDays Gün İçinde Bitecek</a>
+                <div class="fs-2 fw-semibold">@Model.ExpiringWarrantyDevices</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 @(Model.ExpiredWarrantyDevices > 0 ? "border-danger" : "")">
+            <div class="card-body">
+                <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expired" class="stretched-link text-muted small text-decoration-none">Garantisi Bitmiş</a>
+                <div class="fs-2 fw-semibold">@Model.ExpiredWarrantyDevices</div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -45,8 +45,29 @@
                 <select asp-for="Status" asp-items="Html.GetEnumSelectList<DeviceStatus>()" class="form-select"></select>
             </div>
             <div class="form-group mb-3">
+                <label asp-for="PurchaseDate" class="control-label"></label>
+                <input asp-for="PurchaseDate" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
                 <label asp-for="WarrantyEndDate" class="control-label">Garanti Bitişi</label>
                 <input asp-for="WarrantyEndDate" class="form-control" />
+                <span asp-validation-for="WarrantyEndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="VendorName" class="control-label"></label>
+                <input asp-for="VendorName" class="form-control" placeholder="Örn. Lenovo Yetkili Servis" />
+                <span asp-validation-for="VendorName" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="VendorPhone" class="control-label"></label>
+                <input asp-for="VendorPhone" class="form-control" />
+                <span asp-validation-for="VendorPhone" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="VendorEmail" class="control-label"></label>
+                <input asp-for="VendorEmail" class="form-control" />
+                <span asp-validation-for="VendorEmail" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="AssignedUserId" class="control-label">Zimmetli Kullanıcı</label>

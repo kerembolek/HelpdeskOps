@@ -21,6 +21,15 @@ namespace HelpdeskOps.Models.Enums
         [Display(Name = "Hizmet Dışı")] Retired
     }
 
+    // Derived from WarrantyEndDate, not stored
+    public enum WarrantyState
+    {
+        [Display(Name = "Bilinmiyor")] Unknown,
+        [Display(Name = "Garantide")] Active,
+        [Display(Name = "Yakında Bitiyor")] ExpiringSoon,
+        [Display(Name = "Garanti Bitti")] Expired
+    }
+
     public enum TicketCategory
     {
         [Display(Name = "Donanım")] Hardware,
