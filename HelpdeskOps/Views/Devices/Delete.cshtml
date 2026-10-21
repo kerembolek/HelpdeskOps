@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Cihazı Sil";
     var linkedTicketCount = (int)(ViewData["LinkedTicketCount"] ?? 0);
+    var connectedDeviceCount = (int)(ViewData["ConnectedDeviceCount"] ?? 0);
 }
 
 <h1>Cihazı Sil</h1>
@@ -17,6 +18,13 @@
 else
 {
     <h3>Bu cihazı silmek istediğinizden emin misiniz?</h3>
+    @if (connectedDeviceCount > 0)
+    {
+        <div class="alert alert-warning">
+            Bu switch'e @connectedDeviceCount cihaz bağlı. Switch silinirse bu cihazların port bağlantıları kaldırılır
+            ve cihaz geçmişlerine kaydedilir.
+        </div>
+    }
 }
 <div>
     <hr />

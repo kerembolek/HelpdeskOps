@@ -78,6 +78,23 @@
                 </select>
                 <span asp-validation-for="AssignedUserId" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="SwitchId" class="control-label"></label>
+                <select asp-for="SwitchId" class="form-select" asp-items="ViewBag.Switches">
+                    <option value="">Bağlı değil</option>
+                </select>
+                <span asp-validation-for="SwitchId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SwitchPort" class="control-label"></label>
+                <input asp-for="SwitchPort" class="form-control" placeholder="Örn. Gi1/0/12" />
+                <span asp-validation-for="SwitchPort" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="VlanId" class="control-label"></label>
+                <input asp-for="VlanId" class="form-control" min="1" max="4094" />
+                <span asp-validation-for="VlanId" class="text-danger"></span>
+            </div>
             <div class="mt-3">
                 <input type="submit" value="Kaydet" class="btn btn-primary" />
 				<a asp-action="Index" class="btn btn-outline-secondary ms-2">Listeye Dön</a>
