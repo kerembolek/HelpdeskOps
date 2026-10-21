@@ -1,0 +1,5 @@
+@model HelpdeskOps.Models.Device
+
+@* Filled in by refreshPingDots() in site.js *@
+<span class="ping-dot me-1" role="status" title="Kontrol ediliyor…"
+      data-device-id="@Model.Id" data-ping-url="@Url.Action("PingStatus", "Devices")"></span>

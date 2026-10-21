@@ -26,6 +26,27 @@ body {
   text-align: end;
 }
 
+/* Live network status dot: grey while checking, then green or red */
+.ping-dot {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background-color: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  vertical-align: middle;
+}
+
+.ping-dot.online {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+}
+
+.ping-dot.offline {
+  background-color: var(--bs-danger);
+  border-color: var(--bs-danger);
+}
+
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }

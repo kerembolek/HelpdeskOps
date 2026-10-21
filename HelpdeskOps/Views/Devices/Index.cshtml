@@ -27,6 +27,12 @@
             <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
         }
     </div>
+    @if (Model.Any())
+    {
+        <div class="col-md text-md-end">
+            <button type="button" class="btn btn-outline-secondary" data-ping-refresh>Ağ Durumunu Yenile</button>
+        </div>
+    }
 </form>
 
 @if (!Model.Any())
@@ -54,17 +60,21 @@ else
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Hostname</td>
-                    <td>@item.IpAddress</td>
+                    <td class="text-nowrap">@item.Hostname</td>
+                    <td class="text-nowrap"><partial name="_PingDot" model="item" />@item.IpAddress</td>
                     <td>@item.SerialNumber</td>
                     <td>@Html.DisplayFor(modelItem => item.DeviceType)</td>
                     <td>@Html.DisplayFor(modelItem => item.Status)</td>
                     <td><partial name="_WarrantyBadge" model="item" /></td>
                     <td>@(item.AssignedUser != null ? item.AssignedUser.FirstName + " " + item.AssignedUser.LastName : "Atanmamış")</td>
-                    <td>
+                    <td class="text-nowrap">
                         <a asp-action="Details" asp-route-id="@item.Id">Detay</a> |
                         <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
                         <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                        @if (item.SupportsRemoteDesktop())
+                        {
+                            <text> | </text><a asp-action="Rdp" asp-route-id="@item.Id" title="Uzak Masaüstü bağlantı dosyasını indir">RDP</a>
+                        }
                     </td>
                 </tr>
             }
