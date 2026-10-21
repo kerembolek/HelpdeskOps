@@ -142,6 +142,13 @@ namespace HelpdeskOps.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<int?>("SwitchId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SwitchPort")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("VendorEmail")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -154,12 +161,19 @@ namespace HelpdeskOps.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<int?>("VlanId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("WarrantyEndDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AssignedUserId");
+
+                    b.HasIndex("SwitchId", "SwitchPort")
+                        .IsUnique()
+                        .HasFilter("[SwitchId] IS NOT NULL AND [SwitchPort] IS NOT NULL");
 
                     b.ToTable("Devices");
                 });
@@ -470,7 +484,14 @@ namespace HelpdeskOps.Migrations
                         .HasForeignKey("AssignedUserId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("HelpdeskOps.Models.Device", "Switch")
+                        .WithMany("ConnectedDevices")
+                        .HasForeignKey("SwitchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("AssignedUser");
+
+                    b.Navigation("Switch");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.DeviceEvent", b =>
@@ -614,6 +635,8 @@ namespace HelpdeskOps.Migrations
 
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
                 {
+                    b.Navigation("ConnectedDevices");
+
                     b.Navigation("Events");
                 });
 

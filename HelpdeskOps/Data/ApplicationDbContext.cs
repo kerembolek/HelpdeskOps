@@ -41,6 +41,19 @@ namespace HelpdeskOps.Data
                 .HasForeignKey(d => d.AssignedUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Self-reference: SQL Server rejects SET NULL here, so DevicesController clears the links before deleting a switch
+            builder.Entity<Device>()
+                .HasOne(d => d.Switch)
+                .WithMany(s => s.ConnectedDevices)
+                .HasForeignKey(d => d.SwitchId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // One device per switch port
+            builder.Entity<Device>()
+                .HasIndex(d => new { d.SwitchId, d.SwitchPort })
+                .IsUnique()
+                .HasFilter("[SwitchId] IS NOT NULL AND [SwitchPort] IS NOT NULL");
+
             // Comments and history belong to the ticket and go away with it
             builder.Entity<TicketComment>()
                 .HasOne(c => c.Ticket)

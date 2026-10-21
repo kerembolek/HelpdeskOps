@@ -4,6 +4,12 @@
     ViewData["Title"] = "Cihaz Detayı";
 }
 
+@functions {
+    // Pads port numbers so Gi1/0/2 sorts before Gi1/0/10
+    private static string PortSortKey(string? port) =>
+        System.Text.RegularExpressions.Regex.Replace(port ?? "", @"\d+", m => m.Value.PadLeft(4, '0'));
+}
+
 <h1>Cihaz Detayı</h1>
 
 <hr />
@@ -62,6 +68,19 @@
             : "Atanmamış")
     </dd>
 
+    @if (Model.Switch != null)
+    {
+        <dt class="col-sm-3">Switch / Port</dt>
+        <dd class="col-sm-9">
+            <a asp-action="Details" asp-route-id="@Model.Switch.Id">@Model.Switch.Hostname</a>
+            <span class="font-monospace ms-1">@Model.SwitchPort</span>
+            @if (Model.VlanId != null)
+            {
+                <span class="badge text-bg-light border ms-1">VLAN @Model.VlanId</span>
+            }
+        </dd>
+    }
+
     <dt class="col-sm-3">Oluşturulma Tarihi</dt>
     <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
 
@@ -78,9 +97,50 @@
     <a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
 
+@if (Model.DeviceType == HelpdeskOps.Models.Enums.DeviceType.Switch)
+{
+    <section id="ports" class="mt-5">
+        <h2 class="h4">Port Tablosu</h2>
+        <p class="text-muted small">Bu switch'e bağlı cihazlar. Bağlantılar cihazın düzenleme ekranından yapılır.</p>
+
+        @if (!Model.ConnectedDevices.Any())
+        {
+            <div class="alert alert-info">Bu switch'e henüz bağlı cihaz yok.</div>
+        }
+        else
+        {
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Port</th>
+                        <th>VLAN</th>
+                        <th>Cihaz Adı</th>
+                        <th>IP Adresi</th>
+                        <th>Tür</th>
+                        <th>Zimmetli</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ConnectedDevices.OrderBy(d => PortSortKey(d.SwitchPort)))
+                    {
+                        <tr>
+                            <td class="font-monospace">@item.SwitchPort</td>
+                            <td>@(item.VlanId?.ToString() ?? "-")</td>
+                            <td class="text-nowrap"><a asp-action="Details" asp-route-id="@item.Id">@item.Hostname</a></td>
+                            <td class="text-nowrap"><partial name="_PingDot" model="item" />@item.IpAddress</td>
+                            <td>@Html.DisplayFor(_ => item.DeviceType)</td>
+                            <td>@(item.AssignedUser != null ? $"{item.AssignedUser.FirstName} {item.AssignedUser.LastName}" : "Atanmamış")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+}
+
 <section id="history" class="mt-5" style="max-width: 48rem;">
     <h2 class="h4">Cihaz Geçmişi</h2>
-    <p class="text-muted small">Format, yükseltme, parça değişimi ve bakım kayıtları ile zimmet ve durum değişiklikleri.</p>
+    <p class="text-muted small">Format, yükseltme, parça değişimi ve bakım kayıtları ile zimmet, durum ve port değişiklikleri.</p>
 
     @if (!Model.Events.Any())
     {
@@ -92,7 +152,8 @@
             @foreach (var item in Model.Events)
             {
                 var isAutomatic = item.Type is HelpdeskOps.Models.Enums.DeviceEventType.AssignmentChanged
-                    or HelpdeskOps.Models.Enums.DeviceEventType.StatusChanged;
+                    or HelpdeskOps.Models.Enums.DeviceEventType.StatusChanged
+                    or HelpdeskOps.Models.Enums.DeviceEventType.PortChanged;
                 <li class="list-group-item px-0">
                     <div class="d-flex justify-content-between small text-muted">
                         <span>

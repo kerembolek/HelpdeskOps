@@ -31,6 +31,76 @@ public class DevicesController : Controller
         ViewBag.Users = new SelectList(users, "Id", "FullName", selectedId);
     }
 
+    // Switches a device can be patched into; a switch can't be patched into itself
+    private async Task LoadSwitchesAsync(int? selectedId = null, int? excludeId = null)
+    {
+        var switches = await _context.Devices
+            .Where(d => d.DeviceType == DeviceType.Switch && d.Id != excludeId)
+            .OrderBy(d => d.Hostname)
+            .Select(d => new { d.Id, Name = d.Hostname + " (" + d.IpAddress + ")" })
+            .ToListAsync();
+        ViewBag.Switches = new SelectList(switches, "Id", "Name", selectedId);
+    }
+
+    private async Task LoadFormListsAsync(Device device)
+    {
+        await LoadUsersAsync(device.AssignedUserId);
+        await LoadSwitchesAsync(device.SwitchId, device.Id == 0 ? null : device.Id);
+    }
+
+    // The dropdown only lists switches, but the posted id is checked here as well
+    private async Task ValidateSwitchPortAsync(Device device)
+    {
+        device.SwitchPort = string.IsNullOrWhiteSpace(device.SwitchPort) ? null : device.SwitchPort.Trim();
+
+        if (device.SwitchId == null)
+        {
+            if (device.SwitchPort != null)
+                ModelState.AddModelError(nameof(Device.SwitchId), "Port girildiyse switch seçilmelidir.");
+            if (device.VlanId != null)
+                ModelState.AddModelError(nameof(Device.SwitchId), "VLAN girildiyse switch seçilmelidir.");
+        }
+        else
+        {
+            var target = await _context.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.Id == device.SwitchId);
+            if (target == null || target.DeviceType != DeviceType.Switch || target.Id == device.Id)
+            {
+                ModelState.AddModelError(nameof(Device.SwitchId), "Seçilen switch bulunamadı.");
+            }
+            else if (device.SwitchPort == null)
+            {
+                ModelState.AddModelError(nameof(Device.SwitchPort), "Switch seçildiyse port zorunludur.");
+            }
+            else
+            {
+                var occupant = await _context.Devices.AsNoTracking()
+                    .Where(d => d.SwitchId == device.SwitchId && d.SwitchPort == device.SwitchPort && d.Id != device.Id)
+                    .Select(d => d.Hostname)
+                    .FirstOrDefaultAsync();
+                if (occupant != null)
+                    ModelState.AddModelError(nameof(Device.SwitchPort), $"Bu port zaten {occupant} cihazına bağlı.");
+            }
+        }
+
+        // A switch with patched devices has to stay a switch
+        if (device.Id != 0 && device.DeviceType != DeviceType.Switch
+            && await _context.Devices.AnyAsync(d => d.SwitchId == device.Id))
+        {
+            ModelState.AddModelError(nameof(Device.DeviceType), "Bu switch'e bağlı cihazlar var. Türünü değiştirmeden önce bağlantıları kaldırın.");
+        }
+    }
+
+    private async Task<string> PortLabelAsync(int? switchId, string? port)
+    {
+        if (switchId == null)
+        {
+            return "Bağlı değil";
+        }
+
+        var hostname = await _context.Devices.Where(d => d.Id == switchId).Select(d => d.Hostname).FirstOrDefaultAsync();
+        return $"{hostname ?? "-"} {port}";
+    }
+
     // Zimmet için seçilen kullanıcının gerçekten var olduğunu doğrular
     private async Task ValidateAssignedUserAsync(string? userId)
     {
@@ -52,7 +122,7 @@ public class DevicesController : Controller
         }
     }
 
-    // Event types IT staff can enter by hand; assignment and status changes are logged automatically
+    // Event types IT staff can enter by hand; assignment, status, and port changes are logged automatically
     private static readonly DeviceEventType[] ManualEventTypes =
     {
         DeviceEventType.Format, DeviceEventType.HardwareUpgrade, DeviceEventType.PartReplacement,
@@ -181,8 +251,12 @@ public class DevicesController : Controller
 
         var device = await _context.Devices
             .Include(d => d.AssignedUser)
+            .Include(d => d.Switch)
+            .Include(d => d.ConnectedDevices)
+                .ThenInclude(c => c.AssignedUser)
             .Include(d => d.Events.OrderByDescending(e => e.EventDate).ThenByDescending(e => e.Id))
                 .ThenInclude(e => e.PerformedBy)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(m => m.Id == id);
         if (device == null)
         {
@@ -250,6 +324,7 @@ public class DevicesController : Controller
     public async Task<IActionResult> Create()
     {
         await LoadUsersAsync();
+        await LoadSwitchesAsync();
         return View();
     }
 
@@ -258,10 +333,11 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId")] Device device)
+    public async Task<IActionResult> Create([Bind("Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId,SwitchId,SwitchPort,VlanId")] Device device)
     {
         await ValidateAssignedUserAsync(device.AssignedUserId);
         ValidateWarrantyDates(device);
+        await ValidateSwitchPortAsync(device);
 
         if (ModelState.IsValid)
         {
@@ -279,10 +355,15 @@ public class DevicesController : Controller
                 LogEvent(device, DeviceEventType.AssignmentChanged,
                     $"Zimmetlendi: {await UserNameAsync(device.AssignedUserId)}");
             }
+            if (device.SwitchId != null)
+            {
+                LogEvent(device, DeviceEventType.PortChanged,
+                    $"Bağlandı: {await PortLabelAsync(device.SwitchId, device.SwitchPort)}");
+            }
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        await LoadUsersAsync(device.AssignedUserId);
+        await LoadFormListsAsync(device);
         return View(device);
     }
 
@@ -299,7 +380,7 @@ public class DevicesController : Controller
         {
             return NotFound();
         }
-        await LoadUsersAsync(device.AssignedUserId);
+        await LoadFormListsAsync(device);
         return View(device);
     }
 
@@ -308,7 +389,7 @@ public class DevicesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId")] Device device)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Hostname,IpAddress,SerialNumber,Brand,Model,DeviceType,PurchaseDate,WarrantyEndDate,VendorName,VendorPhone,VendorEmail,Status,AssignedUserId,SwitchId,SwitchPort,VlanId")] Device device)
     {
         if (id != device.Id)
         {
@@ -323,6 +404,7 @@ public class DevicesController : Controller
 
         await ValidateAssignedUserAsync(device.AssignedUserId);
         ValidateWarrantyDates(device);
+        await ValidateSwitchPortAsync(device);
 
         if (ModelState.IsValid)
         {
@@ -336,6 +418,11 @@ public class DevicesController : Controller
             {
                 LogEvent(existing, DeviceEventType.StatusChanged,
                     $"Durum: {existing.Status.GetDisplayName()} → {device.Status.GetDisplayName()}");
+            }
+            if (existing.SwitchId != device.SwitchId || existing.SwitchPort != device.SwitchPort)
+            {
+                LogEvent(existing, DeviceEventType.PortChanged,
+                    $"Port: {await PortLabelAsync(existing.SwitchId, existing.SwitchPort)} → {await PortLabelAsync(device.SwitchId, device.SwitchPort)}");
             }
 
             // Only form fields are copied; CreatedAt stays as stored and LastUpdated is set by the server
@@ -352,12 +439,15 @@ public class DevicesController : Controller
             existing.VendorEmail = device.VendorEmail?.Trim();
             existing.Status = device.Status;
             existing.AssignedUserId = newAssignedUserId;
+            existing.SwitchId = device.SwitchId;
+            existing.SwitchPort = device.SwitchPort;
+            existing.VlanId = device.VlanId;
             existing.LastUpdated = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        await LoadUsersAsync(device.AssignedUserId);
+        await LoadFormListsAsync(device);
         return View(device);
     }
 
@@ -378,6 +468,7 @@ public class DevicesController : Controller
         }
 
         ViewData["LinkedTicketCount"] = await _context.Tickets.CountAsync(t => t.DeviceId == id);
+        ViewData["ConnectedDeviceCount"] = await _context.Devices.CountAsync(d => d.SwitchId == id);
         return View(device);
     }
 
@@ -393,9 +484,20 @@ public class DevicesController : Controller
             return RedirectToAction(nameof(Delete), new { id });
         }
 
-        var device = await _context.Devices.FindAsync(id);
+        var device = await _context.Devices.Include(d => d.ConnectedDevices).FirstOrDefaultAsync(d => d.Id == id);
         if (device != null)
         {
+            // The switch FK has no SET NULL (self-reference), so unpatch connected devices first and keep a trace in their history
+            foreach (var connected in device.ConnectedDevices)
+            {
+                LogEvent(connected, DeviceEventType.PortChanged,
+                    $"Port: {device.Hostname} {connected.SwitchPort} → Bağlı değil (switch silindi)");
+                connected.SwitchId = null;
+                connected.SwitchPort = null;
+                connected.VlanId = null;
+                connected.LastUpdated = DateTime.UtcNow;
+            }
+
             _context.Devices.Remove(device);
         }
 

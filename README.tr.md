@@ -29,7 +29,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Cihaz ekleme/düzenleme ekranlarından kullanıcıya zimmet atama
 - [x] Cihaz listesinde ve detayında canlı ağ durumu göstergesi (ping tabanlı, yeşil/kırmızı nokta) ve yenileme butonu
 - [x] Uzak erişim kısayolu: dizüstü ve masaüstü bilgisayarlar için Uzak Masaüstü Bağlantısı'nı açan indirilebilir `.rdp` dosyası
-- [ ] Cisco switch port eşleme
+- [x] Cisco switch port eşleme: cihazı bir switch portuna (örn. `Gi1/0/12`) ve VLAN'a bağlama, her porta tek cihaz, her switch'in detay sayfasında port tablosu ve cihaz geçmişine kaydedilen port değişiklikleri
 - [x] Cihaz geçmişi: format, yükseltme, parça değişimi ve onarım kayıtları ile otomatik zimmet ve durum değişiklikleri
 - [x] Garanti takibi: satın alma tarihi, garantide / yakında bitiyor (30 gün) / garanti bitti rozetli garanti bitişi, servis/tedarikçi iletişim bilgileri (firma, telefon, e-posta) ve cihaz listesinde garanti filtreleri
 
@@ -68,7 +68,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
 
 Henüz uygulanmayanlar: yönetici rolü ve bu role özel raporlar.
 
@@ -96,7 +96,7 @@ Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kull
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|

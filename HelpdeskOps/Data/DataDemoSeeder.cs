@@ -30,6 +30,17 @@ public static class DemoDataSeeder
         ("MUH-PR-001", "10.10.20.50", "DEMO-PR-001", "HP", "LaserJet Pro M404dn", DeviceType.Printer, 340, 12, null),
         ("IK-LT-001", "10.10.30.11", "DEMO-LT-002", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 200, 24, "ik@helpdeskops.com"),
         ("SAT-LT-001", "10.10.40.11", "DEMO-LT-003", "Lenovo", "ThinkPad E14", DeviceType.Laptop, 800, 24, "satis@helpdeskops.com"),
+        ("BT-SW-001", "10.10.10.2", "DEMO-SW-001", "Cisco", "Catalyst 2960-X", DeviceType.Switch, 900, 60, null),
+    };
+
+    // Matched by device serial; only devices that are not patched yet get a port
+    private static readonly (string DeviceSerial, string SwitchSerial, string Port, int Vlan)[] DemoPortLinks =
+    {
+        ("DEMO-DT-001", "DEMO-SW-001", "Gi1/0/2", 10),
+        ("DEMO-LT-001", "DEMO-SW-001", "Gi1/0/5", 20),
+        ("DEMO-LT-002", "DEMO-SW-001", "Gi1/0/10", 30),
+        ("DEMO-LT-003", "DEMO-SW-001", "Gi1/0/14", 40),
+        ("DEMO-PR-001", "DEMO-SW-001", "Gi1/0/24", 20),
     };
 
     // Service contact per brand; example.com addresses only
@@ -38,6 +49,7 @@ public static class DemoDataSeeder
         ["Lenovo"] = ("Lenovo Yetkili Servis", "0212 555 01 10", "lenovo-servis@example.com"),
         ["Dell"] = ("Dell Teknik Destek", "0212 555 01 20", "dell-destek@example.com"),
         ["HP"] = ("HP Yetkili Servis", "0212 555 01 30", "hp-servis@example.com"),
+        ["Cisco"] = ("Cisco İş Ortağı Destek", "0212 555 01 40", "cisco-destek@example.com"),
     };
 
     // Matched by title and requester. CreatedDaysAgo/ResolvedAfterHours place them in the past
@@ -132,6 +144,7 @@ public static class DemoDataSeeder
         }
 
         await SeedDevicesAsync(services, userManager);
+        await SeedPortLinksAsync(services);
         await SeedTicketsAsync(services, userManager);
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
@@ -158,7 +171,8 @@ public static class DemoDataSeeder
                     Brand = demo.Brand,
                     Model = demo.Model,
                     DeviceType = demo.Type,
-                    Status = assignedUser != null ? DeviceStatus.Active : DeviceStatus.InStorage,
+                    // Network gear is in use without being assigned to a person
+                    Status = assignedUser != null || demo.Type == DeviceType.Switch ? DeviceStatus.Active : DeviceStatus.InStorage,
                     AssignedUserId = assignedUser?.Id,
                     CreatedAt = DateTime.UtcNow,
                     LastUpdated = DateTime.UtcNow
@@ -183,6 +197,25 @@ public static class DemoDataSeeder
         }
 
         await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedPortLinksAsync(IServiceProvider services)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        foreach (var demo in DemoPortLinks)
+        {
+            var device = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == demo.DeviceSerial);
+            var networkSwitch = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == demo.SwitchSerial && d.DeviceType == DeviceType.Switch);
+            if (device == null || networkSwitch == null || device.SwitchId != null
+                || await context.Devices.AnyAsync(d => d.SwitchId == networkSwitch.Id && d.SwitchPort == demo.Port))
+                continue;
+
+            device.SwitchId = networkSwitch.Id;
+            device.SwitchPort = demo.Port;
+            device.VlanId = demo.Vlan;
+            await context.SaveChangesAsync();
+        }
     }
 
     private static async Task SeedTicketsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)

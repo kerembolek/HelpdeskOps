@@ -39,6 +39,7 @@
             <div class="form-group mb-3">
                 <label asp-for="DeviceType" class="control-label">Tür</label>
                 <select asp-for="DeviceType" asp-items="Html.GetEnumSelectList<DeviceType>()" class="form-select"></select>
+                <span asp-validation-for="DeviceType" class="text-danger"></span>
             </div>
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label">Durum</label>
@@ -75,6 +76,23 @@
                     <option value="">Atanmamış</option>
                 </select>
                 <span asp-validation-for="AssignedUserId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="SwitchId" class="control-label"></label>
+                <select asp-for="SwitchId" asp-items="ViewBag.Switches" class="form-select">
+                    <option value="">Bağlı değil</option>
+                </select>
+                <span asp-validation-for="SwitchId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="SwitchPort" class="control-label"></label>
+                <input asp-for="SwitchPort" class="form-control" placeholder="Örn. Gi1/0/12" />
+                <span asp-validation-for="SwitchPort" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="VlanId" class="control-label"></label>
+                <input asp-for="VlanId" class="form-control" min="1" max="4094" />
+                <span asp-validation-for="VlanId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Kaydet" class="btn btn-primary" />

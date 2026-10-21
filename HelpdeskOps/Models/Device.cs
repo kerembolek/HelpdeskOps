@@ -69,6 +69,24 @@ namespace HelpdeskOps.Models
 
         public ICollection<DeviceEvent> Events { get; set; } = new List<DeviceEvent>();
 
+        // Switch port mapping: which switch port this device is patched into
+        [Display(Name = "Bağlı Olduğu Switch")]
+        public int? SwitchId { get; set; }
+        public Device? Switch { get; set; }
+
+        // Cisco interface name, e.g. Gi1/0/12 or Fa0/5
+        [Display(Name = "Switch Portu")]
+        [StringLength(20)]
+        [RegularExpression(@"^(Fa|Gi|Te|Tw|Fo|Hu|Eth)\d+(/\d+){1,2}$", ErrorMessage = "Port Cisco biçiminde olmalıdır, örn. Gi1/0/12 veya Fa0/5.")]
+        public string? SwitchPort { get; set; }
+
+        [Display(Name = "VLAN")]
+        [Range(1, 4094, ErrorMessage = "VLAN 1 ile 4094 arasında olmalıdır.")]
+        public int? VlanId { get; set; }
+
+        // Devices patched into this switch (only used when DeviceType is Switch)
+        public ICollection<Device> ConnectedDevices { get; set; } = new List<Device>();
+
         // Remote Desktop only makes sense for computers
         public bool SupportsRemoteDesktop() => DeviceType is DeviceType.Laptop or DeviceType.Desktop;
 
