@@ -1,0 +1,64 @@
+@model IEnumerable<HelpdeskOps.Models.SolutionArticle>
+
+@{
+    ViewData["Title"] = "Çözüm Bankası Yönetimi";
+}
+
+<h1>Çözüm Bankası Yönetimi</h1>
+
+<p class="text-muted">
+    Kullanıcılar talep açmadan önce bu çözümleri dener. <strong>Kendi kendine çözüm oranı</strong>, çözümü deneyip
+    "Sorunum çözüldü" diyenlerin, çözümü deneyen herkese oranıdır.
+</p>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Çözüm Ekle</a>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Kullanıcı Görünümü</a>
+</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Henüz kayıtlı çözüm bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Başlık</th>
+                <th>Kategori</th>
+                <th>Durum</th>
+                <th class="text-end">Çözüldü</th>
+                <th class="text-end">Talebe Dönüştü</th>
+                <th class="text-end">Kendi Kendine Çözüm</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@Html.DisplayFor(_ => item.Category)</td>
+                    <td>
+                        @if (item.IsPublished)
+                        {
+                            <span class="badge text-bg-success">Yayında</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Taslak</span>
+                        }
+                    </td>
+                    <td class="text-end">@item.SolvedCount</td>
+                    <td class="text-end">@item.EscalatedCount</td>
+                    <td class="text-end">@(item.GetSelfServiceRate() is double rate ? rate.ToString("P0") : "-")</td>
+                    <td class="text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@item.Id">Düzenle</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Sil</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

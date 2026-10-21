@@ -1,0 +1,27 @@
+@model HelpdeskOps.Models.SolutionArticle
+
+@{
+    ViewData["Title"] = "Çözümü Sil";
+}
+
+<h1>Çözümü Sil</h1>
+
+<h3>Bu çözümü silmek istediğinizden emin misiniz?</h3>
+<p class="text-muted">Kullanıcıların görmesini geçici olarak engellemek için silmek yerine yayından kaldırabilirsiniz.</p>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Başlık</dt>
+    <dd class="col-sm-9">@Model.Title</dd>
+
+    <dt class="col-sm-3">Kategori</dt>
+    <dd class="col-sm-9">@Html.DisplayFor(model => model.Category)</dd>
+
+    <dt class="col-sm-3">Kullanım</dt>
+    <dd class="col-sm-9">@Model.SolvedCount çözüldü, @Model.EscalatedCount talebe dönüştü</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Sil" class="btn btn-danger" />
+    <a asp-action="Manage" class="btn btn-secondary">Vazgeç</a>
+</form>

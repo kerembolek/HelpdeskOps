@@ -1,0 +1,30 @@
+@using HelpdeskOps.Models.Enums
+@model HelpdeskOps.Models.SolutionArticle
+
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" placeholder="Örn. Yazıcı kağıt sıkıştırıyor" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Category" class="form-label"></label>
+    <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<TicketCategory>()"></select>
+    <span asp-validation-for="Category" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Symptoms" class="form-label"></label>
+    <textarea asp-for="Symptoms" class="form-control" rows="2" maxlength="300"
+              placeholder="Kullanıcının fark ettiği belirtiler, örn. Çıktı yarıda kalıyor ve yazıcı uyarı veriyor."></textarea>
+    <span asp-validation-for="Symptoms" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Steps" class="form-label"></label>
+    <textarea asp-for="Steps" class="form-control" rows="8" maxlength="4000"></textarea>
+    <div class="form-text">Her satıra bir adım yazın. Adımlar kullanıcıya numaralı liste olarak gösterilir.</div>
+    <span asp-validation-for="Steps" class="text-danger"></span>
+</div>
+<div class="form-check mb-3">
+    <input asp-for="IsPublished" class="form-check-input" />
+    <label asp-for="IsPublished" class="form-check-label"></label>
+    <div class="form-text">Yayında olmayan çözümleri kullanıcılar görmez.</div>
+</div>

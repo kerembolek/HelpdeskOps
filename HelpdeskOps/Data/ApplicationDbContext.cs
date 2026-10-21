@@ -18,6 +18,7 @@ namespace HelpdeskOps.Data
         public DbSet<TicketComment> TicketComments { get; set; }
         public DbSet<TicketActivity> TicketActivities { get; set; }
         public DbSet<DeviceEvent> DeviceEvents { get; set; }
+        public DbSet<SolutionArticle> SolutionArticles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

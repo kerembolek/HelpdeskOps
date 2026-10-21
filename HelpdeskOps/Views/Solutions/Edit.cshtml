@@ -1,0 +1,27 @@
+@model HelpdeskOps.Models.SolutionArticle
+
+@{
+    ViewData["Title"] = "Çözümü Düzenle";
+}
+
+<h1>Çözümü Düzenle</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <partial name="_SolutionFields" model="Model" />
+            <div class="mt-3">
+                <input type="submit" value="Kaydet" class="btn btn-primary" />
+                <a asp-action="Manage" class="btn btn-outline-secondary ms-2">Listeye Dön</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
