@@ -10,6 +10,10 @@ public class DashboardViewModel
     public int ResolvedTickets { get; set; }
     public int UnassignedActiveTickets { get; set; }
 
+    // Devices still in use (not retired) whose warranty ends soon or has ended
+    public int ExpiringWarrantyDevices { get; set; }
+    public int ExpiredWarrantyDevices { get; set; }
+
     // Null when no ticket has been resolved yet
     public double? AverageResolutionMinutes { get; set; }
 

@@ -31,6 +31,10 @@ public class DashboardController : Controller
 
         int CountOf(TicketStatus status) => statusCounts.GetValueOrDefault(status);
 
+        var devicesInUse = _context.Devices.AsNoTracking().Where(d => d.Status != DeviceStatus.Retired);
+        var today = DateTime.Today;
+        var soon = today.AddDays(Device.WarrantyExpiringSoonDays);
+
         var model = new DashboardViewModel
         {
             TotalTickets = statusCounts.Values.Sum(),
@@ -40,6 +44,10 @@ public class DashboardController : Controller
 
             UnassignedActiveTickets = await tickets.CountAsync(t =>
                 t.AssignedToId == null && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)),
+
+            // Same rules as the warranty filters on the device list
+            ExpiringWarrantyDevices = await devicesInUse.CountAsync(d => d.WarrantyEndDate >= today && d.WarrantyEndDate <= soon),
+            ExpiredWarrantyDevices = await devicesInUse.CountAsync(d => d.WarrantyEndDate < today),
 
             AverageResolutionMinutes = await resolved
                 .Select(t => EF.Functions.DateDiffMinute(t.CreatedAt, t.ResolvedAt))
