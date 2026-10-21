@@ -228,14 +228,33 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS/Create
-    public async Task<IActionResult> Create()
+    // category and solutionId come from the Tier 0 solution bank ("Çözülmedi, talep aç")
+    public async Task<IActionResult> Create(TicketCategory? category, int? solutionId)
     {
         await LoadDevicesAsync();
         if (User.IsInRole("ITAdmin"))
         {
             await LoadRequestersAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
         }
-        return View();
+
+        var triedSolution = solutionId == null ? null
+            : await _context.SolutionArticles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == solutionId && a.IsPublished);
+        if (triedSolution == null && category == null)
+        {
+            return View();
+        }
+
+        ViewBag.TriedSolution = triedSolution?.Title;
+        return View(new Ticket
+        {
+            Title = triedSolution?.Title ?? "",
+            Description = triedSolution != null
+                ? $"Kendin Çöz sayfasındaki \"{triedSolution.Title}\" adımlarını denedim, sorun devam ediyor.\n\n"
+                : "",
+            Category = triedSolution?.Category ?? category!.Value,
+            Priority = TicketPriority.Medium,
+            RequesterId = ""
+        });
     }
 
     // POST: TICKETS/Create

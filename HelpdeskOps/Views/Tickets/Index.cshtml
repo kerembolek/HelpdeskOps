@@ -14,7 +14,15 @@
 <h1>Destek Talepleri</h1>
 
 <p>
-    <a asp-action="Create">Yeni Talep Oluştur</a>
+    @if (User.IsInRole("ITAdmin"))
+    {
+        <a asp-action="Create">Yeni Talep Oluştur</a>
+    }
+    else
+    {
+        @* Employees try the Tier 0 solution bank first; the ticket form is one click away from there *@
+        <a asp-controller="Solutions" asp-action="Index">Yeni Talep Oluştur</a>
+    }
 </p>
 
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
