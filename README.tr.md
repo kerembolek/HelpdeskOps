@@ -46,7 +46,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Talep hareket geçmişi: oluşturma ile her durum, öncelik ve atanan kişi değişikliği; kimin ne zaman yaptığıyla birlikte
 - [x] Türkçe kullanıcı arayüzü
 - [x] Tier 0 self-servis çözüm bankası: çalışanlar talep açmadan önce konu seçip adım adım çözümleri dener; "çözülmedi" denince talep formu doldurulmuş olarak açılır, BT personeli çözümleri yönetir ve her birinin kendi kendine çözüm oranını görür
-- [ ] Serbest metinli "Diğer" seçeneği olan kademeli kategori yapısı
+- [x] Kademeli kategori yapısı: her kategorinin kendi alt kategorileri var, "Diğer" seçilince kısa bir serbest metin açıklama isteniyor; talep listesi kategoriye göre filtrelenebiliyor
 - [ ] Otomatik PDF kayıtlı dijital zimmet formları
 
 ### Role Dayalı Erişim Kontrolü (RBAC)
@@ -68,9 +68,9 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
 
-Henüz uygulanmayanlar: kademeli talep kategorileri, PDF kayıtlı dijital zimmet formları, yönetici rolü ve bu role özel raporlar.
+Henüz uygulanmayanlar: PDF kayıtlı dijital zimmet formları, yönetici rolü ve bu role özel raporlar.
 
 ---
 
