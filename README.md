@@ -47,7 +47,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Turkish user interface
 - [x] Tier 0 self-service solution bank: employees pick a topic and try step-by-step solutions before opening a ticket; "not solved" opens a pre-filled ticket form, and IT staff manage the articles and see each one's self-service rate
 - [x] Tiered category structure: each category has its own subcategories, and "Other" asks for a short free-text description; the ticket list can be filtered by category
-- [ ] Digital asset assignment forms with auto-generated PDF records
+- [x] Digital zimmet (asset assignment) forms: assigning a device opens a form that keeps a copy of the device and employee details, the employee confirms receipt in "My Devices", reassigning or deleting the device closes it, and each form downloads as a PDF
 
 ### Role-Based Access Control (RBAC)
 - [x] Core user model with department field
@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Not implemented yet: digital asset assignment forms with PDF records.
+Assigning a device opens a digital zimmet form that the employee confirms in "My Devices", and every form can be downloaded as a PDF. Every item on the current roadmap is implemented.
 
 ---
 
@@ -97,7 +97,7 @@ The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`)
 
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history and a mix of active, expiring, and expired warranties, a Cisco switch with those devices patched into its ports, self-service solution articles, and sample tickets with comments and history for the dashboard automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history and a mix of active, expiring, and expired warranties, a Cisco switch with those devices patched into its ports, zimmet forms for the assigned devices (one still awaiting confirmation), self-service solution articles, and sample tickets with comments and history for the dashboard automatically (never in other environments):
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|

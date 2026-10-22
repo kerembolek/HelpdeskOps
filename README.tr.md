@@ -47,7 +47,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Türkçe kullanıcı arayüzü
 - [x] Tier 0 self-servis çözüm bankası: çalışanlar talep açmadan önce konu seçip adım adım çözümleri dener; "çözülmedi" denince talep formu doldurulmuş olarak açılır, BT personeli çözümleri yönetir ve her birinin kendi kendine çözüm oranını görür
 - [x] Kademeli kategori yapısı: her kategorinin kendi alt kategorileri var, "Diğer" seçilince kısa bir serbest metin açıklama isteniyor; talep listesi kategoriye göre filtrelenebiliyor
-- [ ] Otomatik PDF kayıtlı dijital zimmet formları
+- [x] Dijital zimmet formları: cihaz zimmetlenince cihaz ve çalışan bilgilerinin bir kopyasını saklayan form açılır, çalışan "Cihazlarım" sayfasından teslim aldığını onaylar, cihaz başkasına verilince veya silinince form kapanır ve her form PDF olarak indirilebilir
 
 ### Role Dayalı Erişim Kontrolü (RBAC)
 - [x] Departman alanı olan temel kullanıcı modeli
@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Henüz uygulanmayanlar: PDF kayıtlı dijital zimmet formları.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından onayladığı dijital bir zimmet formu açılıyor ve her form PDF olarak indirilebiliyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
 
 ---
 
@@ -97,7 +97,7 @@ Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kull
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, zimmetli cihazlar için zimmet formları (biri onay bekliyor), self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|
