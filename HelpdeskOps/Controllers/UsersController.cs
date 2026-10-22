@@ -1,19 +1,23 @@
+using System.Security.Claims;
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// User list for IT staff
+// User list and role management for IT staff
 [Authorize(Roles = "ITAdmin")]
 public class UsersController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UsersController(ApplicationDbContext context)
+    public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     // GET: Users?q=&role=
@@ -59,6 +63,84 @@ public class UsersController : Controller
         ViewBag.Query = q;
         ViewBag.Role = AppRoles.All.Contains(role) ? role : null;
         ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || ViewBag.Role != null;
+        ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         return View(model);
+    }
+
+    // POST: Users/ChangeRole/abc
+    // Gives the user exactly one role. Nobody can change their own role, so there is always at least one IT staff member left.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangeRole(string id, string? role, string? returnUrl)
+    {
+        IActionResult Back() => Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl) : RedirectToAction(nameof(Index));
+
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        if (role == null || !AppRoles.All.Contains(role))
+        {
+            TempData["UserError"] = "Geçersiz rol.";
+            return Back();
+        }
+
+        if (user.Id == currentUserId)
+        {
+            TempData["UserError"] = "Kendi rolünüzü değiştiremezsiniz.";
+            return Back();
+        }
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        if (currentRoles.Count == 1 && currentRoles[0] == role)
+        {
+            return Back();
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        var removed = await _userManager.RemoveFromRolesAsync(user, currentRoles.Intersect(AppRoles.All));
+        var added = removed.Succeeded ? await _userManager.AddToRoleAsync(user, role) : removed;
+        if (!added.Succeeded)
+        {
+            TempData["UserError"] = "Rol değiştirilemedi: " + string.Join(", ", added.Errors.Select(e => e.Description));
+            return Back();
+        }
+
+        // Only IT staff can hold tickets, so a former IT staff member's active tickets go back to the unassigned pool
+        var released = 0;
+        if (currentRoles.Contains(AppRoles.ITAdmin) && role != AppRoles.ITAdmin)
+        {
+            var activeTickets = await _context.Tickets
+                .Where(t => t.AssignedToId == user.Id && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress))
+                .ToListAsync();
+            foreach (var ticket in activeTickets)
+            {
+                ticket.AssignedToId = null;
+                ticket.UpdatedAt = DateTime.UtcNow;
+                _context.TicketActivities.Add(new TicketActivity
+                {
+                    Ticket = ticket,
+                    ActorId = currentUserId,
+                    Type = TicketActivityType.AssigneeChanged,
+                    OldValue = $"{user.FirstName} {user.LastName}",
+                    NewValue = "Atanmadı",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+            released = activeTickets.Count;
+        }
+
+        // Invalidates the user's sign-in cookie so the old role stops working at the next check
+        await _userManager.UpdateSecurityStampAsync(user);
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        TempData["UserMessage"] = $"{user.FirstName} {user.LastName} artık {AppRoles.DisplayName(role)}."
+            + (released > 0 ? $" Üzerindeki {released} aktif talep atanmamış taleplere alındı." : "");
+        return Back();
     }
 }
