@@ -1,0 +1,71 @@
+@using HelpdeskOps.Models
+@model IEnumerable<HelpdeskOps.Models.UserListRow>
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+    var selectedRole = ViewBag.Role as string;
+    var isFiltered = (bool)ViewBag.IsFiltered;
+}
+
+<h1>Kullanıcılar</h1>
+
+<p class="text-muted">Sisteme kayıtlı kullanıcılar, rolleri, zimmetli cihaz sayıları ve üzerlerindeki aktif talepler.</p>
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label for="q" class="form-label small text-muted mb-1">Ara</label>
+        <input id="q" name="q" value="@ViewBag.Query" class="form-control" placeholder="Ad, e-posta veya departman" />
+    </div>
+    <div class="col-md-3">
+        <label for="role" class="form-label small text-muted mb-1">Rol</label>
+        <select id="role" name="role" class="form-select">
+            <option value="">Tümü</option>
+            @foreach (var role in AppRoles.All)
+            {
+                <option value="@role" selected="@(role == selectedRole)">@AppRoles.DisplayName(role)</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filtrele</button>
+        @if (isFiltered)
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+        }
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        @(isFiltered ? "Filtreye uyan kullanıcı bulunamadı." : "Henüz kayıtlı kullanıcı bulunmuyor.")
+    </div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Ad Soyad</th>
+                <th>E-posta</th>
+                <th>Departman</th>
+                <th>Rol</th>
+                <th class="text-end">Zimmetli Cihaz</th>
+                <th class="text-end">Üzerindeki Aktif Talep</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@(user.Department ?? "-")</td>
+                    <td>@AppRoles.DisplayName(user.Role)</td>
+                    <td class="text-end">@user.DeviceCount</td>
+                    <td class="text-end">@user.ActiveTicketCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
