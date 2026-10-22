@@ -153,6 +153,48 @@ public class DevicesController : Controller
         return user != null ? $"{user.FirstName} {user.LastName}" : "-";
     }
 
+    // Closes the device's open zimmet form and, when the device goes to a person,
+    // opens a new one with a copy of the device and person details as they are now
+    private async Task UpdateAssignmentFormsAsync(Device device, string? newUserId)
+    {
+        var now = DateTime.UtcNow;
+        if (device.Id != 0)
+        {
+            var openForms = await _context.AssignmentForms
+                .Where(f => f.DeviceId == device.Id && f.ReturnedAt == null)
+                .ToListAsync();
+            foreach (var form in openForms)
+            {
+                form.ReturnedAt = now;
+            }
+        }
+
+        var user = newUserId != null ? await _context.Users.FindAsync(newUserId) : null;
+        if (user == null)
+        {
+            return;
+        }
+
+        var issuerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var issuer = issuerId != null ? await _context.Users.FindAsync(issuerId) : null;
+        var brandModel = string.Join(" ", new[] { device.Brand, device.Model }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+        _context.AssignmentForms.Add(new AssignmentForm
+        {
+            Device = device,
+            UserId = user.Id,
+            IssuedById = issuer?.Id,
+            Hostname = device.Hostname,
+            SerialNumber = device.SerialNumber,
+            BrandModel = brandModel.Length > 0 ? brandModel : null,
+            DeviceTypeName = device.DeviceType.GetDisplayName(),
+            EmployeeName = $"{user.FirstName} {user.LastName}",
+            Department = user.Department,
+            IssuedByName = issuer != null ? $"{issuer.FirstName} {issuer.LastName}" : null,
+            IssuedAt = now
+        });
+    }
+
     private void LoadEventTypes()
     {
         ViewBag.EventTypes = ManualEventTypes
@@ -263,6 +305,12 @@ public class DevicesController : Controller
             return NotFound();
         }
 
+        ViewBag.AssignmentForms = await _context.AssignmentForms
+            .AsNoTracking()
+            .Where(f => f.DeviceId == id)
+            .OrderByDescending(f => f.IssuedAt)
+            .ToListAsync();
+
         LoadEventTypes();
         return View(device);
     }
@@ -354,6 +402,7 @@ public class DevicesController : Controller
             {
                 LogEvent(device, DeviceEventType.AssignmentChanged,
                     $"Zimmetlendi: {await UserNameAsync(device.AssignedUserId)}");
+                await UpdateAssignmentFormsAsync(device, device.AssignedUserId);
             }
             if (device.SwitchId != null)
             {
@@ -409,7 +458,8 @@ public class DevicesController : Controller
         if (ModelState.IsValid)
         {
             var newAssignedUserId = string.IsNullOrEmpty(device.AssignedUserId) ? null : device.AssignedUserId;
-            if (existing.AssignedUserId != newAssignedUserId)
+            var assignmentChanged = existing.AssignedUserId != newAssignedUserId;
+            if (assignmentChanged)
             {
                 LogEvent(existing, DeviceEventType.AssignmentChanged,
                     $"Zimmet: {await UserNameAsync(existing.AssignedUserId)} → {await UserNameAsync(newAssignedUserId)}");
@@ -443,6 +493,12 @@ public class DevicesController : Controller
             existing.SwitchPort = device.SwitchPort;
             existing.VlanId = device.VlanId;
             existing.LastUpdated = DateTime.UtcNow;
+
+            // After the copy, so a new form records the device details as saved now
+            if (assignmentChanged)
+            {
+                await UpdateAssignmentFormsAsync(existing, newAssignedUserId);
+            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -497,6 +553,9 @@ public class DevicesController : Controller
                 connected.VlanId = null;
                 connected.LastUpdated = DateTime.UtcNow;
             }
+
+            // Zimmet forms stay as records; an open one is closed since the device no longer exists
+            await UpdateAssignmentFormsAsync(device, null);
 
             _context.Devices.Remove(device);
         }

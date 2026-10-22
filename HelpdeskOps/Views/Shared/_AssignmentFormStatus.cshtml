@@ -1,0 +1,16 @@
+@model HelpdeskOps.Models.AssignmentForm
+
+@if (Model.ReturnedAt is DateTime returnedAt)
+{
+    <span class="badge text-bg-secondary">İade edildi</span>
+    <span class="small text-muted">@returnedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+}
+else if (Model.AcceptedAt is DateTime acceptedAt)
+{
+    <span class="badge text-bg-success">Teslim alındı</span>
+    <span class="small text-muted">@acceptedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+}
+else
+{
+    <span class="badge text-bg-warning">Onay bekliyor</span>
+}
