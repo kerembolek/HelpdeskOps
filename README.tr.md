@@ -55,7 +55,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Çalışan (Employee) rolü: talep oluşturur ve yalnızca kendi taleplerini görür (kayıt olan kullanıcılara varsayılan olarak verilir)
 - [x] BT Yöneticisi (ITAdmin) rolü: cihazlara ve talep yönetimine tam erişim (düzenleme, atama, silme)
 - [x] "Cihazlarım" sayfası: her kullanıcı kendine zimmetli cihazları görür; çalışanlar taleplere yalnızca kendi cihazlarını ekleyebilir
-- [ ] Yönetici rolü: talep geçmişi ve yönetsel raporlar
+- [x] Yönetici (Manager) rolü: tüm talepleri geçmişi ve yorumlarıyla salt okunur görme, pano ve raporlar; cihaz yönetimi ve talep değişikliği yok
 
 ### Yönetici Panosu ve Raporlama
 - [x] Tıklanınca ilgili filtreli talep listesini açan özet kartları (açık, işlemde, çözülen/kapatılan, atanmamış aktif talepler)
@@ -63,14 +63,15 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Kronik sorunlu cihazlar (marka/modele göre en sık arızalar)
 - [x] Departman iş yükü dağılımı
 - [x] Tıklanınca ilgili filtreli cihaz listesini açan garanti kartları (30 gün içinde bitecek, garantisi bitmiş)
+- [x] Seçilen döneme (7, 30, 90 gün, 1 yıl) göre raporlar sayfası: açılan/çözülen sayıları, kategori ve alt kategoriye göre talepler, BT personeli performansı ve dönemin taleplerini CSV olarak indirme
 
 ---
 
 ## Proje Durumu
 
-**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya sahip.
+**Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Henüz uygulanmayanlar: PDF kayıtlı dijital zimmet formları, yönetici rolü ve bu role özel raporlar.
+Henüz uygulanmayanlar: PDF kayıtlı dijital zimmet formları.
 
 ---
 
@@ -102,6 +103,7 @@ Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu h
 |----------|------------------------|-----------------|
 | Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
 | ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+| Manager  | `mudur@helpdeskops.com` | `Helpdesk2026!` |
 
 Demo cihazlar uydurma `10.10.x.x` adresleri kullanır; ağınızda bu adreslerde cihaz yoksa ağ durumu noktaları kırmızı görünür.
 
