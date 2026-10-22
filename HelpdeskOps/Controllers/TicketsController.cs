@@ -116,10 +116,10 @@ public class TicketsController : Controller
         ViewData["DeviceId"] = new SelectList(devices, "Id", "Hostname", selectedId);
     }
 
-    // GET: TICKETS/Index?q=&status=&priority=&scope=
+    // GET: TICKETS/Index?q=&category=&status=&priority=&scope=
     // scope: "active" (open + in progress), "done" (resolved + closed),
     // "mine" and "unassigned" (ITAdmin only; unassigned means active and without an assignee)
-    public async Task<IActionResult> Index(string? q, TicketStatus? status, TicketPriority? priority, string? scope)
+    public async Task<IActionResult> Index(string? q, TicketCategory? category, TicketStatus? status, TicketPriority? priority, string? scope)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var isAdmin = User.IsInRole("ITAdmin");
@@ -138,7 +138,13 @@ public class TicketsController : Controller
         if (!string.IsNullOrWhiteSpace(q))
         {
             var term = q.Trim();
-            query = query.Where(t => t.Title.Contains(term) || t.Description.Contains(term));
+            query = query.Where(t => t.Title.Contains(term) || t.Description.Contains(term)
+                || (t.OtherCategoryText != null && t.OtherCategoryText.Contains(term)));
+        }
+
+        if (category != null)
+        {
+            query = query.Where(t => t.Category == category);
         }
 
         if (status != null)
@@ -172,10 +178,11 @@ public class TicketsController : Controller
         }
 
         ViewBag.Query = q;
+        ViewBag.Category = category;
         ViewBag.Status = status;
         ViewBag.Priority = priority;
         ViewBag.Scope = scope;
-        ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || status != null || priority != null || scope != null;
+        ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || category != null || status != null || priority != null || scope != null;
 
         return View(await query.OrderByDescending(t => t.CreatedAt).ToListAsync());
     }
