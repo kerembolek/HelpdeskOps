@@ -1,0 +1,127 @@
+@using HelpdeskOps.Models.Enums
+@model HelpdeskOps.Models.ReportsViewModel
+
+@{
+    ViewData["Title"] = "Raporlar";
+    var periods = new[] { (7, "Son 7 gün"), (30, "Son 30 gün"), (90, "Son 90 gün"), (365, "Son 1 yıl") };
+}
+
+@functions {
+    private static string FormatDuration(double? minutes) =>
+        minutes is double m ? HelpdeskOps.Models.DurationFormat.FromMinutes(m) : "-";
+}
+
+<h1>Raporlar</h1>
+
+<p class="text-muted">
+    @Model.From.ToLocalTime().ToString("dd.MM.yyyy HH:mm") tarihinden bugüne açılan ve çözülen talepler.
+</p>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div class="btn-group" role="group" aria-label="Dönem">
+        @foreach (var (days, label) in periods)
+        {
+            <a asp-action="Index" asp-route-days="@days" class="btn @(days == Model.Days ? "btn-primary" : "btn-outline-primary")">@label</a>
+        }
+    </div>
+    <a asp-action="Export" asp-route-days="@Model.Days" class="btn btn-outline-secondary">Talepleri CSV Olarak İndir</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Açılan Talep</div>
+                <div class="fs-2 fw-semibold">@Model.OpenedTickets</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Çözülen / Kapatılan</div>
+                <div class="fs-2 fw-semibold">@Model.ResolvedTickets</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100 @(Model.StillActiveTickets > 0 ? "border-warning" : "")">
+            <div class="card-body">
+                <div class="text-muted small">Dönemde Açılıp Hâlâ Aktif</div>
+                <div class="fs-2 fw-semibold">@Model.StillActiveTickets</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Ortalama Çözüm Süresi</div>
+                <div class="fs-2 fw-semibold">@FormatDuration(Model.AverageResolutionMinutes)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5">Kategori ve Alt Kategoriye Göre</h2>
+<p class="text-muted small">Dönemde açılan talepler. Alt kategorisi olmayan eski talepler yalnızca kategoriyle gösterilir.</p>
+@if (!Model.Categories.Any())
+{
+    <div class="alert alert-info">Bu dönemde açılmış talep bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Kategori</th>
+                <th>Alt Kategori</th>
+                <th class="text-end">Talep</th>
+                <th class="text-end">Çözülen</th>
+                <th class="text-end">Ortalama Süre</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Categories)
+            {
+                <tr>
+                    <td>@row.Category.GetDisplayName()</td>
+                    <td>@(row.Subcategory?.GetDisplayName() ?? "-")</td>
+                    <td class="text-end">@row.TicketCount</td>
+                    <td class="text-end">@row.ResolvedCount</td>
+                    <td class="text-end">@FormatDuration(row.AverageMinutes)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h5 mt-4">BT Personeli Performansı</h2>
+<p class="text-muted small">Aktif talepler bugünkü durumu, çözülen talepler ve ortalama süre seçilen dönemi gösterir.</p>
+@if (!Model.Staff.Any())
+{
+    <div class="alert alert-info">Henüz BT personeli bulunmuyor.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Personel</th>
+                <th class="text-end">Üzerindeki Aktif Talep</th>
+                <th class="text-end">Çözdüğü Talep</th>
+                <th class="text-end">Ortalama Çözüm Süresi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Staff)
+            {
+                <tr>
+                    <td>@row.Name</td>
+                    <td class="text-end">@row.ActiveTickets</td>
+                    <td class="text-end">@row.ResolvedTickets</td>
+                    <td class="text-end">@FormatDuration(row.AverageMinutes)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
