@@ -5,8 +5,10 @@
     ViewData["Title"] = "Destek Talepleri";
     var scope = ViewBag.Scope as string;
     var isFiltered = (bool)ViewBag.IsFiltered;
+    var categoryValue = (ViewBag.Category as TicketCategory?) is TicketCategory c ? ((int)c).ToString() : null;
     var statusValue = (ViewBag.Status as TicketStatus?) is TicketStatus s ? ((int)s).ToString() : null;
     var priorityValue = (ViewBag.Priority as TicketPriority?) is TicketPriority p ? ((int)p).ToString() : null;
+    var categoryItems = new SelectList(Html.GetEnumSelectList<TicketCategory>(), "Value", "Text", categoryValue);
     var statusItems = new SelectList(Html.GetEnumSelectList<TicketStatus>(), "Value", "Text", statusValue);
     var priorityItems = new SelectList(Html.GetEnumSelectList<TicketPriority>(), "Value", "Text", priorityValue);
 }
@@ -26,9 +28,15 @@
 </p>
 
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <label for="q" class="form-label small text-muted mb-1">Ara</label>
         <input id="q" name="q" value="@ViewBag.Query" class="form-control" placeholder="Başlık veya açıklama" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label for="category" class="form-label small text-muted mb-1">Kategori</label>
+        <select id="category" name="category" class="form-select" asp-items="categoryItems">
+            <option value="">Tümü</option>
+        </select>
     </div>
     <div class="col-6 col-md-2">
         <label for="status" class="form-label small text-muted mb-1">Durum</label>
@@ -55,7 +63,7 @@
             }
         </select>
     </div>
-    <div class="col-md-2 d-flex gap-2">
+    <div class="col-md-auto d-flex gap-2">
         <button type="submit" class="btn btn-primary">Filtrele</button>
         @if (isFiltered)
         {
@@ -91,7 +99,7 @@ else
             {
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Category)</td>
+                    <td>@item.CategoryPath</td>
                     <td>@Html.DisplayFor(modelItem => item.Priority)</td>
                     <td>@Html.DisplayFor(modelItem => item.Status)</td>
                     <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
