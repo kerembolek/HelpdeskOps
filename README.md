@@ -46,7 +46,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Ticket history: creation and every status, priority, and assignee change with who made it and when
 - [x] Turkish user interface
 - [x] Tier 0 self-service solution bank: employees pick a topic and try step-by-step solutions before opening a ticket; "not solved" opens a pre-filled ticket form, and IT staff manage the articles and see each one's self-service rate
-- [ ] Tiered category structure with free-text "Other" option
+- [x] Tiered category structure: each category has its own subcategories, and "Other" asks for a short free-text description; the ticket list can be filtered by category
 - [ ] Digital asset assignment forms with auto-generated PDF records
 
 ### Role-Based Access Control (RBAC)
@@ -68,9 +68,9 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. The ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
 
-Not implemented yet: tiered ticket categories, digital asset assignment forms with PDF records, and the manager role and its reports.
+Not implemented yet: digital asset assignment forms with PDF records, and the manager role and its reports.
 
 ---
 

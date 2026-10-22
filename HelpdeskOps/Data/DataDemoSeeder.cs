@@ -1,4 +1,4 @@
-﻿using HelpdeskOps.Models;
+using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -54,35 +54,36 @@ public static class DemoDataSeeder
 
     // Matched by title and requester. CreatedDaysAgo/ResolvedAfterHours place them in the past
     // so the dashboard has resolution times to average; a null ResolvedAfterHours means still active.
-    private static readonly (string Title, string Description, TicketCategory Category, TicketPriority Priority, TicketStatus Status,
+    private static readonly (string Title, string Description, TicketCategory Category, TicketSubcategory Subcategory, string? OtherText,
+        TicketPriority Priority, TicketStatus Status,
         string RequesterEmail, string? AssigneeEmail, string? DeviceSerial, int CreatedDaysAgo, int? ResolvedAfterHours)[] DemoTickets =
     {
         ("Dizüstü bilgisayar açılmıyor", "Güç tuşuna basınca ışık yanıyor ama ekran gelmiyor.",
-            TicketCategory.Hardware, TicketPriority.High, TicketStatus.Closed,
+            TicketCategory.Hardware, TicketSubcategory.PcWontStart, null, TicketPriority.High, TicketStatus.Closed,
             "test@helpdeskops.com", "it@helpdeskops.com", "DEMO-LT-001", 30, 6),
         ("Laptop fanı çok ses yapıyor", "Toplantılarda fan sesi çok yüksek, cihaz da ısınıyor.",
-            TicketCategory.Hardware, TicketPriority.Medium, TicketStatus.Resolved,
+            TicketCategory.Hardware, TicketSubcategory.Other, "Fan sesi ve ısınma", TicketPriority.Medium, TicketStatus.Resolved,
             "ik@helpdeskops.com", "it@helpdeskops.com", "DEMO-LT-002", 21, 30),
         ("Batarya çabuk bitiyor", "Tam şarjla bir saat bile dayanmıyor.",
-            TicketCategory.Hardware, TicketPriority.Low, TicketStatus.Resolved,
+            TicketCategory.Hardware, TicketSubcategory.PartFailure, null, TicketPriority.Low, TicketStatus.Resolved,
             "satis@helpdeskops.com", "it@helpdeskops.com", "DEMO-LT-003", 14, 72),
         ("Ekran kartı sürücüsü hata veriyor", "Harici monitör bağlayınca ekran siyaha dönüyor.",
-            TicketCategory.Hardware, TicketPriority.High, TicketStatus.InProgress,
+            TicketCategory.Hardware, TicketSubcategory.Display, null, TicketPriority.High, TicketStatus.InProgress,
             "satis@helpdeskops.com", "it@helpdeskops.com", "DEMO-LT-003", 2, null),
         ("Yazıcı kağıt sıkıştırıyor", "Her çıktıda kağıt sıkışıyor, tepsiyi temizledim.",
-            TicketCategory.Printer, TicketPriority.Medium, TicketStatus.Closed,
+            TicketCategory.Printer, TicketSubcategory.PaperJam, null, TicketPriority.Medium, TicketStatus.Closed,
             "test@helpdeskops.com", "it@helpdeskops.com", "DEMO-PR-001", 18, 4),
         ("VPN bağlantısı kopuyor", "Evden çalışırken VPN birkaç dakikada bir kopuyor.",
-            TicketCategory.Network, TicketPriority.Critical, TicketStatus.Resolved,
+            TicketCategory.Network, TicketSubcategory.Vpn, null, TicketPriority.Critical, TicketStatus.Resolved,
             "satis@helpdeskops.com", "it@helpdeskops.com", null, 10, 2),
         ("Muhasebe programı lisans hatası", "Program açılırken lisans süresi doldu uyarısı veriyor.",
-            TicketCategory.Software, TicketPriority.Critical, TicketStatus.Closed,
+            TicketCategory.Software, TicketSubcategory.License, null, TicketPriority.Critical, TicketStatus.Closed,
             "test@helpdeskops.com", "it@helpdeskops.com", null, 7, 1),
         ("Yeni personel için e-posta hesabı", "Pazartesi başlayacak çalışan için Outlook hesabı açılması gerekiyor.",
-            TicketCategory.EmailOutlook, TicketPriority.Medium, TicketStatus.Open,
+            TicketCategory.EmailOutlook, TicketSubcategory.NewMailbox, null, TicketPriority.Medium, TicketStatus.Open,
             "ik@helpdeskops.com", null, null, 1, null),
         ("Monitör titriyor", "Monitör ara ara titriyor ve renkler bozuluyor.",
-            TicketCategory.Hardware, TicketPriority.Low, TicketStatus.Open,
+            TicketCategory.Hardware, TicketSubcategory.Display, null, TicketPriority.Low, TicketStatus.Open,
             "test@helpdeskops.com", null, "DEMO-MN-001", 0, null),
     };
 
@@ -320,8 +321,20 @@ public static class DemoDataSeeder
         foreach (var demo in DemoTickets)
         {
             var requester = await userManager.FindByEmailAsync(demo.RequesterEmail);
-            if (requester == null || await context.Tickets.AnyAsync(t => t.Title == demo.Title && t.RequesterId == requester.Id))
+            if (requester == null)
                 continue;
+
+            // Demo tickets seeded before subcategories existed get theirs filled in
+            var existing = await context.Tickets.FirstOrDefaultAsync(t => t.Title == demo.Title && t.RequesterId == requester.Id);
+            if (existing != null)
+            {
+                if (existing.Subcategory == null && existing.Category == demo.Category)
+                {
+                    existing.Subcategory = demo.Subcategory;
+                    existing.OtherCategoryText = demo.OtherText;
+                }
+                continue;
+            }
 
             var assignee = demo.AssigneeEmail != null ? await userManager.FindByEmailAsync(demo.AssigneeEmail) : null;
             var device = demo.DeviceSerial != null ? await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == demo.DeviceSerial) : null;
@@ -334,6 +347,8 @@ public static class DemoDataSeeder
                 Title = demo.Title,
                 Description = demo.Description,
                 Category = demo.Category,
+                Subcategory = demo.Subcategory,
+                OtherCategoryText = demo.OtherText,
                 Priority = demo.Priority,
                 Status = demo.Status,
                 RequesterId = requester.Id,
