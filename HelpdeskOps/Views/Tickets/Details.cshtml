@@ -1,3 +1,4 @@
+@using System.Security.Claims
 @model HelpdeskOps.Models.Ticket
 
 @{
@@ -123,13 +124,17 @@
 		}
 	}
 
-	<form asp-action="AddComment" asp-route-id="@Model.Id" method="post" class="mt-3">
-		@if (TempData["CommentError"] is string commentError)
-		{
-			<div class="text-danger mb-2">@commentError</div>
-		}
-		<label for="body" class="form-label">Yeni yorum</label>
-		<textarea id="body" name="body" class="form-control" rows="3" maxlength="2000" required>@TempData["CommentDraft"]</textarea>
-		<button type="submit" class="btn btn-primary mt-2">Yorum Ekle</button>
-	</form>
+	@* Managers read every ticket but only the requester and IT staff take part in the conversation *@
+	@if (User.IsInRole("ITAdmin") || Model.RequesterId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+	{
+		<form asp-action="AddComment" asp-route-id="@Model.Id" method="post" class="mt-3">
+			@if (TempData["CommentError"] is string commentError)
+			{
+				<div class="text-danger mb-2">@commentError</div>
+			}
+			<label for="body" class="form-label">Yeni yorum</label>
+			<textarea id="body" name="body" class="form-control" rows="3" maxlength="2000" required>@TempData["CommentDraft"]</textarea>
+			<button type="submit" class="btn btn-primary mt-2">Yorum Ekle</button>
+		</form>
+	}
 </section>

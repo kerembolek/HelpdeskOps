@@ -7,9 +7,13 @@
     <p class="lead">Kurumsal BT envanter ve destek talebi yönetim sistemi</p>
 
     <div class="d-flex flex-wrap justify-content-center gap-2">
-        @if (User.IsInRole("ITAdmin"))
+        @if (User.IsInRole("ITAdmin") || User.IsInRole("Manager"))
         {
         <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Pano</a>
+        }
+
+        @if (User.IsInRole("ITAdmin"))
+        {
         <a asp-controller="Devices" asp-action="Index" class="btn btn-primary">Cihazlar</a>
         }
 

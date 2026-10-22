@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// Ticket and device reports for IT staff
-[Authorize(Roles = "ITAdmin")]
+// Ticket and device reports for IT staff and managers
+[Authorize(Roles = "ITAdmin,Manager")]
 public class DashboardController : Controller
 {
     private const int ProblemDeviceLimit = 5;

@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Pano";
     var maxDepartmentTickets = Model.DepartmentWorkload.Select(d => d.TotalTickets).DefaultIfEmpty(0).Max();
+    // Managers see the warranty counts but the device list is for IT staff only
+    var canOpenDevices = User.IsInRole("ITAdmin");
 }
 
 @functions {
@@ -177,7 +179,14 @@ else
     <div class="col-6 col-lg-3">
         <div class="card h-100 @(Model.ExpiringWarrantyDevices > 0 ? "border-warning" : "")">
             <div class="card-body">
-                <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expiring" class="stretched-link text-muted small text-decoration-none">@HelpdeskOps.Models.Device.WarrantyExpiringSoonDays Gün İçinde Bitecek</a>
+                @if (canOpenDevices)
+                {
+                    <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expiring" class="stretched-link text-muted small text-decoration-none">@HelpdeskOps.Models.Device.WarrantyExpiringSoonDays Gün İçinde Bitecek</a>
+                }
+                else
+                {
+                    <div class="text-muted small">@HelpdeskOps.Models.Device.WarrantyExpiringSoonDays Gün İçinde Bitecek</div>
+                }
                 <div class="fs-2 fw-semibold">@Model.ExpiringWarrantyDevices</div>
             </div>
         </div>
@@ -185,7 +194,14 @@ else
     <div class="col-6 col-lg-3">
         <div class="card h-100 @(Model.ExpiredWarrantyDevices > 0 ? "border-danger" : "")">
             <div class="card-body">
-                <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expired" class="stretched-link text-muted small text-decoration-none">Garantisi Bitmiş</a>
+                @if (canOpenDevices)
+                {
+                    <a asp-controller="Devices" asp-action="Index" asp-route-warranty="expired" class="stretched-link text-muted small text-decoration-none">Garantisi Bitmiş</a>
+                }
+                else
+                {
+                    <div class="text-muted small">Garantisi Bitmiş</div>
+                }
                 <div class="fs-2 fw-semibold">@Model.ExpiredWarrantyDevices</div>
             </div>
         </div>
