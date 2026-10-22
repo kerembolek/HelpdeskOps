@@ -56,6 +56,7 @@
             <option value="">Tüm talepler</option>
             <option value="active" selected="@(scope == "active")">Aktif talepler</option>
             <option value="done" selected="@(scope == "done")">Çözülen / Kapatılan</option>
+            <option value="overdue" selected="@(scope == "overdue")">Hedef süresi geçenler</option>
             @if (User.IsInRole("ITAdmin"))
             {
                 <option value="mine" selected="@(scope == "mine")">Bana atananlar</option>

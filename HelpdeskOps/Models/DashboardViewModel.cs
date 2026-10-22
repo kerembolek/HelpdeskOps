@@ -10,6 +10,10 @@ public class DashboardViewModel
     public int ResolvedTickets { get; set; }
     public int UnassignedActiveTickets { get; set; }
 
+    // Active tickets past their SLA target, and the share of resolved tickets that met it (null before any is resolved)
+    public int OverdueTickets { get; set; }
+    public double? SlaComplianceRate { get; set; }
+
     // Devices still in use (not retired) whose warranty ends soon or has ended
     public int ExpiringWarrantyDevices { get; set; }
     public int ExpiredWarrantyDevices { get; set; }
