@@ -1,4 +1,6 @@
-﻿@model HelpdeskOps.Models.DashboardViewModel
+﻿@using HelpdeskOps.Models
+@using HelpdeskOps.Models.Enums
+@model HelpdeskOps.Models.DashboardViewModel
 
 @{
     ViewData["Title"] = "Pano";
@@ -61,6 +63,31 @@ else
                     <div class="fs-2 fw-semibold">
                         @(Model.AverageResolutionMinutes is double avg ? FormatDuration(avg) : "-")
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="h5">Hedef Çözüm Süreleri (SLA)</h2>
+    <p class="text-muted small">
+        Hedefler oluşturulma anından itibaren: Kritik @TicketSla.TargetHours(TicketPriority.Critical) saat,
+        Yüksek @TicketSla.TargetHours(TicketPriority.High) saat, Orta @TicketSla.TargetHours(TicketPriority.Medium) saat,
+        Düşük @TicketSla.TargetHours(TicketPriority.Low) saat.
+    </p>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card h-100 @(Model.OverdueTickets > 0 ? "border-danger" : "")">
+                <div class="card-body">
+                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="overdue" class="stretched-link text-muted small text-decoration-none">Hedef Süresi Geçen Aktif Talep</a>
+                    <div class="fs-2 fw-semibold">@Model.OverdueTickets</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Hedefinde Çözülme Oranı</div>
+                    <div class="fs-2 fw-semibold">@(Model.SlaComplianceRate is double rate ? $"%{rate:0}" : "-")</div>
                 </div>
             </div>
         </div>

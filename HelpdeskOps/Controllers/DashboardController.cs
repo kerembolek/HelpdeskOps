@@ -31,7 +31,10 @@ public class DashboardController : Controller
 
         int CountOf(TicketStatus status) => statusCounts.GetValueOrDefault(status);
 
-        var devicesInUse = _context.Devices.AsNoTracking().Where(d => d.Status != DeviceStatus.Retired);
+        var resolvedCount = await resolved.CountAsync();
+        var metTargetCount = await tickets.CountAsync(TicketSla.MetTarget());
+
+        var devicesInUse =_context.Devices.AsNoTracking().Where(d => d.Status != DeviceStatus.Retired);
         var today = DateTime.Today;
         var soon = today.AddDays(Device.WarrantyExpiringSoonDays);
 
@@ -44,6 +47,9 @@ public class DashboardController : Controller
 
             UnassignedActiveTickets = await tickets.CountAsync(t =>
                 t.AssignedToId == null && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)),
+
+            OverdueTickets = await tickets.CountAsync(TicketSla.IsOverdue(DateTime.UtcNow)),
+            SlaComplianceRate = resolvedCount == 0 ? null : metTargetCount * 100.0 / resolvedCount,
 
             // Same rules as the warranty filters on the device list
             ExpiringWarrantyDevices = await devicesInUse.CountAsync(d => d.WarrantyEndDate >= today && d.WarrantyEndDate <= soon),

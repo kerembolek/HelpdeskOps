@@ -120,7 +120,7 @@ public class TicketsController : Controller
     private bool CanSeeAllTickets() => User.IsInRole("ITAdmin") || User.IsInRole("Manager");
 
     // GET: TICKETS/Index?q=&category=&status=&priority=&scope=
-    // scope: "active" (open + in progress), "done" (resolved + closed),
+    // scope: "active" (open + in progress), "done" (resolved + closed), "overdue" (active and past the SLA target),
     // "mine" (ITAdmin only) and "unassigned" (ITAdmin and Manager; active and without an assignee)
     public async Task<IActionResult> Index(string? q, TicketCategory? category, TicketStatus? status, TicketPriority? priority, string? scope)
     {
@@ -168,6 +168,9 @@ public class TicketsController : Controller
                 break;
             case "done":
                 query = query.Where(t => t.Status == TicketStatus.Resolved || t.Status == TicketStatus.Closed);
+                break;
+            case "overdue":
+                query = query.Where(TicketSla.IsOverdue(DateTime.UtcNow));
                 break;
             case "mine" when isAdmin:
                 query = query.Where(t => t.AssignedToId == userId);
