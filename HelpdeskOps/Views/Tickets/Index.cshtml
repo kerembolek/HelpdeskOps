@@ -59,6 +59,9 @@
             @if (User.IsInRole("ITAdmin"))
             {
                 <option value="mine" selected="@(scope == "mine")">Bana atananlar</option>
+            }
+            @if (User.IsInRole("ITAdmin") || User.IsInRole("Manager"))
+            {
                 <option value="unassigned" selected="@(scope == "unassigned")">Atanmamış aktif talepler</option>
             }
         </select>

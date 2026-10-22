@@ -116,13 +116,17 @@ public class TicketsController : Controller
         ViewData["DeviceId"] = new SelectList(devices, "Id", "Hostname", selectedId);
     }
 
+    // ITAdmin works on every ticket; Manager can read every ticket but not change it
+    private bool CanSeeAllTickets() => User.IsInRole("ITAdmin") || User.IsInRole("Manager");
+
     // GET: TICKETS/Index?q=&category=&status=&priority=&scope=
     // scope: "active" (open + in progress), "done" (resolved + closed),
-    // "mine" and "unassigned" (ITAdmin only; unassigned means active and without an assignee)
+    // "mine" (ITAdmin only) and "unassigned" (ITAdmin and Manager; active and without an assignee)
     public async Task<IActionResult> Index(string? q, TicketCategory? category, TicketStatus? status, TicketPriority? priority, string? scope)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var isAdmin = User.IsInRole("ITAdmin");
+        var canSeeAll = CanSeeAllTickets();
 
         var query = _context.Tickets
             .Include(t => t.Device)
@@ -130,7 +134,7 @@ public class TicketsController : Controller
             .Include(t => t.AssignedTo)
             .AsQueryable();
 
-        if (!isAdmin)
+        if (!canSeeAll)
         {
             query = query.Where(t => t.RequesterId == userId);
         }
@@ -168,7 +172,7 @@ public class TicketsController : Controller
             case "mine" when isAdmin:
                 query = query.Where(t => t.AssignedToId == userId);
                 break;
-            case "unassigned" when isAdmin:
+            case "unassigned" when canSeeAll:
                 query = query.Where(t => t.AssignedToId == null
                     && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress));
                 break;
@@ -208,7 +212,7 @@ public class TicketsController : Controller
             return NotFound();
         }
 
-        if (!User.IsInRole("ITAdmin") && ticket.RequesterId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+        if (!CanSeeAllTickets() && ticket.RequesterId != User.FindFirstValue(ClaimTypes.NameIdentifier))
         {
             return Forbid();
         }
