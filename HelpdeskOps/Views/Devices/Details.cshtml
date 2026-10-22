@@ -156,6 +156,7 @@
                     <th>Teslim Tarihi</th>
                     <th>Teslim Eden</th>
                     <th>Durum</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -167,6 +168,7 @@
                         <td>@form.IssuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@(form.IssuedByName ?? "-")</td>
                         <td><partial name="_AssignmentFormStatus" model="form" /></td>
+                        <td><a asp-controller="AssignmentForms" asp-action="Pdf" asp-route-id="@form.Id">PDF İndir</a></td>
                     </tr>
                 }
             </tbody>
