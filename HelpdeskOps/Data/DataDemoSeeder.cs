@@ -215,6 +215,7 @@ public static class DemoDataSeeder
 
         await SeedDevicesAsync(services, userManager);
         await SeedPortLinksAsync(services);
+        await SeedAssignmentFormsAsync(services, userManager);
         await SeedTicketsAsync(services, userManager);
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
@@ -291,6 +292,45 @@ public static class DemoDataSeeder
                 device.VendorPhone = vendor.Phone;
                 device.VendorEmail = vendor.Email;
             }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    // Demo devices that are assigned to someone but have no zimmet form yet get one issued by the IT demo account.
+    // The monitor's form is left unconfirmed so "Cihazlarım" shows the "Teslim Aldım" button.
+    private static async Task SeedAssignmentFormsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var issuer = await userManager.FindByEmailAsync("it@helpdeskops.com");
+
+        foreach (var demo in DemoDevices.Where(d => d.AssignedEmail != null))
+        {
+            var device = await context.Devices
+                .Include(d => d.AssignedUser)
+                .FirstOrDefaultAsync(d => d.SerialNumber == demo.Serial);
+            if (device?.AssignedUser == null || await context.AssignmentForms.AnyAsync(f => f.DeviceId == device.Id))
+                continue;
+
+            var user = device.AssignedUser;
+            var issuedAt = DateTime.UtcNow.AddDays(-Math.Min(demo.PurchasedDaysAgo, 180));
+            var brandModel = string.Join(" ", new[] { device.Brand, device.Model }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+            context.AssignmentForms.Add(new AssignmentForm
+            {
+                DeviceId = device.Id,
+                UserId = user.Id,
+                IssuedById = issuer?.Id,
+                Hostname = device.Hostname,
+                SerialNumber = device.SerialNumber,
+                BrandModel = brandModel.Length > 0 ? brandModel : null,
+                DeviceTypeName = device.DeviceType.GetDisplayName(),
+                EmployeeName = $"{user.FirstName} {user.LastName}",
+                Department = user.Department,
+                IssuedByName = issuer != null ? $"{issuer.FirstName} {issuer.LastName}" : null,
+                IssuedAt = issuedAt,
+                AcceptedAt = device.DeviceType == DeviceType.Monitor ? null : issuedAt.AddHours(2)
+            });
         }
 
         await context.SaveChangesAsync();
