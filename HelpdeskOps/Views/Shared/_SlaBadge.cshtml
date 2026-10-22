@@ -1,0 +1,26 @@
+@using HelpdeskOps.Models
+@model HelpdeskOps.Models.Ticket
+
+@{
+    var dueAt = TicketSla.DueAt(Model);
+    var title = $"Hedef: {dueAt.ToLocalTime():dd.MM.yyyy HH:mm} ({TicketSla.TargetHours(Model.Priority)} saat)";
+}
+
+@switch (TicketSla.StateOf(Model, DateTime.UtcNow))
+{
+    case SlaState.Overdue:
+        <span class="badge text-bg-danger" title="@title">Gecikti</span>
+        break;
+    case SlaState.DueSoon:
+        <span class="badge text-bg-warning" title="@title">Süre doluyor</span>
+        break;
+    case SlaState.OnTrack:
+        <span class="badge text-bg-light border" title="@title">Zamanında</span>
+        break;
+    case SlaState.Met:
+        <span class="badge text-bg-success" title="@title">Hedefte çözüldü</span>
+        break;
+    case SlaState.Missed:
+        <span class="badge text-bg-secondary" title="@title">Geç çözüldü</span>
+        break;
+}
