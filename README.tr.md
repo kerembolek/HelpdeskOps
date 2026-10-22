@@ -42,6 +42,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT personelinin çalışan adına talep açabilmesi (telefonla veya yüz yüze gelen talepler)
 - [x] Atanmamış aktif talepler için tek tıkla "Üzerime Al"
 - [x] Talep listesinde arama ve filtreler (durum, öncelik, aktif, çözülen/kapatılan, bana atananlar, atanmamış)
+- [x] Önceliğe göre hedef çözüm süreleri (SLA: Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat); talep listesinde ve detayında zamanında / süre doluyor / gecikti / hedefte çözüldü / geç çözüldü rozetleri ve "hedef süresi geçenler" görünümü
 - [x] Talep eden ile BT personeli arasında talep yorumları
 - [x] Talep hareket geçmişi: oluşturma ile her durum, öncelik ve atanan kişi değişikliği; kimin ne zaman yaptığıyla birlikte
 - [x] Türkçe kullanıcı arayüzü
@@ -64,6 +65,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Kronik sorunlu cihazlar (marka/modele göre en sık arızalar)
 - [x] Departman iş yükü dağılımı
 - [x] Tıklanınca ilgili filtreli cihaz listesini açan garanti kartları (30 gün içinde bitecek, garantisi bitmiş)
+- [x] SLA kartları: hedef süresi geçen aktif talepler (filtreli listeyi açar) ve hedefinde çözülen taleplerin oranı
 - [x] Seçilen döneme (7, 30, 90 gün, 1 yıl) göre raporlar sayfası: açılan/çözülen sayıları, kategori ve alt kategoriye göre talepler, BT personeli performansı ve dönemin taleplerini CSV olarak indirme
 
 ---

@@ -42,6 +42,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] IT staff can open tickets on behalf of an employee (phone and walk-in requests)
 - [x] One-click "Assign to me" for unassigned active tickets
 - [x] Ticket list search and filters (status, priority, active, resolved/closed, assigned to me, unassigned)
+- [x] SLA targets per priority (Critical 4, High 8, Medium 24, Low 72 hours) with on track / due soon / overdue / met / missed badges on the ticket list and details, and an "overdue" ticket view
 - [x] Ticket comments between the requester and IT staff
 - [x] Ticket history: creation and every status, priority, and assignee change with who made it and when
 - [x] Turkish user interface
@@ -64,6 +65,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Chronic problem devices (most frequent failures by brand/model)
 - [x] Department workload distribution
 - [x] Warranty cards (expiring within 30 days, expired) that open the matching filtered device list
+- [x] SLA cards: overdue active tickets (opens the filtered list) and the share of resolved tickets that met their target
 - [x] Reports page for a chosen period (7, 30, 90 days, 1 year): opened/resolved counts, tickets by category and subcategory, IT staff performance, and a CSV export of the period's tickets
 
 ---
