@@ -55,7 +55,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Employee role: create tickets and see only their own tickets (assigned by default on registration)
 - [x] ITAdmin role: full access to devices and ticket management (edit, assign, delete)
 - [x] "My Devices" page: every user sees the devices assigned to them; employees can only attach their own devices to tickets
-- [ ] Manager role: ticket history and administrative reports
+- [x] Manager role: read-only access to every ticket with its history and comments, plus the dashboard and reports; no device management or ticket changes
 
 ### Admin Dashboard & Reporting
 - [x] Ticket summary cards (open, in progress, resolved/closed, unassigned active tickets) that open the matching filtered ticket list
@@ -63,14 +63,15 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Chronic problem devices (most frequent failures by brand/model)
 - [x] Department workload distribution
 - [x] Warranty cards (expiring within 30 days, expired) that open the matching filtered device list
+- [x] Reports page for a chosen period (7, 30, 90 days, 1 year): opened/resolved counts, tickets by category and subcategory, IT staff performance, and a CSV export of the period's tickets
 
 ---
 
 ## Project Status
 
-**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties.
+**Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Not implemented yet: digital asset assignment forms with PDF records, and the manager role and its reports.
+Not implemented yet: digital asset assignment forms with PDF records.
 
 ---
 
@@ -102,6 +103,7 @@ When the app runs in the `Development` environment, it creates these accounts, a
 |----------|------------------------|-----------------|
 | Employee | `test@helpdeskops.com` | `Helpdesk2026!` |
 | ITAdmin  | `it@helpdeskops.com`   | `Helpdesk2026!` |
+| Manager  | `mudur@helpdeskops.com` | `Helpdesk2026!` |
 
 The demo devices use made-up `10.10.x.x` addresses, so their network status dots show red unless such hosts exist on your network.
 

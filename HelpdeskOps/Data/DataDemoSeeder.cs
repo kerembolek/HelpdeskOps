@@ -17,6 +17,7 @@ public static class DemoDataSeeder
         // Extra employees so the dashboard has more than one department to compare
         ("ik@helpdeskops.com", "Ayşe", "Demir", "İnsan Kaynakları", "Employee"),
         ("satis@helpdeskops.com", "Emre", "Kaya", "Satış", "Employee"),
+        ("mudur@helpdeskops.com", "Selin", "Arslan", "Yönetim", "Manager"),
     };
 
     // Matched by serial number, so devices added or edited by hand are left alone.
