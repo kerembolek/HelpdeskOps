@@ -1,0 +1,53 @@
+@using HelpdeskOps.Models.Enums
+@model HelpdeskOps.Models.Ticket
+
+@{
+    var category = Model?.Category ?? default;
+    // Category value -> its subcategories, so the second dropdown can follow the first without a round trip
+    var tree = Enum.GetValues<TicketCategory>().ToDictionary(
+        c => ((int)c).ToString(),
+        c => TicketCategories.SubcategoriesOf(c).Select(s => new { value = (int)s, text = s.GetDisplayName() }));
+}
+
+<div class="mb-3">
+    <label asp-for="Category" class="form-label"></label>
+    <select asp-for="Category" class="form-select" asp-items="Html.GetEnumSelectList<TicketCategory>()"></select>
+    <span asp-validation-for="Category" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Subcategory" class="form-label"></label>
+    <select id="Subcategory" name="Subcategory" class="form-select"
+            data-tree="@System.Text.Json.JsonSerializer.Serialize(tree)" data-other="@((int)TicketSubcategory.Other)">
+        <option value="">Seçiniz</option>
+        @foreach (var subcategory in TicketCategories.SubcategoriesOf(category))
+        {
+            <option value="@((int)subcategory)" selected="@(Model?.Subcategory == subcategory)">@subcategory.GetDisplayName()</option>
+        }
+    </select>
+    <span asp-validation-for="Subcategory" class="text-danger"></span>
+</div>
+<div class="mb-3" id="OtherCategoryGroup" hidden="@(Model?.Subcategory != TicketSubcategory.Other)">
+    <label asp-for="OtherCategoryText" class="form-label"></label>
+    <input asp-for="OtherCategoryText" class="form-control" maxlength="100" placeholder="Örn. Telefon santrali" />
+    <span asp-validation-for="OtherCategoryText" class="text-danger"></span>
+</div>
+
+<script>
+    (() => {
+        const category = document.getElementById("Category");
+        const subcategory = document.getElementById("Subcategory");
+        const otherGroup = document.getElementById("OtherCategoryGroup");
+        const tree = JSON.parse(subcategory.dataset.tree);
+
+        const toggleOther = () => { otherGroup.hidden = subcategory.value !== subcategory.dataset.other; };
+
+        category.addEventListener("change", () => {
+            subcategory.length = 1;
+            for (const item of tree[category.value] ?? []) {
+                subcategory.add(new Option(item.text, item.value));
+            }
+            toggleOther();
+        });
+        subcategory.addEventListener("change", toggleOther);
+    })();
+</script>

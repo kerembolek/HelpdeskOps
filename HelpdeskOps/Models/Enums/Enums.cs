@@ -40,6 +40,39 @@ namespace HelpdeskOps.Models.Enums
         [Display(Name = "Diğer")] Other
     }
 
+    // Second level under TicketCategory; TicketCategories lists which ones belong to each category.
+    // Values are stored as ints, so new subcategories go at the end.
+    public enum TicketSubcategory
+    {
+        [Display(Name = "Diğer")] Other,
+
+        [Display(Name = "Bilgisayar açılmıyor")] PcWontStart,
+        [Display(Name = "Yavaşlık / donma")] SlowOrFreezing,
+        [Display(Name = "Monitör / ekran")] Display,
+        [Display(Name = "Klavye / fare")] KeyboardMouse,
+        [Display(Name = "Parça arızası")] PartFailure,
+
+        [Display(Name = "Program kurulumu")] Installation,
+        [Display(Name = "Program hata veriyor")] AppError,
+        [Display(Name = "Lisans / aktivasyon")] License,
+        [Display(Name = "Windows güncellemesi")] WindowsUpdate,
+
+        [Display(Name = "İnternet yok")] NoInternet,
+        [Display(Name = "Wi-Fi")] WiFi,
+        [Display(Name = "VPN")] Vpn,
+        [Display(Name = "Paylaşılan klasör erişimi")] SharedFolder,
+
+        [Display(Name = "Outlook açılmıyor")] OutlookWontOpen,
+        [Display(Name = "E-posta gönderme / alma")] SendReceive,
+        [Display(Name = "Posta kutusu dolu")] MailboxFull,
+        [Display(Name = "Yeni hesap / posta kutusu")] NewMailbox,
+
+        [Display(Name = "Yazdırmıyor")] NotPrinting,
+        [Display(Name = "Kağıt sıkışması")] PaperJam,
+        [Display(Name = "Toner / kartuş")] Toner,
+        [Display(Name = "Tarama")] Scanning
+    }
+
     public enum TicketPriority
     {
         [Display(Name = "Düşük")] Low,
