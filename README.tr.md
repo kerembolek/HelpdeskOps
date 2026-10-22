@@ -56,6 +56,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT Yöneticisi (ITAdmin) rolü: cihazlara ve talep yönetimine tam erişim (düzenleme, atama, silme)
 - [x] "Cihazlarım" sayfası: her kullanıcı kendine zimmetli cihazları görür; çalışanlar taleplere yalnızca kendi cihazlarını ekleyebilir
 - [x] Yönetici (Manager) rolü: tüm talepleri geçmişi ve yorumlarıyla salt okunur görme, pano ve raporlar; cihaz yönetimi ve talep değişikliği yok
+- [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Yönetici Panosu ve Raporlama
 - [x] Tıklanınca ilgili filtreli talep listesini açan özet kartları (açık, işlemde, çözülen/kapatılan, atanmamış aktif talepler)
@@ -71,7 +72,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından onayladığı dijital bir zimmet formu açılıyor ve her form PDF olarak indirilebiliyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından onayladığı dijital bir zimmet formu açılıyor ve her form PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
 
 ---
 
