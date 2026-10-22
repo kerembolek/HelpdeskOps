@@ -51,3 +51,48 @@ else
         </tbody>
     </table>
 }
+
+<section id="assignment-forms" class="mt-5">
+    <h2 class="h4">Zimmet Formlarım</h2>
+    <p class="text-muted small">Size teslim edilen cihazların zimmet kayıtları. Cihazı teslim aldıysanız formu onaylayın.</p>
+
+    @if (ViewBag.AssignmentForms is not List<HelpdeskOps.Models.AssignmentForm> forms || !forms.Any())
+    {
+        <div class="alert alert-info">Adınıza açılmış zimmet formu bulunmuyor.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Form No</th>
+                    <th>Cihaz</th>
+                    <th>Seri No</th>
+                    <th>Teslim Tarihi</th>
+                    <th>Durum</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var form in forms)
+                {
+                    <tr>
+                        <td>@form.FormNumber</td>
+                        <td>@form.Hostname <span class="text-muted small">@form.BrandModel</span></td>
+                        <td>@form.SerialNumber</td>
+                        <td>@form.IssuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td><partial name="_AssignmentFormStatus" model="form" /></td>
+                        <td>
+                            @if (form.AcceptedAt == null && form.ReturnedAt == null)
+                            {
+                                <form asp-action="Accept" asp-route-id="@form.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success">Teslim Aldım</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

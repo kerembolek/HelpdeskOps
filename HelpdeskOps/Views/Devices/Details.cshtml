@@ -138,6 +138,42 @@
     </section>
 }
 
+<section id="assignment-forms" class="mt-5">
+    <h2 class="h4">Zimmet Formları</h2>
+    <p class="text-muted small">Cihaz bir kişiye her zimmetlendiğinde form açılır; kişi "Cihazlarım" sayfasından teslim aldığını onaylar.</p>
+
+    @if (ViewBag.AssignmentForms is not List<HelpdeskOps.Models.AssignmentForm> forms || !forms.Any())
+    {
+        <div class="alert alert-info">Bu cihaz için henüz zimmet formu bulunmuyor.</div>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Form No</th>
+                    <th>Zimmetlenen</th>
+                    <th>Teslim Tarihi</th>
+                    <th>Teslim Eden</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var form in forms)
+                {
+                    <tr>
+                        <td>@form.FormNumber</td>
+                        <td>@form.EmployeeName @(form.Department != null ? $"({form.Department})" : "")</td>
+                        <td>@form.IssuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(form.IssuedByName ?? "-")</td>
+                        <td><partial name="_AssignmentFormStatus" model="form" /></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
+
 <section id="history" class="mt-5" style="max-width: 48rem;">
     <h2 class="h4">Cihaz Geçmişi</h2>
     <p class="text-muted small">Format, yükseltme, parça değişimi ve bakım kayıtları ile zimmet, durum ve port değişiklikleri.</p>

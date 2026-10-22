@@ -19,6 +19,7 @@ namespace HelpdeskOps.Data
         public DbSet<TicketActivity> TicketActivities { get; set; }
         public DbSet<DeviceEvent> DeviceEvents { get; set; }
         public DbSet<SolutionArticle> SolutionArticles { get; set; }
+        public DbSet<AssignmentForm> AssignmentForms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -91,6 +92,25 @@ namespace HelpdeskOps.Data
                 .HasOne(a => a.Actor)
                 .WithMany()
                 .HasForeignKey(a => a.ActorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Zimmet forms are records: they outlive the device and keep their copied details
+            builder.Entity<AssignmentForm>()
+                .HasOne(f => f.Device)
+                .WithMany()
+                .HasForeignKey(f => f.DeviceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<AssignmentForm>()
+                .HasOne(f => f.User)
+                .WithMany()
+                .HasForeignKey(f => f.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AssignmentForm>()
+                .HasOne(f => f.IssuedBy)
+                .WithMany()
+                .HasForeignKey(f => f.IssuedById)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
