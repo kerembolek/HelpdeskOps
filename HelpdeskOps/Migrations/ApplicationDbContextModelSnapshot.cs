@@ -284,6 +284,10 @@ namespace HelpdeskOps.Migrations
                     b.Property<int?>("DeviceId")
                         .HasColumnType("int");
 
+                    b.Property<string>("OtherCategoryText")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
@@ -295,6 +299,9 @@ namespace HelpdeskOps.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Subcategory")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")

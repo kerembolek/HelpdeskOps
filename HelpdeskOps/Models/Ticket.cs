@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using HelpdeskOps.Models.Enums;
 
 namespace HelpdeskOps.Models;
@@ -19,6 +20,24 @@ public class Ticket
     [Required(ErrorMessage = "Kategori seçilmelidir.")]
     [Display(Name = "Kategori")]
     public TicketCategory Category { get; set; }
+
+    // Null only on tickets opened before subcategories existed
+    [Display(Name = "Alt Kategori")]
+    public TicketSubcategory? Subcategory { get; set; }
+
+    // Filled in when the subcategory is "Other"
+    [StringLength(100, ErrorMessage = "En fazla 100 karakter girebilirsiniz.")]
+    [Display(Name = "Diğer (belirtiniz)")]
+    public string? OtherCategoryText { get; set; }
+
+    // "Donanım › Monitör / ekran", or "Ağ › Telefon santrali" when "Other" was described
+    [NotMapped]
+    public string CategoryPath => Subcategory switch
+    {
+        null => Category.GetDisplayName(),
+        TicketSubcategory.Other when !string.IsNullOrEmpty(OtherCategoryText) => $"{Category.GetDisplayName()} › {OtherCategoryText}",
+        _ => $"{Category.GetDisplayName()} › {Subcategory.Value.GetDisplayName()}"
+    };
 
     [Required(ErrorMessage = "Öncelik seçilmelidir.")]
     [Display(Name = "Öncelik")]

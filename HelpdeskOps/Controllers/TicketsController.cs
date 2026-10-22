@@ -48,6 +48,32 @@ public class TicketsController : Controller
         });
     }
 
+    // The subcategory must belong to the chosen category; "Other" needs a short description, which is dropped otherwise
+    private void ValidateSubcategory(Ticket ticket)
+    {
+        ticket.OtherCategoryText = string.IsNullOrWhiteSpace(ticket.OtherCategoryText) ? null : ticket.OtherCategoryText.Trim();
+
+        if (ticket.Subcategory is not TicketSubcategory subcategory)
+        {
+            ModelState.AddModelError(nameof(Ticket.Subcategory), "Alt kategori seçilmelidir.");
+            return;
+        }
+
+        if (!TicketCategories.Belongs(ticket.Category, subcategory))
+        {
+            ModelState.AddModelError(nameof(Ticket.Subcategory), "Seçilen alt kategori bu kategoriye ait değil.");
+        }
+
+        if (subcategory != TicketSubcategory.Other)
+        {
+            ticket.OtherCategoryText = null;
+        }
+        else if (ticket.OtherCategoryText == null)
+        {
+            ModelState.AddModelError(nameof(Ticket.OtherCategoryText), "\"Diğer\" seçtiğinizde konuyu kısaca yazın.");
+        }
+    }
+
     private async Task<string> AssigneeNameAsync(string? userId)
     {
         if (userId == null)
@@ -263,7 +289,7 @@ public class TicketsController : Controller
     // requesterId is only honored for ITAdmin, who can open tickets on behalf of a caller.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Title,Description,Category,Priority,DeviceId")] Ticket ticket, string? requesterId)
+    public async Task<IActionResult> Create([Bind("Title,Description,Category,Subcategory,OtherCategoryText,Priority,DeviceId")] Ticket ticket, string? requesterId)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var isAdmin = User.IsInRole("ITAdmin");
@@ -284,6 +310,8 @@ public class TicketsController : Controller
         {
             ModelState.AddModelError(nameof(Ticket.DeviceId), "Yalnızca size zimmetli bir cihaz seçebilirsiniz.");
         }
+
+        ValidateSubcategory(ticket);
 
         if (ModelState.IsValid)
         {
@@ -325,7 +353,7 @@ public class TicketsController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "ITAdmin")]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Priority,Status,DeviceId,AssignedToId")] Ticket ticket)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Title,Description,Category,Subcategory,OtherCategoryText,Priority,Status,DeviceId,AssignedToId")] Ticket ticket)
     {
         if (id != ticket.Id)
         {
@@ -358,6 +386,8 @@ public class TicketsController : Controller
             }
         }
 
+        ValidateSubcategory(ticket);
+
         if (ModelState.IsValid)
         {
             LogActivity(existing, TicketActivityType.StatusChanged,
@@ -373,6 +403,8 @@ public class TicketsController : Controller
             existing.Title = ticket.Title;
             existing.Description = ticket.Description;
             existing.Category = ticket.Category;
+            existing.Subcategory = ticket.Subcategory;
+            existing.OtherCategoryText = ticket.OtherCategoryText;
             existing.Priority = ticket.Priority;
             existing.Status = ticket.Status;
             existing.DeviceId = ticket.DeviceId;
