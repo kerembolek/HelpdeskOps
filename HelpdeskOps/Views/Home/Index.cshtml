@@ -10,6 +10,7 @@
         @if (User.IsInRole("ITAdmin") || User.IsInRole("Manager"))
         {
         <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Pano</a>
+        <a asp-controller="Reports" asp-action="Index" class="btn btn-primary">Raporlar</a>
         }
 
         @if (User.IsInRole("ITAdmin"))
