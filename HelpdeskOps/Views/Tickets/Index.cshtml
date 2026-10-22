@@ -90,6 +90,7 @@ else
                 <th>@Html.DisplayNameFor(model => model.Category)</th>
                 <th>@Html.DisplayNameFor(model => model.Priority)</th>
                 <th>@Html.DisplayNameFor(model => model.Status)</th>
+                <th>Hedef Süre</th>
                 <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
                 <th>@Html.DisplayNameFor(model => model.Device)</th>
                 <th>@Html.DisplayNameFor(model => model.Requester)</th>
@@ -105,6 +106,7 @@ else
                     <td>@item.CategoryPath</td>
                     <td>@Html.DisplayFor(modelItem => item.Priority)</td>
                     <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td><partial name="_SlaBadge" model="item" /></td>
                     <td>@item.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@(item.Device?.Hostname ?? "-")</td>
                     <td>@(item.Requester != null ? item.Requester.FirstName + " " + item.Requester.LastName : "-")</td>
