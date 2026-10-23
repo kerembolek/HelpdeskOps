@@ -355,12 +355,22 @@ namespace HelpdeskOps.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("RatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("RequesterId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("ResolvedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("SatisfactionComment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("SatisfactionRating")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

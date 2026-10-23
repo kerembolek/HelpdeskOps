@@ -76,6 +76,17 @@ public class Ticket
     [Display(Name = "Atanan Kişi")]
     public ApplicationUser? AssignedTo { get; set; }
 
+    // Requester's satisfaction with a resolved or closed ticket, given once
+    [Range(1, 5)]
+    [Display(Name = "Memnuniyet")]
+    public int? SatisfactionRating { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Değerlendirme Yorumu")]
+    public string? SatisfactionComment { get; set; }
+
+    public DateTime? RatedAt { get; set; }
+
     public ICollection<TicketComment> Comments { get; set; } = new List<TicketComment>();
     public ICollection<TicketActivity> Activities { get; set; } = new List<TicketActivity>();
     public ICollection<TicketAttachment> Attachments { get; set; } = new List<TicketAttachment>();
