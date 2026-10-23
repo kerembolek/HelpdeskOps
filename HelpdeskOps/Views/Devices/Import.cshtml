@@ -12,6 +12,11 @@
     Herhangi bir satırda sorun varsa hiçbir cihaz eklenmez ve tüm sorunlar listelenir.
 </p>
 
+<p>
+    <a asp-action="ImportTemplate" class="btn btn-sm btn-outline-secondary">Örnek Şablonu İndir</a>
+    <span class="small text-muted ms-2">Excel'de açıp doldurduktan sonra "CSV UTF-8" olarak kaydedin.</span>
+</p>
+
 @if (Model.Any())
 {
     <div class="alert alert-danger">

@@ -125,6 +125,38 @@ public static class DeviceCsvImporter
         return result;
     }
 
+    // Writes devices in the import format (semicolon separated, UTF-8 with BOM for Excel), so an export can be edited and imported again
+    public static byte[] ToCsv(IEnumerable<(Device Device, string? AssignedEmail)> devices)
+    {
+        var csv = new StringBuilder();
+        csv.AppendLine(string.Join(";", Columns));
+        foreach (var (device, email) in devices)
+        {
+            csv.AppendLine(string.Join(";",
+                Cell(device.Hostname),
+                Cell(device.IpAddress),
+                Cell(device.SerialNumber),
+                Cell(device.Brand),
+                Cell(device.Model),
+                device.DeviceType.ToString(),
+                device.Status.ToString(),
+                device.PurchaseDate?.ToString("dd.MM.yyyy") ?? "",
+                device.WarrantyEndDate?.ToString("dd.MM.yyyy") ?? "",
+                Cell(email)));
+        }
+
+        return Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
+    }
+
+    // Quotes cells that need it; a leading = + - @ gets an apostrophe so a value cannot run as a spreadsheet formula
+    private static string Cell(string? value)
+    {
+        value ??= "";
+        if (value.Length > 0 && "=+-@".Contains(value[0]))
+            value = "'" + value;
+        return value.IndexOfAny(new[] { ';', ',', '"', '\n', '\r' }) >= 0 ? $"\"{value.Replace("\"", "\"\"")}\"" : value;
+    }
+
     // Accepts the member name ("Laptop") or the Turkish label ("Dizüstü Bilgisayar"), ignoring case
     private static TEnum? ParseEnum<TEnum>(string? text) where TEnum : struct, Enum
     {
