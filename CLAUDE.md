@@ -9,7 +9,9 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 ## Git workflow
 - Big or important changes (new features, auth/roles, migrations, multi-commit work) go on their own branch (`feature/...`, `fix/...`, `docs/...`), then a GitHub PR, then a merge into `master`.
 - Small fixes, typos, and purely visual tweaks are committed straight to `master`. When unsure, use a branch.
-- The user pushes, opens PRs, and merges from Visual Studio and GitHub themselves. Don't push. Ask before committing.
+- Claude builds and checks a branch in the browser; only when it works, Claude pushes it, opens the PR, and merges it.
+- PRs are merged with **Rebase and merge** (linear history, no merge commits).
+- The user sets a daily cap on GitHub contributions. Every commit and every opened PR counts; commits count on their author date. Plan the list up front and ask before anything that could go over.
 - `git` may not be on PATH. Visual Studio's bundled Git lives at:
   `C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer\Git\cmd\git.exe`
 
