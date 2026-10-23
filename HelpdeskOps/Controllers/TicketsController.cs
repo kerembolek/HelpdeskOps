@@ -459,6 +459,48 @@ public class TicketsController : Controller
         return View(ticket);
     }
 
+    // POST: TICKETS/Rate/5
+    // Only the requester rates, only once, and only after the ticket is resolved or closed
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Rate(int id, int? rating, string? comment)
+    {
+        var ticket = await _context.Tickets.FindAsync(id);
+        if (ticket == null)
+        {
+            return NotFound();
+        }
+
+        if (ticket.RequesterId != User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return Forbid();
+        }
+
+        comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+        if (ticket.Status is not (TicketStatus.Resolved or TicketStatus.Closed) || ticket.SatisfactionRating != null)
+        {
+            TempData["RatingError"] = "Bu talep şu anda değerlendirilemez.";
+        }
+        else if (rating is not (>= 1 and <= 5))
+        {
+            TempData["RatingError"] = "Lütfen 1 ile 5 arasında bir puan seçin.";
+        }
+        else if (comment?.Length > 500)
+        {
+            TempData["RatingError"] = "Yorum en fazla 500 karakter olabilir.";
+        }
+        else
+        {
+            ticket.SatisfactionRating = rating;
+            ticket.SatisfactionComment = comment;
+            ticket.RatedAt = DateTime.UtcNow;
+            LogActivity(ticket, TicketActivityType.Rated, null, $"{rating}/5");
+            await _context.SaveChangesAsync();
+        }
+
+        return Redirect(Url.Action(nameof(Details), new { id }) + "#rating");
+    }
+
     // POST: TICKETS/AssignToMe/5
     // One-click self-assignment; an open ticket moves to "in progress" when someone takes it
     [HttpPost]

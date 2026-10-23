@@ -108,6 +108,7 @@ namespace HelpdeskOps.Models.Enums
         [Display(Name = "Talep oluşturuldu")] Created,
         [Display(Name = "Durum değişti")] StatusChanged,
         [Display(Name = "Öncelik değişti")] PriorityChanged,
-        [Display(Name = "Atanan kişi değişti")] AssigneeChanged
+        [Display(Name = "Atanan kişi değişti")] AssigneeChanged,
+        [Display(Name = "Talep değerlendirildi")] Rated
     }
 }

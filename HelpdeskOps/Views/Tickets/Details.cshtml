@@ -68,6 +68,45 @@
 	<a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
 
+@{
+	var isRequester = Model.RequesterId == User.FindFirstValue(ClaimTypes.NameIdentifier);
+	var isFinished = Model.Status is HelpdeskOps.Models.Enums.TicketStatus.Resolved or HelpdeskOps.Models.Enums.TicketStatus.Closed;
+}
+@if (Model.SatisfactionRating is int rating)
+{
+	<section id="rating" class="mt-5" style="max-width: 48rem;">
+		<h2 class="h4">Memnuniyet</h2>
+		<div class="fs-4 text-warning" aria-label="5 üzerinden @rating">@(new string('★', rating))<span class="text-body-tertiary">@(new string('★', 5 - rating))</span></div>
+		@if (Model.SatisfactionComment != null)
+		{
+			<p class="mb-1" style="white-space: pre-line;">@Model.SatisfactionComment</p>
+		}
+		<div class="small text-muted">@Model.RatedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+	</section>
+}
+else if (isRequester && isFinished)
+{
+	<section id="rating" class="mt-5" style="max-width: 48rem;">
+		<h2 class="h4">Talebi Değerlendirin</h2>
+		<p class="text-muted">Talebiniz çözüldü. Destekten ne kadar memnun kaldığınızı puanlayın; değerlendirme bir kez yapılır.</p>
+		<form asp-action="Rate" asp-route-id="@Model.Id" method="post">
+			@if (TempData["RatingError"] is string ratingError)
+			{
+				<div class="text-danger mb-2">@ratingError</div>
+			}
+			<div class="btn-group mb-2" role="group" aria-label="Puan">
+				@for (var score = 1; score <= 5; score++)
+				{
+					<input type="radio" class="btn-check" name="rating" id="rating-@score" value="@score" required />
+					<label class="btn btn-outline-warning" for="rating-@score">@score ★</label>
+				}
+			</div>
+			<textarea name="comment" class="form-control" rows="2" maxlength="500" placeholder="Eklemek istediğiniz bir şey var mı? (isteğe bağlı)"></textarea>
+			<button type="submit" class="btn btn-primary mt-2">Değerlendir</button>
+		</form>
+	</section>
+}
+
 <section id="attachments" class="mt-5" style="max-width: 48rem;">
 	<h2 class="h4">Ekler</h2>
 
@@ -147,7 +186,11 @@
 						<span>@activity.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
 					</div>
 					<div>
-						@Html.DisplayFor(_ => activity.Type)@if (activity.Type != HelpdeskOps.Models.Enums.TicketActivityType.Created)
+						@Html.DisplayFor(_ => activity.Type)@if (activity.Type == HelpdeskOps.Models.Enums.TicketActivityType.Rated)
+						{
+							<text>: <strong>@activity.NewValue</strong></text>
+						}
+						else if (activity.Type != HelpdeskOps.Models.Enums.TicketActivityType.Created)
 						{
 							<text>: @activity.OldValue <span class="text-muted">→</span> <strong>@activity.NewValue</strong></text>
 						}
