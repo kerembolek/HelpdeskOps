@@ -230,8 +230,46 @@ public static class DemoDataSeeder
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
         await SeedRatingsAsync(services);
+        await SeedNotificationsAsync(services, userManager);
         await SeedDeviceEventsAsync(services, userManager);
         await SeedSolutionsAsync(services);
+    }
+
+    // A few unread notifications so the navbar count shows up; only for demo users who have none yet
+    private static async Task SeedNotificationsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        var demo = new (string Email, string TicketTitle, string Message)[]
+        {
+            ("test@helpdeskops.com", "Monitör titriyor", "BT ekibi yeni bir yorum yazdı."),
+            ("test@helpdeskops.com", "Dizüstü bilgisayar açılmıyor", "talebinizin durumu \"Kapatıldı\" oldu."),
+            ("it@helpdeskops.com", "Ekran kartı sürücüsü hata veriyor", "talep size atandı.")
+        };
+
+        foreach (var group in demo.GroupBy(d => d.Email))
+        {
+            var user = await userManager.FindByEmailAsync(group.Key);
+            if (user == null || await context.Notifications.AnyAsync(n => n.UserId == user.Id))
+                continue;
+
+            foreach (var item in group)
+            {
+                var ticket = await context.Tickets.FirstOrDefaultAsync(t => t.Title == item.TicketTitle);
+                if (ticket == null)
+                    continue;
+
+                context.Notifications.Add(new Notification
+                {
+                    UserId = user.Id,
+                    Message = $"#{ticket.Id} \"{ticket.Title}\": {item.Message}",
+                    Url = $"/Tickets/Details/{ticket.Id}",
+                    CreatedAt = DateTime.UtcNow.AddHours(-1)
+                });
+            }
+        }
+
+        await context.SaveChangesAsync();
     }
 
     // Only resolved, still unrated demo tickets get a rating, so ratings given by hand are kept
