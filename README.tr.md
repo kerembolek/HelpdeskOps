@@ -32,6 +32,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Cisco switch port eşleme: cihazı bir switch portuna (örn. `Gi1/0/12`) ve VLAN'a bağlama, her porta tek cihaz, her switch'in detay sayfasında port tablosu ve cihaz geçmişine kaydedilen port değişiklikleri
 - [x] Cihaz geçmişi: format, yükseltme, parça değişimi ve onarım kayıtları ile otomatik zimmet ve durum değişiklikleri
 - [x] Garanti takibi: satın alma tarihi, garantide / yakında bitiyor (30 gün) / garanti bitti rozetli garanti bitişi, servis/tedarikçi iletişim bilgileri (firma, telefon, e-posta) ve cihaz listesinde garanti filtreleri
+- [x] CSV ile cihaz içe ve dışa aktarma: bir CSV dosyasından tek seferde 500 cihaza kadar ekleme (ya hepsi ya hiçbiri; her sorun satır numarasıyla listelenir), örnek şablon indirme ve cihaz listesini aynı formatta dışa aktarma
 
 ### Yardım Masası ve Talep Sistemi
 - [x] Temel talep modeli (kategori, öncelik, durum, talep eden, atanan kişi)
