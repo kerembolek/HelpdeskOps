@@ -76,6 +76,24 @@ public class TicketsController : Controller
         }
     }
 
+    // Queues an in-app notification about the ticket; nobody is notified about their own action
+    private void Notify(string? userId, Ticket ticket, string message)
+    {
+        if (userId == null || userId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return;
+        }
+
+        var title = ticket.Title.Length > 80 ? ticket.Title[..80] + "…" : ticket.Title;
+        _context.Notifications.Add(new Notification
+        {
+            UserId = userId,
+            Message = $"#{ticket.Id} \"{title}\": {message}",
+            Url = $"/Tickets/Details/{ticket.Id}",
+            CreatedAt = DateTime.UtcNow
+        });
+    }
+
     private async Task<string> AssigneeNameAsync(string? userId)
     {
         if (userId == null)
@@ -264,6 +282,16 @@ public class TicketsController : Controller
                 CreatedAt = DateTime.UtcNow
             });
             ticket.UpdatedAt = DateTime.UtcNow;
+
+            // The other side of the conversation hears about it
+            if (userId == ticket.RequesterId)
+            {
+                Notify(ticket.AssignedToId, ticket, "talep eden yeni bir yorum yazdı.");
+            }
+            else
+            {
+                Notify(ticket.RequesterId, ticket, "BT ekibi yeni bir yorum yazdı.");
+            }
             await _context.SaveChangesAsync();
         }
 
@@ -347,6 +375,14 @@ public class TicketsController : Controller
             _context.Add(ticket);
             LogActivity(ticket, TicketActivityType.Created, null, null);
             await _context.SaveChangesAsync();
+
+            // A ticket IT opened on someone's behalf; saved first so the notification can link to its id
+            if (ticket.RequesterId != currentUserId)
+            {
+                Notify(ticket.RequesterId, ticket, "adınıza BT ekibi tarafından talep açıldı.");
+                await _context.SaveChangesAsync();
+            }
+
             return RedirectToAction(nameof(Index));
         }
         await LoadDevicesAsync(ticket.DeviceId);
@@ -427,6 +463,11 @@ public class TicketsController : Controller
             {
                 LogActivity(existing, TicketActivityType.AssigneeChanged,
                     await AssigneeNameAsync(existing.AssignedToId), await AssigneeNameAsync(ticket.AssignedToId));
+                Notify(ticket.AssignedToId, existing, "talep size atandı.");
+            }
+            if (existing.Status != ticket.Status)
+            {
+                Notify(existing.RequesterId, existing, $"talebinizin durumu \"{ticket.Status.GetDisplayName()}\" oldu.");
             }
 
             existing.Title = ticket.Title;
@@ -495,6 +536,7 @@ public class TicketsController : Controller
             ticket.SatisfactionComment = comment;
             ticket.RatedAt = DateTime.UtcNow;
             LogActivity(ticket, TicketActivityType.Rated, null, $"{rating}/5");
+            Notify(ticket.AssignedToId, ticket, $"talep eden çözümü {rating}/5 olarak değerlendirdi.");
             await _context.SaveChangesAsync();
         }
 
@@ -526,6 +568,7 @@ public class TicketsController : Controller
             LogActivity(ticket, TicketActivityType.StatusChanged,
                 TicketStatus.Open.GetDisplayName(), TicketStatus.InProgress.GetDisplayName());
             ticket.Status = TicketStatus.InProgress;
+            Notify(ticket.RequesterId, ticket, "talebiniz BT ekibi tarafından üstlenildi ve işleme alındı.");
         }
         ticket.UpdatedAt = DateTime.UtcNow;
 
