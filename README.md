@@ -44,6 +44,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Ticket list search and filters (status, priority, active, resolved/closed, assigned to me, unassigned)
 - [x] SLA targets per priority (Critical 4, High 8, Medium 24, Low 72 hours) with on track / due soon / overdue / met / missed badges on the ticket list and details, and an "overdue" ticket view
 - [x] Ticket comments between the requester and IT staff
+- [x] Ticket attachments: screenshots, PDF, text/log, Word, and Excel files (up to 5 files of 5 MB) when opening a ticket or later, stored outside the web root and downloadable only by people who can see the ticket
 - [x] Ticket history: creation and every status, priority, and assignee change with who made it and when
 - [x] Turkish user interface
 - [x] Tier 0 self-service solution bank: employees pick a topic and try step-by-step solutions before opening a ticket; "not solved" opens a pre-filled ticket form, and IT staff manage the articles and see each one's self-service rate
