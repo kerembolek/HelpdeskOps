@@ -1,0 +1,60 @@
+@using HelpdeskOps.Services
+@model List<string>
+
+@{
+    ViewData["Title"] = "Cihazları İçe Aktar";
+}
+
+<h1>Cihazları İçe Aktar</h1>
+
+<p class="text-muted">
+    Birden çok cihazı bir CSV dosyasıyla ekleyin. İlk satır sütun başlıklarıdır; noktalı virgül veya virgülle ayrılmış dosyalar kabul edilir.
+    Herhangi bir satırda sorun varsa hiçbir cihaz eklenmez ve tüm sorunlar listelenir.
+</p>
+
+@if (Model.Any())
+{
+    <div class="alert alert-danger">
+        <strong>Dosya içe aktarılmadı.</strong>
+        <ul class="mb-0 mt-2">
+            @foreach (var error in Model)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Import" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">CSV dosyası</label>
+                <input id="file" name="file" type="file" class="form-control" accept=".csv" required />
+                <div class="form-text">En fazla @DeviceCsvImporter.MaxRows cihaz, 1 MB.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">İçe Aktar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Listeye Dön</a>
+        </form>
+    </div>
+</div>
+
+<h2 class="h5 mt-5">Sütunlar</h2>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Sütun</th>
+            <th>Açıklama</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td><code>Hostname</code></td><td>Cihaz adı (zorunlu)</td></tr>
+        <tr><td><code>IpAddress</code></td><td>IPv4 adresi (zorunlu)</td></tr>
+        <tr><td><code>SerialNumber</code></td><td>Seri numarası (zorunlu, sistemde ve dosyada tekrar edemez)</td></tr>
+        <tr><td><code>Brand</code>, <code>Model</code></td><td>Marka ve model</td></tr>
+        <tr><td><code>DeviceType</code></td><td>Laptop, Desktop, Printer, Switch, Router, Monitor, Other veya Türkçe adı, örn. "Dizüstü Bilgisayar" (zorunlu)</td></tr>
+        <tr><td><code>Status</code></td><td>Active, InStorage, Faulty, Retired veya Türkçe adı; boşsa zimmetli cihaz Aktif, diğerleri Depoda olur</td></tr>
+        <tr><td><code>PurchaseDate</code>, <code>WarrantyEndDate</code></td><td>gg.aa.yyyy veya yyyy-aa-gg</td></tr>
+        <tr><td><code>AssignedEmail</code></td><td>Zimmetlenecek kullanıcının e-postası; doluysa zimmet kaydı ve zimmet formu açılır</td></tr>
+    </tbody>
+</table>

@@ -9,7 +9,13 @@
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Yeni Cihaz Ekle</a>
+    <a asp-action="Import" class="btn btn-outline-primary ms-2">CSV'den İçe Aktar</a>
 </p>
+
+@if (TempData["DeviceMessage"] is string deviceMessage)
+{
+    <div class="alert alert-success">@deviceMessage</div>
+}
 
 <form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
     <div class="col-md-4">
