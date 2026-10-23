@@ -16,10 +16,14 @@ public class ReportsViewModel
     // Null when nothing was resolved in the period
     public double? AverageResolutionMinutes { get; set; }
 
+    // Satisfaction ratings given in the period; the average is null when there are none
+    public int RatedTickets { get; set; }
+    public double? AverageSatisfaction { get; set; }
+
     public List<CategoryReportRow> Categories { get; set; } = new();
     public List<StaffReportRow> Staff { get; set; } = new();
 }
 
 public record CategoryReportRow(TicketCategory Category, TicketSubcategory? Subcategory, int TicketCount, int ResolvedCount, double? AverageMinutes);
 
-public record StaffReportRow(string Name, int ActiveTickets, int ResolvedTickets, double? AverageMinutes);
+public record StaffReportRow(string Name, int ActiveTickets, int ResolvedTickets, double? AverageMinutes, double? AverageRating);

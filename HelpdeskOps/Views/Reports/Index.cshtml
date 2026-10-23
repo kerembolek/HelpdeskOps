@@ -9,6 +9,8 @@
 @functions {
     private static string FormatDuration(double? minutes) =>
         minutes is double m ? HelpdeskOps.Models.DurationFormat.FromMinutes(m) : "-";
+
+    private static string FormatRating(double? rating) => rating is double r ? $"{r:0.0} / 5" : "-";
 }
 
 <h1>Raporlar</h1>
@@ -57,6 +59,15 @@
             <div class="card-body">
                 <div class="text-muted small">Ortalama Çözüm Süresi</div>
                 <div class="fs-2 fw-semibold">@FormatDuration(Model.AverageResolutionMinutes)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Ortalama Memnuniyet</div>
+                <div class="fs-2 fw-semibold">@FormatRating(Model.AverageSatisfaction)</div>
+                <div class="small text-muted">@Model.RatedTickets değerlendirme</div>
             </div>
         </div>
     </div>
@@ -110,6 +121,7 @@ else
                 <th class="text-end">Üzerindeki Aktif Talep</th>
                 <th class="text-end">Çözdüğü Talep</th>
                 <th class="text-end">Ortalama Çözüm Süresi</th>
+                <th class="text-end">Ortalama Memnuniyet</th>
             </tr>
         </thead>
         <tbody>
@@ -120,6 +132,7 @@ else
                     <td class="text-end">@row.ActiveTickets</td>
                     <td class="text-end">@row.ResolvedTickets</td>
                     <td class="text-end">@FormatDuration(row.AverageMinutes)</td>
+                    <td class="text-end">@FormatRating(row.AverageRating)</td>
                 </tr>
             }
         </tbody>
