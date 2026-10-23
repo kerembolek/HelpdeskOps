@@ -2,6 +2,7 @@
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
+using HelpdeskOps.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +15,13 @@ public class TicketsController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
-    
+    private readonly AttachmentStorage _storage;
 
-    public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public TicketsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, AttachmentStorage storage)
     {
         _context = context;
         _userManager = userManager;
+        _storage = storage;
     }
     private async Task LoadAssigneesAsync(string? selectedId = null)
     {
@@ -304,8 +306,15 @@ public class TicketsController : Controller
     // requesterId is only honored for ITAdmin, who can open tickets on behalf of a caller.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Title,Description,Category,Subcategory,OtherCategoryText,Priority,DeviceId")] Ticket ticket, string? requesterId)
+    [RequestSizeLimit(AttachmentStorage.MaxFileSize * AttachmentStorage.MaxFilesPerUpload + 1024 * 1024)]
+    public async Task<IActionResult> Create([Bind("Title,Description,Category,Subcategory,OtherCategoryText,Priority,DeviceId")] Ticket ticket, string? requesterId, List<IFormFile>? files)
     {
+        files ??= new List<IFormFile>();
+        if (AttachmentStorage.ValidateAll(files) is string fileError)
+        {
+            ModelState.AddModelError("files", fileError);
+        }
+
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var isAdmin = User.IsInRole("ITAdmin");
 
@@ -330,6 +339,11 @@ public class TicketsController : Controller
 
         if (ModelState.IsValid)
         {
+            foreach (var file in files)
+            {
+                ticket.Attachments.Add(await _storage.SaveAsync(file, currentUserId));
+            }
+
             _context.Add(ticket);
             LogActivity(ticket, TicketActivityType.Created, null, null);
             await _context.SaveChangesAsync();
@@ -510,13 +524,20 @@ public class TicketsController : Controller
     [Authorize(Roles = "ITAdmin")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var ticket = await _context.Tickets.FindAsync(id);
+        var ticket = await _context.Tickets.Include(t => t.Attachments).FirstOrDefaultAsync(t => t.Id == id);
         if (ticket != null)
         {
             _context.Tickets.Remove(ticket);
         }
 
         await _context.SaveChangesAsync();
+
+        // The rows went with the ticket; the files on disk are removed once the delete has been saved
+        foreach (var attachment in ticket?.Attachments ?? [])
+        {
+            _storage.Delete(attachment);
+        }
+
         return RedirectToAction(nameof(Index));
     }
 }

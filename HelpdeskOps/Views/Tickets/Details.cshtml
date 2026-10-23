@@ -84,16 +84,27 @@
 					<th class="text-end">Boyut</th>
 					<th>Ekleyen</th>
 					<th>Tarih</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
 				@foreach (var attachment in Model.Attachments)
 				{
+					var canDelete = User.IsInRole("ITAdmin") || attachment.UploadedById == User.FindFirstValue(ClaimTypes.NameIdentifier);
 					<tr>
 						<td><a asp-controller="TicketAttachments" asp-action="Download" asp-route-id="@attachment.Id">@attachment.FileName</a></td>
 						<td class="text-end">@(attachment.Size >= 1024 * 1024 ? $"{attachment.Size / 1024d / 1024:0.0} MB" : $"{Math.Max(1, attachment.Size / 1024)} KB")</td>
 						<td>@(attachment.UploadedBy != null ? $"{attachment.UploadedBy.FirstName} {attachment.UploadedBy.LastName}" : "-")</td>
 						<td>@attachment.UploadedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+						<td>
+							@if (canDelete)
+							{
+								<form asp-controller="TicketAttachments" asp-action="Delete" asp-route-id="@attachment.Id" method="post" class="d-inline"
+									  onsubmit="return confirm('Bu dosya silinsin mi?');">
+									<button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+								</form>
+							}
+						</td>
 					</tr>
 				}
 			</tbody>
