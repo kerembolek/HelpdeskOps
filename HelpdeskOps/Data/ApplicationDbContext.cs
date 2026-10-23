@@ -20,6 +20,7 @@ namespace HelpdeskOps.Data
         public DbSet<DeviceEvent> DeviceEvents { get; set; }
         public DbSet<SolutionArticle> SolutionArticles { get; set; }
         public DbSet<AssignmentForm> AssignmentForms { get; set; }
+        public DbSet<TicketAttachment> TicketAttachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -92,6 +93,19 @@ namespace HelpdeskOps.Data
                 .HasOne(a => a.Actor)
                 .WithMany()
                 .HasForeignKey(a => a.ActorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Attachment rows go away with the ticket; TicketsController deletes the files on disk
+            builder.Entity<TicketAttachment>()
+                .HasOne(a => a.Ticket)
+                .WithMany(t => t.Attachments)
+                .HasForeignKey(a => a.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TicketAttachment>()
+                .HasOne(a => a.UploadedBy)
+                .WithMany()
+                .HasForeignKey(a => a.UploadedById)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Zimmet forms are records: they outlive the device and keep their copied details

@@ -21,6 +21,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 // Re-check sign-in cookies against the security stamp every minute, so a role change takes effect quickly
 builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.FromMinutes(1));
 
+builder.Services.AddSingleton<HelpdeskOps.Services.AttachmentStorage>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

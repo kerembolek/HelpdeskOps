@@ -424,6 +424,50 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("TicketActivities");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.TicketAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StoredName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UploadedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UploadedById");
+
+                    b.ToTable("TicketAttachments");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.TicketComment", b =>
                 {
                     b.Property<int>("Id")
@@ -695,6 +739,24 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.TicketAttachment", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.Ticket", "Ticket")
+                        .WithMany("Attachments")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("UploadedBy");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.TicketComment", b =>
                 {
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "Author")
@@ -784,6 +846,8 @@ namespace HelpdeskOps.Migrations
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>
                 {
                     b.Navigation("Activities");
+
+                    b.Navigation("Attachments");
 
                     b.Navigation("Comments");
                 });

@@ -208,6 +208,7 @@ public class TicketsController : Controller
             .Include(t => t.AssignedTo)
             .Include(t => t.Comments.OrderBy(c => c.CreatedAt)).ThenInclude(c => c.Author)
             .Include(t => t.Activities.OrderBy(a => a.CreatedAt)).ThenInclude(a => a.Actor)
+            .Include(t => t.Attachments.OrderBy(a => a.UploadedAt)).ThenInclude(a => a.UploadedBy)
             .AsSplitQuery()
             .FirstOrDefaultAsync(m => m.Id == id);
         if (ticket == null)
