@@ -32,6 +32,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Cisco switch port mapping: connect a device to a switch port (e.g. `Gi1/0/12`) and VLAN, one device per port, a port table on each switch's details page, and port changes recorded in the device history
 - [x] Device lifecycle history: format, upgrade, part replacement, and repair entries, plus automatic assignment and status changes
 - [x] Warranty tracking: purchase date, warranty end with active / expiring soon (30 days) / expired badges, service/vendor contact (name, phone, email), and warranty filters on the device list
+- [x] CSV device import and export: add up to 500 devices from a CSV file (all or nothing, with every problem listed by line), download a sample template, and export the device list in the same format
 
 ### Helpdesk & Ticket System
 - [x] Core ticket model (category, priority, status, requester, assignee)
