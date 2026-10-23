@@ -11,6 +11,9 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 5. [Destek Talebi Yönetimi](#5-destek-talebi-yönetimi)
 6. [Cihazlarım ve Zimmet Formları](#6-cihazlarım-ve-zimmet-formları)
 7. [Bildirimler](#7-bildirimler)
+8. [Pano](#8-pano)
+9. [Raporlar](#9-raporlar)
+10. [Kullanıcılar](#10-kullanıcılar)
 
 ## 1. Giriş ve Roller
 
@@ -180,3 +183,38 @@ Sağ üstteki **Bildirimler** bağlantısının yanındaki sayı okunmamış bil
 ![Bildirimler](images/13-notifications.png)
 
 Bir bildirime tıklamak ilgili talebi açar ve bildirimi okunmuş sayar. **Tümünü Okundu İşaretle** düğmesi tüm bildirimleri okunmuş yapar.
+
+## 8. Pano
+
+**Pano**, BT personeli ve yöneticilere taleplerin ve cihazların genel durumunu tek sayfada gösterir.
+
+![Pano](images/14-dashboard.png)
+
+- **Özet kartları**: açık, işlemde, çözülen/kapatılan ve atanmamış aktif talep sayıları ile ortalama çözüm süresi. Kartlara tıklamak ilgili filtreli talep listesini açar.
+- **Hedef Çözüm Süreleri (SLA)**: hedef süresi geçen aktif talepler ve hedefinde çözülen taleplerin oranı.
+- **Önceliğe Göre Çözüm Süresi** ve **Departman İş Yükü** tabloları.
+- **Kronik Sorunlu Cihazlar**: en çok talep alan marka ve modeller.
+- **Cihaz Garantileri**: 30 gün içinde garantisi bitecek ve garantisi bitmiş cihaz sayıları. BT personeli için kartlar filtreli cihaz listesini açar.
+
+## 9. Raporlar
+
+**Raporlar** sayfası seçilen döneme (son 7, 30, 90 gün veya 1 yıl) ait rakamları gösterir. BT personeli ve yöneticiler erişebilir.
+
+![Raporlar](images/15-reports.png)
+
+- Dönemde açılan, çözülen ve hâlâ aktif olan talepler, ortalama çözüm süresi ve ortalama memnuniyet puanı.
+- Kategori ve alt kategoriye göre talep sayıları ve ortalama çözüm süreleri.
+- BT personeli performansı: her personelin üzerindeki aktif talepler, dönemde çözdüğü talepler, ortalama çözüm süresi ve ortalama memnuniyet puanı.
+- **Talepleri CSV Olarak İndir** düğmesi dönemin taleplerini Excel'de açılabilen bir dosya olarak indirir.
+
+## 10. Kullanıcılar
+
+**Kullanıcılar** sayfası yalnızca BT personeline açıktır. Kayıtlı kullanıcıları e-posta, departman, rol, zimmetli cihaz sayısı ve üzerlerindeki aktif taleplerle listeler; ad, e-posta veya departmana göre aranabilir ve role göre süzülebilir.
+
+![Kullanıcılar](images/16-users.png)
+
+Bir kullanıcının rolü, satırındaki listeden yeni rol seçilip **Kaydet** düğmesine basılarak değiştirilir:
+
+- Kimse kendi rolünü değiştiremez; satırında "(siz)" yazar.
+- BT personeli rolünden çıkarılan kişinin aktif talepleri atanmamış taleplere alınır ve her talebin geçmişine kaydedilir.
+- Rol değişikliği, kullanıcının açık oturumunda en geç bir dakika içinde geçerli olur.
