@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using HelpdeskOps.Data;
+using HelpdeskOps.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -414,6 +415,77 @@ public class DevicesController : Controller
         }
         await LoadFormListsAsync(device);
         return View(device);
+    }
+
+    // GET: DEVICES/Import
+    public IActionResult Import()
+    {
+        return View(new List<string>());
+    }
+
+    // POST: DEVICES/Import
+    // All or nothing: if any row has a problem, no device is added and every problem is listed
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(DeviceCsvImporter.MaxFileSize + 64 * 1024)]
+    public async Task<IActionResult> Import(IFormFile? file)
+    {
+        if (file == null || file.Length == 0)
+            return View(new List<string> { "Lütfen bir CSV dosyası seçin." });
+        if (file.Length > DeviceCsvImporter.MaxFileSize)
+            return View(new List<string> { "Dosya en fazla 1 MB olabilir." });
+        if (!string.Equals(Path.GetExtension(file.FileName), ".csv", StringComparison.OrdinalIgnoreCase))
+            return View(new List<string> { "Yalnızca .csv dosyası yüklenebilir." });
+
+        string text;
+        using (var reader = new StreamReader(file.OpenReadStream(), Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
+        {
+            text = await reader.ReadToEndAsync();
+        }
+
+        var result = DeviceCsvImporter.Parse(text);
+
+        // Checks against existing data
+        var serials = result.Rows.Select(r => r.Device.SerialNumber).ToList();
+        var existingSerials = await _context.Devices
+            .Where(d => serials.Contains(d.SerialNumber))
+            .Select(d => d.SerialNumber)
+            .ToListAsync();
+        var emails = result.Rows.Where(r => r.AssignedEmail != null).Select(r => r.AssignedEmail!.ToUpperInvariant()).Distinct().ToList();
+        var usersByEmail = await _context.Users
+            .Where(u => u.NormalizedEmail != null && emails.Contains(u.NormalizedEmail))
+            .ToDictionaryAsync(u => u.NormalizedEmail!, u => u.Id);
+
+        foreach (var row in result.Rows)
+        {
+            if (existingSerials.Contains(row.Device.SerialNumber, StringComparer.OrdinalIgnoreCase))
+                result.Errors.Add($"Satır {row.Line}: seri numarası {row.Device.SerialNumber} zaten kayıtlı");
+            if (row.AssignedEmail != null && !usersByEmail.ContainsKey(row.AssignedEmail.ToUpperInvariant()))
+                result.Errors.Add($"Satır {row.Line}: {row.AssignedEmail} adresiyle kayıtlı kullanıcı yok");
+        }
+
+        if (result.Errors.Count > 0)
+        {
+            return View(result.Errors.OrderBy(e => e, StringComparer.Ordinal).ToList());
+        }
+
+        foreach (var row in result.Rows)
+        {
+            var device = row.Device;
+            device.AssignedUserId = row.AssignedEmail != null ? usersByEmail[row.AssignedEmail.ToUpperInvariant()] : null;
+            _context.Devices.Add(device);
+
+            // Same records as a device added by hand
+            if (device.AssignedUserId != null)
+            {
+                LogEvent(device, DeviceEventType.AssignmentChanged, $"Zimmetlendi: {await UserNameAsync(device.AssignedUserId)}");
+                await UpdateAssignmentFormsAsync(device, device.AssignedUserId);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        TempData["DeviceMessage"] = $"{result.Rows.Count} cihaz içe aktarıldı.";
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: DEVICES/Edit/5
