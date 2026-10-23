@@ -66,6 +66,30 @@ public class TicketAttachmentsController : Controller
         return Redirect(Url.Action("Details", "Tickets", new { id }) + "#attachments");
     }
 
+    // POST: TicketAttachments/Delete/5
+    // IT staff can remove any attachment, everyone else only the files they uploaded
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var attachment = await _context.TicketAttachments.FindAsync(id);
+        if (attachment == null)
+        {
+            return NotFound();
+        }
+
+        if (!User.IsInRole("ITAdmin") && attachment.UploadedById != User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            return Forbid();
+        }
+
+        _context.TicketAttachments.Remove(attachment);
+        await _context.SaveChangesAsync();
+        _storage.Delete(attachment);
+
+        return Redirect(Url.Action("Details", "Tickets", new { id = attachment.TicketId }) + "#attachments");
+    }
+
     // GET: TicketAttachments/Download/5
     // Always sent as a download with the type fixed by the extension, so an uploaded file is never rendered as a page
     public async Task<IActionResult> Download(int id)

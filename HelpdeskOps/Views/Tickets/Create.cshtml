@@ -17,7 +17,7 @@
 }
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             @if (User.IsInRole("ITAdmin"))
@@ -51,6 +51,19 @@
                     <option value="">Seçiniz</option>
                 </select>
                 <span asp-validation-for="DeviceId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label for="files" class="form-label">Ekler (isteğe bağlı)</label>
+                <input id="files" name="files" type="file" class="form-control" multiple accept="@HelpdeskOps.Services.AttachmentStorage.AcceptList" />
+                <div class="form-text">
+                    Ekran görüntüsü veya hata kaydı eklemek sorunun daha hızlı çözülmesine yardımcı olur.
+                    En fazla @HelpdeskOps.Services.AttachmentStorage.MaxFilesPerUpload dosya, her biri en fazla @(HelpdeskOps.Services.AttachmentStorage.MaxFileSize / (1024 * 1024)) MB.
+                    Form hata verirse dosyaları yeniden seçmeniz gerekir.
+                </div>
+                @if (ViewData.ModelState["files"]?.Errors.FirstOrDefault() is { } fileError)
+                {
+                    <span class="text-danger">@fileError.ErrorMessage</span>
+                }
             </div>
             <div class="mt-3">
                 <input type="submit" value="Talep Oluştur" class="btn btn-primary" />
