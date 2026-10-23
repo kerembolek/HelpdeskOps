@@ -279,6 +279,41 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("DeviceEvents");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ReadAt");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.SolutionArticle", b =>
                 {
                     b.Property<int>("Id")
@@ -705,6 +740,17 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("Device");
 
                     b.Navigation("PerformedBy");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.Notification", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>

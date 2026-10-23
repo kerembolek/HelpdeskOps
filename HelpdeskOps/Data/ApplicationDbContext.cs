@@ -21,6 +21,7 @@ namespace HelpdeskOps.Data
         public DbSet<SolutionArticle> SolutionArticles { get; set; }
         public DbSet<AssignmentForm> AssignmentForms { get; set; }
         public DbSet<TicketAttachment> TicketAttachments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -107,6 +108,17 @@ namespace HelpdeskOps.Data
                 .WithMany()
                 .HasForeignKey(a => a.UploadedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // A user's notifications are theirs alone and go away with the account
+            builder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // The bell counts unread notifications per user
+            builder.Entity<Notification>()
+                .HasIndex(n => new { n.UserId, n.ReadAt });
 
             // Zimmet forms are records: they outlive the device and keep their copied details
             builder.Entity<AssignmentForm>()

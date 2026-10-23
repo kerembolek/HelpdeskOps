@@ -1,0 +1,10 @@
+@model int
+
+<a class="nav-link text-dark position-relative" asp-controller="Notifications" asp-action="Index"
+   aria-label="Bildirimler@(Model > 0 ? $", {Model} okunmamış" : "")">
+    Bildirimler
+    @if (Model > 0)
+    {
+        <span class="badge rounded-pill text-bg-danger">@(Model > 99 ? "99+" : Model.ToString())</span>
+    }
+</a>
