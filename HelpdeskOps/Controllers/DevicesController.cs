@@ -417,6 +417,42 @@ public class DevicesController : Controller
         return View(device);
     }
 
+    // GET: DEVICES/ImportTemplate
+    // A header row and two sample devices to fill in
+    public IActionResult ImportTemplate()
+    {
+        var samples = new (Device, string?)[]
+        {
+            (new Device
+            {
+                Hostname = "MUH-LT-010", IpAddress = "10.10.20.110", SerialNumber = "ORNEK-0001", Brand = "Lenovo", Model = "ThinkPad E14",
+                DeviceType = DeviceType.Laptop, Status = DeviceStatus.Active,
+                PurchaseDate = DateTime.Today.AddMonths(-1), WarrantyEndDate = DateTime.Today.AddMonths(23)
+            }, "calisan@ornek.com"),
+            (new Device
+            {
+                Hostname = "DEPO-MN-005", IpAddress = "10.10.90.15", SerialNumber = "ORNEK-0002", Brand = "Dell", Model = "P2422H",
+                DeviceType = DeviceType.Monitor, Status = DeviceStatus.InStorage
+            }, null)
+        };
+
+        return File(DeviceCsvImporter.ToCsv(samples), "text/csv; charset=utf-8", "cihaz-ice-aktarma-sablonu.csv");
+    }
+
+    // GET: DEVICES/Export
+    // Every device in the import format, with the assignee's email
+    public async Task<IActionResult> Export()
+    {
+        var devices = await _context.Devices
+            .AsNoTracking()
+            .Include(d => d.AssignedUser)
+            .OrderBy(d => d.Hostname)
+            .ToListAsync();
+
+        var csv = DeviceCsvImporter.ToCsv(devices.Select(d => (d, d.AssignedUser?.Email)));
+        return File(csv, "text/csv; charset=utf-8", $"cihazlar-{DateTime.Now:yyyyMMdd}.csv");
+    }
+
     // GET: DEVICES/Import
     public IActionResult Import()
     {
