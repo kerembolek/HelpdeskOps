@@ -88,6 +88,16 @@ public static class DemoDataSeeder
             "test@helpdeskops.com", null, "DEMO-MN-001", 0, null),
     };
 
+    // Satisfaction ratings for resolved demo tickets, given a day after resolution; matched by ticket title
+    private static readonly (string TicketTitle, int Rating, string? Comment)[] DemoRatings =
+    {
+        ("Dizüstü bilgisayar açılmıyor", 5, "Aynı gün çözüldü, çok teşekkürler."),
+        ("Laptop fanı çok ses yapıyor", 3, "Çözüldü ama biraz uzun sürdü."),
+        ("Batarya çabuk bitiyor", 4, null),
+        ("VPN bağlantısı kopuyor", 5, "Evden çalışırken hayat kurtardınız."),
+        ("Muhasebe programı lisans hatası", 4, null),
+    };
+
     // Matched by ticket title, author, and body. HoursAfterCreated places the comment in the ticket's timeline.
     private static readonly (string TicketTitle, string AuthorEmail, string Body, double HoursAfterCreated)[] DemoComments =
     {
@@ -219,8 +229,37 @@ public static class DemoDataSeeder
         await SeedTicketsAsync(services, userManager);
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
+        await SeedRatingsAsync(services);
         await SeedDeviceEventsAsync(services, userManager);
         await SeedSolutionsAsync(services);
+    }
+
+    // Only resolved, still unrated demo tickets get a rating, so ratings given by hand are kept
+    private static async Task SeedRatingsAsync(IServiceProvider services)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+
+        foreach (var demo in DemoRatings)
+        {
+            var ticket = await context.Tickets.FirstOrDefaultAsync(t => t.Title == demo.TicketTitle
+                && t.ResolvedAt != null && t.SatisfactionRating == null);
+            if (ticket == null)
+                continue;
+
+            ticket.SatisfactionRating = demo.Rating;
+            ticket.SatisfactionComment = demo.Comment;
+            ticket.RatedAt = ticket.ResolvedAt!.Value.AddDays(1);
+            context.TicketActivities.Add(new TicketActivity
+            {
+                TicketId = ticket.Id,
+                ActorId = ticket.RequesterId,
+                Type = TicketActivityType.Rated,
+                NewValue = $"{demo.Rating}/5",
+                CreatedAt = ticket.RatedAt.Value
+            });
+        }
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task SeedSolutionsAsync(IServiceProvider services)
