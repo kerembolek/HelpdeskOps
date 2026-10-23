@@ -68,6 +68,56 @@
 	<a asp-action="Index" class="btn btn-secondary ms-2">Listeye Dön</a>
 </div>
 
+<section id="attachments" class="mt-5" style="max-width: 48rem;">
+	<h2 class="h4">Ekler</h2>
+
+	@if (!Model.Attachments.Any())
+	{
+		<div class="alert alert-info">Bu talebe henüz dosya eklenmemiş.</div>
+	}
+	else
+	{
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>Dosya</th>
+					<th class="text-end">Boyut</th>
+					<th>Ekleyen</th>
+					<th>Tarih</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var attachment in Model.Attachments)
+				{
+					<tr>
+						<td><a asp-controller="TicketAttachments" asp-action="Download" asp-route-id="@attachment.Id">@attachment.FileName</a></td>
+						<td class="text-end">@(attachment.Size >= 1024 * 1024 ? $"{attachment.Size / 1024d / 1024:0.0} MB" : $"{Math.Max(1, attachment.Size / 1024)} KB")</td>
+						<td>@(attachment.UploadedBy != null ? $"{attachment.UploadedBy.FirstName} {attachment.UploadedBy.LastName}" : "-")</td>
+						<td>@attachment.UploadedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+
+	@if (User.IsInRole("ITAdmin") || Model.RequesterId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+	{
+		<form asp-controller="TicketAttachments" asp-action="Upload" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="mt-3">
+			@if (TempData["AttachmentError"] is string attachmentError)
+			{
+				<div class="text-danger mb-2">@attachmentError</div>
+			}
+			<label for="files" class="form-label">Dosya ekle</label>
+			<input id="files" name="files" type="file" class="form-control" multiple required accept="@HelpdeskOps.Services.AttachmentStorage.AcceptList" />
+			<div class="form-text">
+				Ekran görüntüsü, PDF, metin/log, Word veya Excel dosyası. Tek seferde en fazla @HelpdeskOps.Services.AttachmentStorage.MaxFilesPerUpload dosya,
+				her biri en fazla @(HelpdeskOps.Services.AttachmentStorage.MaxFileSize / (1024 * 1024)) MB.
+			</div>
+			<button type="submit" class="btn btn-outline-primary mt-2">Yükle</button>
+		</form>
+	}
+</section>
+
 <section id="history" class="mt-5" style="max-width: 48rem;">
 	<h2 class="h4">Hareket Geçmişi</h2>
 
