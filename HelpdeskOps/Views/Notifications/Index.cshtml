@@ -1,0 +1,42 @@
+@model List<HelpdeskOps.Models.Notification>
+
+@{
+    ViewData["Title"] = "Bildirimler";
+}
+
+<h1>Bildirimler</h1>
+
+<p class="text-muted">Taleplerinizdeki gelişmeler. Son 50 bildirim gösterilir.</p>
+
+@if (Model.Any(n => n.ReadAt == null))
+{
+    <form asp-action="MarkAllRead" method="post" class="mb-3">
+        <button type="submit" class="btn btn-sm btn-outline-secondary">Tümünü Okundu İşaretle</button>
+    </form>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Henüz bildiriminiz yok.</div>
+}
+else
+{
+    <div class="list-group" style="max-width: 48rem;">
+        @foreach (var notification in Model)
+        {
+            <a asp-action="Open" asp-route-id="@notification.Id"
+               class="list-group-item list-group-item-action @(notification.ReadAt == null ? "fw-semibold" : "text-muted")">
+                <div class="d-flex justify-content-between gap-3">
+                    <span>
+                        @if (notification.ReadAt == null)
+                        {
+                            <span class="badge text-bg-primary me-1">Yeni</span>
+                        }
+                        @notification.Message
+                    </span>
+                    <span class="small text-nowrap">@notification.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+            </a>
+        }
+    </div>
+}
