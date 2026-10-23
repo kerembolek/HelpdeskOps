@@ -46,7 +46,9 @@ public class ReportsController : Controller
                 Resolved = g.Count(t => t.ResolvedAt >= from),
                 AverageMinutes = g.Average(t => t.ResolvedAt >= from
                     ? (double?)EF.Functions.DateDiffMinute(t.CreatedAt, t.ResolvedAt!.Value)
-                    : null)
+                    : null),
+                // Ratings given in the period for tickets this person handled
+                AverageRating = g.Average(t => t.RatedAt >= from ? (double?)t.SatisfactionRating : null)
             })
             .ToDictionaryAsync(x => x.UserId);
 
@@ -54,8 +56,8 @@ public class ReportsController : Controller
         var staff = (await _userManager.GetUsersInRoleAsync("ITAdmin"))
             .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
             .Select(u => staffStats.TryGetValue(u.Id, out var s)
-                ? new StaffReportRow($"{u.FirstName} {u.LastName}", s.Active, s.Resolved, s.AverageMinutes)
-                : new StaffReportRow($"{u.FirstName} {u.LastName}", 0, 0, null))
+                ? new StaffReportRow($"{u.FirstName} {u.LastName}", s.Active, s.Resolved, s.AverageMinutes, s.AverageRating)
+                : new StaffReportRow($"{u.FirstName} {u.LastName}", 0, 0, null, null))
             .ToList();
 
         var model = new ReportsViewModel
@@ -65,6 +67,11 @@ public class ReportsController : Controller
             OpenedTickets = await opened.CountAsync(),
             ResolvedTickets = await resolved.CountAsync(),
             StillActiveTickets = await opened.CountAsync(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress),
+
+            RatedTickets = await tickets.CountAsync(t => t.RatedAt >= from),
+            AverageSatisfaction = await tickets
+                .Where(t => t.RatedAt >= from)
+                .AverageAsync(t => (double?)t.SatisfactionRating),
 
             AverageResolutionMinutes = await resolved
                 .Select(t => EF.Functions.DateDiffMinute(t.CreatedAt, t.ResolvedAt))
@@ -119,7 +126,7 @@ public class ReportsController : Controller
         static string Name(ApplicationUser? user) => user != null ? $"{user.FirstName} {user.LastName}" : "";
 
         var csv = new StringBuilder();
-        csv.AppendLine("No;Başlık;Kategori;Öncelik;Durum;Talep Eden;Departman;Atanan Kişi;Oluşturulma;Çözülme;Çözüm Süresi (saat)");
+        csv.AppendLine("No;Başlık;Kategori;Öncelik;Durum;Talep Eden;Departman;Atanan Kişi;Oluşturulma;Çözülme;Çözüm Süresi (saat);Memnuniyet (1-5)");
         foreach (var t in tickets)
         {
             var hours = t.ResolvedAt is DateTime resolvedAt ? (resolvedAt - t.CreatedAt).TotalHours.ToString("0.0") : "";
@@ -134,7 +141,8 @@ public class ReportsController : Controller
                 Cell(Name(t.AssignedTo)),
                 t.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm"),
                 t.ResolvedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "",
-                hours));
+                hours,
+                t.SatisfactionRating?.ToString() ?? ""));
         }
 
         var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
