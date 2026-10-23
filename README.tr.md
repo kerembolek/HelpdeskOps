@@ -44,6 +44,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Talep listesinde arama ve filtreler (durum, öncelik, aktif, çözülen/kapatılan, bana atananlar, atanmamış)
 - [x] Önceliğe göre hedef çözüm süreleri (SLA: Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat); talep listesinde ve detayında zamanında / süre doluyor / gecikti / hedefte çözüldü / geç çözüldü rozetleri ve "hedef süresi geçenler" görünümü
 - [x] Talep eden ile BT personeli arasında talep yorumları
+- [x] Talep ekleri: talep açarken veya sonradan ekran görüntüsü, PDF, metin/log, Word ve Excel dosyası (en fazla 5 dosya, her biri 5 MB); dosyalar web kökü dışında saklanır ve yalnızca talebi görebilenler indirebilir
 - [x] Talep hareket geçmişi: oluşturma ile her durum, öncelik ve atanan kişi değişikliği; kimin ne zaman yaptığıyla birlikte
 - [x] Türkçe kullanıcı arayüzü
 - [x] Tier 0 self-servis çözüm bankası: çalışanlar talep açmadan önce konu seçip adım adım çözümleri dener; "çözülmedi" denince talep formu doldurulmuş olarak açılır, BT personeli çözümleri yönetir ve her birinin kendi kendine çözüm oranını görür
