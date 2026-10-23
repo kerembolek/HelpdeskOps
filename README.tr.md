@@ -46,6 +46,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Önceliğe göre hedef çözüm süreleri (SLA: Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat); talep listesinde ve detayında zamanında / süre doluyor / gecikti / hedefte çözüldü / geç çözüldü rozetleri ve "hedef süresi geçenler" görünümü
 - [x] Talep eden ile BT personeli arasında talep yorumları
 - [x] Talep ekleri: talep açarken veya sonradan ekran görüntüsü, PDF, metin/log, Word ve Excel dosyası (en fazla 5 dosya, her biri 5 MB); dosyalar web kökü dışında saklanır ve yalnızca talebi görebilenler indirebilir
+- [x] Memnuniyet puanı: talep eden, çözülen talebini bir kez 1-5 arası puanlar ve isterse yorum ekler; puan talepte ve hareket geçmişinde görünür
 - [x] Talep hareket geçmişi: oluşturma ile her durum, öncelik ve atanan kişi değişikliği; kimin ne zaman yaptığıyla birlikte
 - [x] Türkçe kullanıcı arayüzü
 - [x] Tier 0 self-servis çözüm bankası: çalışanlar talep açmadan önce konu seçip adım adım çözümleri dener; "çözülmedi" denince talep formu doldurulmuş olarak açılır, BT personeli çözümleri yönetir ve her birinin kendi kendine çözüm oranını görür
@@ -68,7 +69,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Departman iş yükü dağılımı
 - [x] Tıklanınca ilgili filtreli cihaz listesini açan garanti kartları (30 gün içinde bitecek, garantisi bitmiş)
 - [x] SLA kartları: hedef süresi geçen aktif talepler (filtreli listeyi açar) ve hedefinde çözülen taleplerin oranı
-- [x] Seçilen döneme (7, 30, 90 gün, 1 yıl) göre raporlar sayfası: açılan/çözülen sayıları, kategori ve alt kategoriye göre talepler, BT personeli performansı ve dönemin taleplerini CSV olarak indirme
+- [x] Seçilen döneme (7, 30, 90 gün, 1 yıl) göre raporlar sayfası: açılan/çözülen sayıları, kategori ve alt kategoriye göre talepler, BT personeli performansı, ortalama memnuniyet (genel ve BT personeli bazında) ve dönemin taleplerini CSV olarak indirme
 
 ---
 

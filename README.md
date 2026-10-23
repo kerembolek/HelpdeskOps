@@ -46,6 +46,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] SLA targets per priority (Critical 4, High 8, Medium 24, Low 72 hours) with on track / due soon / overdue / met / missed badges on the ticket list and details, and an "overdue" ticket view
 - [x] Ticket comments between the requester and IT staff
 - [x] Ticket attachments: screenshots, PDF, text/log, Word, and Excel files (up to 5 files of 5 MB) when opening a ticket or later, stored outside the web root and downloadable only by people who can see the ticket
+- [x] Satisfaction ratings: the requester rates a resolved ticket from 1 to 5 with an optional comment, once; the rating appears on the ticket and in its history
 - [x] Ticket history: creation and every status, priority, and assignee change with who made it and when
 - [x] Turkish user interface
 - [x] Tier 0 self-service solution bank: employees pick a topic and try step-by-step solutions before opening a ticket; "not solved" opens a pre-filled ticket form, and IT staff manage the articles and see each one's self-service rate
@@ -68,7 +69,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Department workload distribution
 - [x] Warranty cards (expiring within 30 days, expired) that open the matching filtered device list
 - [x] SLA cards: overdue active tickets (opens the filtered list) and the share of resolved tickets that met their target
-- [x] Reports page for a chosen period (7, 30, 90 days, 1 year): opened/resolved counts, tickets by category and subcategory, IT staff performance, and a CSV export of the period's tickets
+- [x] Reports page for a chosen period (7, 30, 90 days, 1 year): opened/resolved counts, tickets by category and subcategory, IT staff performance, average satisfaction (overall and per IT staff member), and a CSV export of the period's tickets
 
 ---
 
