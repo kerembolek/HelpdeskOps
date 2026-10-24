@@ -360,7 +360,7 @@ public static class DemoDataSeeder
             }
 
             // New devices, and demo devices seeded before warranty details existed, get purchase and vendor data
-            var purchaseDate = DateTime.Today.AddDays(-demo.PurchasedDaysAgo);
+            var purchaseDate = TurkeyTime.Today.AddDays(-demo.PurchasedDaysAgo);
             device.PurchaseDate = purchaseDate;
             device.WarrantyEndDate = purchaseDate.AddMonths(demo.WarrantyMonths);
             if (DemoVendors.TryGetValue(demo.Brand, out var vendor))

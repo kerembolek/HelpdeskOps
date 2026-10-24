@@ -36,7 +36,7 @@ public class AssignmentFormDocument : IDocument
             page.Footer().AlignCenter().Text(text =>
             {
                 text.DefaultTextStyle(style => style.FontSize(8).FontColor(Colors.Grey.Darken1));
-                text.Span($"Bu belge HelpdeskOps tarafından {DateTime.Now.ToString(DateFormat)} tarihinde oluşturulmuştur. Sayfa ");
+                text.Span($"Bu belge HelpdeskOps tarafından {TurkeyTime.Now.ToString(DateFormat)} tarihinde oluşturulmuştur. Sayfa ");
                 text.CurrentPageNumber();
                 text.Span(" / ");
                 text.TotalPages();
@@ -56,7 +56,7 @@ public class AssignmentFormDocument : IDocument
             row.ConstantItem(150).AlignRight().Column(column =>
             {
                 column.Item().AlignRight().Text($"Form No: {_form.FormNumber}").Bold();
-                column.Item().AlignRight().Text($"Tarih: {_form.IssuedAt.ToLocalTime().ToString(DateFormat)}");
+                column.Item().AlignRight().Text($"Tarih: {_form.IssuedAt.ToTurkeyTime().ToString(DateFormat)}");
             });
         });
     }
@@ -83,12 +83,12 @@ public class AssignmentFormDocument : IDocument
 
             column.Item().Element(c => Section(c, "Teslim Bilgileri", new[]
             {
-                ("Teslim Tarihi", _form.IssuedAt.ToLocalTime().ToString(DateFormat)),
+                ("Teslim Tarihi", _form.IssuedAt.ToTurkeyTime().ToString(DateFormat)),
                 ("Teslim Eden", _form.IssuedByName ?? "-"),
                 ("Dijital Onay", _form.AcceptedAt is DateTime accepted
-                    ? $"Teslim alındı ({accepted.ToLocalTime().ToString(DateFormat)})"
+                    ? $"Teslim alındı ({accepted.ToTurkeyTime().ToString(DateFormat)})"
                     : "Onay bekliyor"),
-                ("İade Tarihi", _form.ReturnedAt?.ToLocalTime().ToString(DateFormat) ?? "-")
+                ("İade Tarihi", _form.ReturnedAt?.ToTurkeyTime().ToString(DateFormat) ?? "-")
             }));
 
             column.Item().Text(

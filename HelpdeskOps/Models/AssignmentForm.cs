@@ -50,5 +50,5 @@ public class AssignmentForm
 
     // "ZF-2026-00012"
     [NotMapped]
-    public string FormNumber => $"ZF-{IssuedAt.ToLocalTime():yyyy}-{Id:D5}";
+    public string FormNumber => $"ZF-{IssuedAt.ToTurkeyTime():yyyy}-{Id:D5}";
 }

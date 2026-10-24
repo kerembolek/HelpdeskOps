@@ -1,4 +1,5 @@
 using System.Text;
+using HelpdeskOps;
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
@@ -139,13 +140,13 @@ public class ReportsController : Controller
                 Cell(Name(t.Requester)),
                 Cell(t.Requester?.Department),
                 Cell(Name(t.AssignedTo)),
-                t.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm"),
-                t.ResolvedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm") ?? "",
+                t.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm"),
+                t.ResolvedAt?.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") ?? "",
                 hours,
                 t.SatisfactionRating?.ToString() ?? ""));
         }
 
         var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
-        return File(bytes, "text/csv; charset=utf-8", $"talepler-son-{period}-gun-{DateTime.Now:yyyyMMdd}.csv");
+        return File(bytes, "text/csv; charset=utf-8", $"talepler-son-{period}-gun-{TurkeyTime.Now:yyyyMMdd}.csv");
     }
 }

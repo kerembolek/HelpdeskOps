@@ -97,9 +97,9 @@ namespace HelpdeskOps.Models
         {
             if (WarrantyEndDate is not DateTime end)
                 return WarrantyState.Unknown;
-            if (end.Date < DateTime.Today)
+            if (end.Date < TurkeyTime.Today)
                 return WarrantyState.Expired;
-            return end.Date <= DateTime.Today.AddDays(WarrantyExpiringSoonDays)
+            return end.Date <= TurkeyTime.Today.AddDays(WarrantyExpiringSoonDays)
                 ? WarrantyState.ExpiringSoon
                 : WarrantyState.Active;
         }

@@ -1,5 +1,6 @@
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,19 +24,27 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options => options.Val
 
 builder.Services.AddSingleton<HelpdeskOps.Services.AttachmentStorage>();
 
+// Keep data protection keys on disk so sign-in cookies survive app pool recycles on shared hosting
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys")));
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    // Apply pending migrations on startup, since the hosted database is not reachable from development tools
+    await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     foreach (var role in new[] { "Employee", "ITAdmin", "Manager" })
     {
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
-    if (app.Environment.IsDevelopment())
+    // The live demo site turns seeding on with "SeedDemoData": true in its own appsettings.Production.json
+    if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("SeedDemoData"))
         await DemoDataSeeder.SeedAsync(scope.ServiceProvider);
 }
 

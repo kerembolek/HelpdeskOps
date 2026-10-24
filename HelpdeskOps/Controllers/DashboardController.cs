@@ -1,3 +1,4 @@
+using HelpdeskOps;
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
@@ -35,7 +36,7 @@ public class DashboardController : Controller
         var metTargetCount = await tickets.CountAsync(TicketSla.MetTarget());
 
         var devicesInUse =_context.Devices.AsNoTracking().Where(d => d.Status != DeviceStatus.Retired);
-        var today = DateTime.Today;
+        var today = TurkeyTime.Today;
         var soon = today.AddDays(Device.WarrantyExpiringSoonDays);
 
         var model = new DashboardViewModel
