@@ -7,7 +7,7 @@ namespace HelpdeskOps.Data;
 
 public static class DemoDataSeeder
 {
-    // Local development only. These accounts are never created outside Development.
+    // Runs in Development, and on the live demo site when "SeedDemoData" is true; never on a real deployment.
     private const string DemoPassword = "Helpdesk2026!";
 
     private static readonly (string Email, string FirstName, string LastName, string Department, string Role)[] DemoUsers =
@@ -226,6 +226,7 @@ public static class DemoDataSeeder
         await SeedDevicesAsync(services, userManager);
         await SeedPortLinksAsync(services);
         await SeedAssignmentFormsAsync(services, userManager);
+        await SeedFormSignaturesAsync(services);
         await SeedTicketsAsync(services, userManager);
         await SeedTicketHistoryAsync(services, userManager);
         await SeedCommentsAsync(services, userManager);
@@ -408,6 +409,39 @@ public static class DemoDataSeeder
                 IssuedAt = issuedAt,
                 AcceptedAt = device.DeviceType == DeviceType.Monitor ? null : issuedAt.AddHours(2)
             });
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    // Demo forms predate signing, so their confirmations get a drawn demo signature, and one laptop gets a
+    // pending return request for IT to check in. Only demo users' forms are touched, and each step runs once.
+    private static async Task SeedFormSignaturesAsync(IServiceProvider services)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var demoEmails = DemoUsers.Select(u => u.Email).ToList();
+
+        var unsigned = await context.AssignmentForms
+            .Where(f => f.AcceptedAt != null && f.AcceptanceSignature == null && demoEmails.Contains(f.User!.Email!))
+            .ToListAsync();
+        foreach (var form in unsigned)
+        {
+            form.AcceptanceSignature = DemoSignature.Create(form.EmployeeName);
+        }
+
+        var returnDevice = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == "DEMO-LT-002");
+        if (returnDevice != null && !await context.AssignmentForms.AnyAsync(f => f.DeviceId == returnDevice.Id && f.ReturnRequestedAt != null))
+        {
+            var form = await context.AssignmentForms.FirstOrDefaultAsync(f =>
+                f.DeviceId == returnDevice.Id && f.AcceptedAt != null && f.ReturnedAt == null
+                && demoEmails.Contains(f.User!.Email!));
+            if (form != null)
+            {
+                form.ReturnRequestedAt = DateTime.UtcNow.AddHours(-5);
+                form.ReturnReason = ReturnReason.Replacement;
+                form.ReturnNote = "Yeni dizüstü bilgisayarım geldi, eskisini şarj aleti ve çantasıyla birlikte teslim edeceğim.";
+                form.ReturnSignature = DemoSignature.Create(form.EmployeeName);
+            }
         }
 
         await context.SaveChangesAsync();
