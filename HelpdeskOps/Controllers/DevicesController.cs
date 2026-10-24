@@ -230,6 +230,11 @@ public class DevicesController : Controller
         }
 
         ViewBag.Warranty = warranty;
+        ViewBag.PendingReturns = await _context.AssignmentForms
+            .AsNoTracking()
+            .Where(f => f.ReturnRequestedAt != null && f.ReturnedAt == null)
+            .OrderBy(f => f.ReturnRequestedAt)
+            .ToListAsync();
         return View(await devices.ToListAsync());
     }
 

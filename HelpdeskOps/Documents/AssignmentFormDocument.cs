@@ -1,4 +1,5 @@
 using HelpdeskOps.Models;
+using HelpdeskOps.Models.Enums;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -51,7 +52,9 @@ public class AssignmentFormDocument : IDocument
             row.RelativeItem().Column(column =>
             {
                 column.Item().Text("HelpdeskOps · Bilgi Teknolojileri").FontSize(9).FontColor(Colors.Grey.Darken1);
-                column.Item().Text("BT Zimmet Teslim Formu").FontSize(18).Bold();
+                column.Item().Text(_form.ReturnRequestedAt != null || _form.ReturnedAt != null
+                    ? "BT Zimmet Teslim ve İade Formu"
+                    : "BT Zimmet Teslim Formu").FontSize(18).Bold();
             });
             row.ConstantItem(150).AlignRight().Column(column =>
             {
@@ -87,8 +90,7 @@ public class AssignmentFormDocument : IDocument
                 ("Teslim Eden", _form.IssuedByName ?? "-"),
                 ("Dijital Onay", _form.AcceptedAt is DateTime accepted
                     ? $"Teslim alındı ({accepted.ToTurkeyTime().ToString(DateFormat)})"
-                    : "Onay bekliyor"),
-                ("İade Tarihi", _form.ReturnedAt?.ToTurkeyTime().ToString(DateFormat) ?? "-")
+                    : "Onay bekliyor")
             }));
 
             column.Item().Text(
@@ -97,11 +99,48 @@ public class AssignmentFormDocument : IDocument
                 "değişikliği ya da işten ayrılma durumunda eksiksiz iade edeceğimi kabul ederim.")
                 .LineHeight(1.4f);
 
-            column.Item().PaddingTop(30).Row(row =>
+            column.Item().PaddingTop(20).Row(row =>
             {
-                row.RelativeItem().Element(c => SignatureBox(c, "Teslim Eden", _form.IssuedByName));
+                row.RelativeItem().Element(c => SignatureBox(c, "Teslim Eden", _form.IssuedByName, null));
                 row.ConstantItem(40);
-                row.RelativeItem().Element(c => SignatureBox(c, "Teslim Alan", _form.EmployeeName));
+                row.RelativeItem().Element(c => SignatureBox(c, "Teslim Alan", _form.EmployeeName, _form.AcceptanceSignature));
+            });
+
+            if (_form.ReturnRequestedAt != null || _form.ReturnedAt != null)
+            {
+                // Kept in one piece, so the return section and its signatures never split across pages
+                column.Item().PaddingTop(10).ShowEntire().Element(ComposeReturn);
+            }
+        });
+    }
+
+    // Return request, IT check result, and both return signatures; a form closed by reassignment shows only the date
+    private void ComposeReturn(IContainer container)
+    {
+        container.Column(column =>
+        {
+            column.Spacing(14);
+
+            column.Item().Element(c => Section(c, "İade Bilgileri", new[]
+            {
+                ("İade Talebi", _form.ReturnRequestedAt?.ToTurkeyTime().ToString(DateFormat) ?? "-"),
+                ("İade Sebebi", _form.ReturnReason?.GetDisplayName() ?? "-"),
+                ("Çalışanın Açıklaması", _form.ReturnNote ?? "-"),
+                ("Kontrol Sonucu", _form.ReturnCondition?.GetDisplayName() ?? "-"),
+                ("Kontrol Notu", _form.ReturnCheckNote ?? "-"),
+                ("Teslim Alan (BT)", _form.ReceivedByName ?? "-"),
+                ("İade Tarihi", _form.ReturnedAt?.ToTurkeyTime().ToString(DateFormat) ?? "Teslim bekleniyor")
+            }));
+
+            column.Item().Text(
+                "Yukarıda bilgileri yazılı cihaz, belirtilen kontrol sonucuyla BT birimine iade edilmiştir.")
+                .LineHeight(1.4f);
+
+            column.Item().PaddingTop(10).Row(row =>
+            {
+                row.RelativeItem().Element(c => SignatureBox(c, "İade Eden", _form.EmployeeName, _form.ReturnSignature));
+                row.ConstantItem(40);
+                row.RelativeItem().Element(c => SignatureBox(c, "Teslim Alan (BT)", _form.ReceivedByName, _form.ReceiverSignature));
             });
         });
     }
@@ -130,14 +169,23 @@ public class AssignmentFormDocument : IDocument
         });
     }
 
-    private static void SignatureBox(IContainer container, string title, string? name)
+    // A drawn signature is placed above the line; without one the line is left blank for a wet signature
+    private static void SignatureBox(IContainer container, string title, string? name, byte[]? signature)
     {
         container.Column(column =>
         {
             column.Item().Text(title).Bold();
             column.Item().Text(name ?? "");
-            column.Item().PaddingTop(40).BorderTop(0.5f).BorderColor(Colors.Grey.Darken1).PaddingTop(4)
-                .Text("İmza").FontSize(9).FontColor(Colors.Grey.Darken1);
+            if (signature != null)
+            {
+                column.Item().PaddingTop(4).Height(48).AlignLeft().Image(signature).FitArea();
+            }
+            else
+            {
+                column.Item().Height(52);
+            }
+            column.Item().BorderTop(0.5f).BorderColor(Colors.Grey.Darken1).PaddingTop(4)
+                .Text(signature != null ? "Dijital imza" : "İmza").FontSize(9).FontColor(Colors.Grey.Darken1);
         });
     }
 }

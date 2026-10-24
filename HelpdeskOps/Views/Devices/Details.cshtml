@@ -140,7 +140,12 @@
 
 <section id="assignment-forms" class="mt-5">
     <h2 class="h4">Zimmet Formları</h2>
-    <p class="text-muted small">Cihaz bir kişiye her zimmetlendiğinde form açılır; kişi "Cihazlarım" sayfasından teslim aldığını onaylar.</p>
+    <p class="text-muted small">Cihaz bir kişiye her zimmetlendiğinde form açılır; kişi "Cihazlarım" sayfasından imzalayarak teslim aldığını onaylar. İade edilen cihazı kontrol edip "Teslim Al" ile imzalayın.</p>
+
+    @if (TempData["FormMessage"] is string formMessage)
+    {
+        <div class="alert alert-success">@formMessage</div>
+    }
 
     @if (ViewBag.AssignmentForms is not List<HelpdeskOps.Models.AssignmentForm> forms || !forms.Any())
     {
@@ -168,7 +173,13 @@
                         <td>@form.IssuedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
                         <td>@(form.IssuedByName ?? "-")</td>
                         <td><partial name="_AssignmentFormStatus" model="form" /></td>
-                        <td><a asp-controller="AssignmentForms" asp-action="Pdf" asp-route-id="@form.Id">PDF İndir</a></td>
+                        <td>
+                            @if (form.ReturnedAt == null)
+                            {
+                                <a asp-controller="AssignmentForms" asp-action="CheckIn" asp-route-id="@form.Id" class="btn btn-sm @(form.ReturnRequestedAt != null ? "btn-success" : "btn-outline-secondary") me-2">Teslim Al</a>
+                            }
+                            <a asp-controller="AssignmentForms" asp-action="Pdf" asp-route-id="@form.Id">PDF İndir</a>
+                        </td>
                     </tr>
                 }
             </tbody>
