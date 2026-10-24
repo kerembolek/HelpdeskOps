@@ -1,0 +1,18 @@
+@model HelpdeskOps.Models.AssignmentForm
+
+<dl class="row mb-4" style="max-width: 40rem;">
+    <dt class="col-sm-4">Form No</dt>
+    <dd class="col-sm-8">@Model.FormNumber</dd>
+    <dt class="col-sm-4">Cihaz</dt>
+    <dd class="col-sm-8">@Model.Hostname <span class="text-muted">(@Model.DeviceTypeName)</span></dd>
+    <dt class="col-sm-4">Marka / Model</dt>
+    <dd class="col-sm-8">@(Model.BrandModel ?? "-")</dd>
+    <dt class="col-sm-4">Seri No</dt>
+    <dd class="col-sm-8">@Model.SerialNumber</dd>
+    <dt class="col-sm-4">Zimmetli Kişi</dt>
+    <dd class="col-sm-8">@Model.EmployeeName @(Model.Department != null ? $"({Model.Department})" : "")</dd>
+    <dt class="col-sm-4">Teslim Tarihi</dt>
+    <dd class="col-sm-8">@Model.IssuedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</dd>
+    <dt class="col-sm-4">Teslim Eden</dt>
+    <dd class="col-sm-8">@(Model.IssuedByName ?? "-")</dd>
+</dl>

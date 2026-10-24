@@ -5,6 +5,11 @@
     <span class="badge text-bg-secondary">İade edildi</span>
     <span class="small text-muted">@returnedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</span>
 }
+else if (Model.ReturnRequestedAt is DateTime requestedAt)
+{
+    <span class="badge text-bg-info">İade bekliyor</span>
+    <span class="small text-muted">@requestedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</span>
+}
 else if (Model.AcceptedAt is DateTime acceptedAt)
 {
     <span class="badge text-bg-success">Teslim alındı</span>

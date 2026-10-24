@@ -1,0 +1,27 @@
+@model HelpdeskOps.Models.AcceptAssignmentViewModel
+
+@{
+    ViewData["Title"] = "Zimmet Formunu İmzala";
+}
+
+<h1>Zimmet Formunu İmzala</h1>
+
+<p class="text-muted">Cihazı teslim aldıysanız bilgileri kontrol edin ve formu imzalayın.</p>
+
+<partial name="_AssignmentFormSummary" model="Model.Form" />
+
+<div class="alert alert-secondary" style="max-width: 40rem;">
+    Yukarıda bilgileri yazılı cihazı çalışır durumda teslim aldım. Cihazı yalnızca iş amaçlı kullanacağımı, özenle
+    koruyacağımı, kaybolması veya arızalanması durumunda BT birimine derhal haber vereceğimi ve görev değişikliği ya da
+    işten ayrılma durumunda eksiksiz iade edeceğimi kabul ederim.
+</div>
+
+<form asp-action="Accept" asp-route-id="@Model.Form.Id" method="post">
+    <partial name="_SignaturePad" />
+    <button type="submit" class="btn btn-success">İmzala ve Teslim Aldım</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+</form>
+
+@section Scripts {
+    <script src="~/js/signature-pad.js" asp-append-version="true"></script>
+}

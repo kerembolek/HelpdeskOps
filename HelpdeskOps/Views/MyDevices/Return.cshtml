@@ -1,0 +1,37 @@
+@model HelpdeskOps.Models.ReturnRequestViewModel
+
+@{
+    ViewData["Title"] = "Cihaz İadesi";
+}
+
+<h1>Cihaz İadesi</h1>
+
+<p class="text-muted">İade talebiniz BT birimine iletilir. Cihazı BT'ye teslim ettiğinizde kontrol edilip teslim alınır ve zimmetiniz kapanır.</p>
+
+<partial name="_AssignmentFormSummary" model="Model.Form" />
+
+<form asp-action="Return" asp-route-id="@Model.Form.Id" method="post" style="max-width: 32rem;">
+    <div class="mb-3">
+        <label asp-for="Reason" class="form-label"></label>
+        <select asp-for="Reason" asp-items="Html.GetEnumSelectList<HelpdeskOps.Models.Enums.ReturnReason>()" class="form-select">
+            <option value="">Seçin</option>
+        </select>
+        <span asp-validation-for="Reason" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Note" class="form-label"></label>
+        <textarea asp-for="Note" class="form-control" rows="3" placeholder="Örn. şarj aleti ve çantasıyla birlikte teslim edeceğim."></textarea>
+        <span asp-validation-for="Note" class="text-danger small"></span>
+    </div>
+
+    <p class="small text-muted">İmzanızla cihazı iade etmek istediğinizi onaylarsınız.</p>
+    <partial name="_SignaturePad" />
+
+    <button type="submit" class="btn btn-primary">İade Talebi Gönder</button>
+    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/signature-pad.js" asp-append-version="true"></script>
+}

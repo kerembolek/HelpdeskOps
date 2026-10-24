@@ -1,0 +1,13 @@
+@* Draw-to-sign pad; signature-pad.js writes the drawing into the hidden Signature field as a PNG data URL *@
+<div class="mb-3" style="max-width: 32rem;" data-signature-pad>
+    <label class="form-label">İmza</label>
+    <div class="border rounded bg-white">
+        <canvas class="d-block w-100" style="height: 11rem; touch-action: none; cursor: crosshair;" aria-label="İmza alanı"></canvas>
+    </div>
+    <div class="d-flex justify-content-between align-items-start mt-1">
+        <span class="form-text mt-0">Fare ya da parmağınızla kutunun içine imzanızı atın.</span>
+        <button type="button" class="btn btn-sm btn-link p-0" data-signature-clear>Temizle</button>
+    </div>
+    <input type="hidden" name="Signature" />
+    <span class="text-danger small" data-signature-error>@ViewData.ModelState["Signature"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
+</div>

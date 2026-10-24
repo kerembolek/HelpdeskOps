@@ -103,6 +103,24 @@ namespace HelpdeskOps.Models.Enums
         [Display(Name = "Port Değişikliği")] PortChanged
     }
 
+    // Why an employee hands a device back
+    public enum ReturnReason
+    {
+        [Display(Name = "İşten ayrılış")] Leaving,
+        [Display(Name = "Cihaz değişimi")] Replacement,
+        [Display(Name = "Arıza")] Faulty,
+        [Display(Name = "Görev değişikliği")] RoleChange,
+        [Display(Name = "Diğer")] Other
+    }
+
+    // What IT finds when it checks a returned device
+    public enum DeviceCondition
+    {
+        [Display(Name = "Sağlam")] Intact,
+        [Display(Name = "Hasarlı")] Damaged,
+        [Display(Name = "Eksik parça / aksesuar")] MissingParts
+    }
+
     public enum TicketActivityType
     {
         [Display(Name = "Talep oluşturuldu")] Created,
