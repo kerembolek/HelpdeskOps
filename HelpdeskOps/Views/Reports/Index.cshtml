@@ -13,7 +13,7 @@
     private static string FormatRating(double? rating) => rating is double r ? $"{r:0.0} / 5" : "-";
 }
 
-<h1>Raporlar</h1>
+<h1><i class="bi bi-bar-chart-line text-primary me-2"></i>Raporlar</h1>
 
 <p class="text-muted">
     @Model.From.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") tarihinden bugüne açılan ve çözülen talepler.
