@@ -121,11 +121,12 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
   "ConnectionStrings": {
     "DefaultConnection": "Server=...;Database=...;User Id=...;Password=...;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
   },
-  "SeedDemoData": true
+  "SeedDemoData": true,
+  "DemoReadOnly": true
 }
 ```
 
-`SeedDemoData`, aşağıdaki demo verilerini `Development` dışındaki ortamlarda da açar. Yayınlama profili `App_Data` klasörünü dışarıda bırakır; yerel ekler ve anahtarlar sunucuya gitmez.
+`SeedDemoData`, aşağıdaki demo verilerini `Development` dışındaki ortamlarda da açar. `DemoReadOnly` herkese açık demoyu salt okunur yapar: giriş ve çıkış dışındaki her form gönderimi bir uyarıyla reddedilir, kayıt ve hesap yönetimi sayfaları kapanır, bildirim açmak onu okundu yapmaz ve ziyaretçilere değişikliklerin kaydedilmediğini söyleyen bir şerit gösterilir. Yayınlama profili `App_Data` klasörünü dışarıda bırakır; yerel ekler ve anahtarlar sunucuya gitmez.
 
 ### Demo Hesaplar
 

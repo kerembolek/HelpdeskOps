@@ -121,11 +121,12 @@ The live demo runs on MonsterASP.NET and is published from Visual Studio with We
   "ConnectionStrings": {
     "DefaultConnection": "Server=...;Database=...;User Id=...;Password=...;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
   },
-  "SeedDemoData": true
+  "SeedDemoData": true,
+  "DemoReadOnly": true
 }
 ```
 
-`SeedDemoData` turns on the demo data below outside the `Development` environment. The publish profile excludes `App_Data`, so local attachments and keys never reach the server.
+`SeedDemoData` turns on the demo data below outside the `Development` environment. `DemoReadOnly` makes the public demo read-only: every form post except sign-in and sign-out is refused with a notice, registration and account management pages are closed, opening a notification does not mark it read, and a banner tells visitors that changes are not saved. The publish profile excludes `App_Data`, so local attachments and keys never reach the server.
 
 ### Demo Accounts
 

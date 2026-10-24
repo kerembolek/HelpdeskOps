@@ -56,6 +56,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// The public live demo turns this on in its appsettings.Production.json so visitors cannot change anything
+if (HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(app.Configuration))
+{
+    app.UseMiddleware<HelpdeskOps.Services.DemoReadOnlyMiddleware>();
+}
 app.UseRouting();
 
 app.UseAuthentication();
