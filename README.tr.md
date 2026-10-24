@@ -8,6 +8,8 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 > Bir kurumsal BT departmanındaki staj deneyiminden esinlenilen bir portföy projesidir.
 
+**Canlı demo:** [helpdeskops.runasp.net](https://helpdeskops.runasp.net), [demo hesaplardan](#demo-hesaplar) biriyle giriş yapabilirsiniz.
+
 ---
 
 ## Teknoloji Altyapısı
@@ -102,9 +104,26 @@ dotnet run
 
 Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kullanır. Farklı bir SQL Server örneği kullanıyorsanız `appsettings.json` dosyasını güncelleyin.
 
+Bekleyen migration'lar uygulama açılırken de otomatik uygulanır. Tarihler, sunucunun saat dilimi ne olursa olsun Türkiye saatiyle (`Europe/Istanbul`) gösterilir.
+
+### Yayınlama
+
+Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy ile yayınlanır. Ayarları `appsettings.json` dosyasının yanındaki `appsettings.Production.json` dosyasında durur; bu dosya barındırılan veritabanının bağlantı dizesini içerdiği için git tarafından yok sayılır:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=...;Database=...;User Id=...;Password=...;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
+  },
+  "SeedDemoData": true
+}
+```
+
+`SeedDemoData`, aşağıdaki demo verilerini `Development` dışındaki ortamlarda da açar. Yayınlama profili `App_Data` klasörünü dışarıda bırakır; yerel ekler ve anahtarlar sunucuya gitmez.
+
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, zimmetli cihazlar için zimmet formları (biri onay bekliyor), self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur (diğer ortamlarda asla oluşturulmaz):
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, zimmetli cihazlar için zimmet formları (biri onay bekliyor), self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur. Diğer ortamlarda yalnızca `SeedDemoData` değeri `true` olduğunda oluşturulur:
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|
