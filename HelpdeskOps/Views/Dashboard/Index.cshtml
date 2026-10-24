@@ -13,7 +13,7 @@
     private static string FormatDuration(double minutes) => HelpdeskOps.Models.DurationFormat.FromMinutes(minutes);
 }
 
-<h1>Pano</h1>
+<h1><i class="bi bi-speedometer2 text-primary me-2"></i>Pano</h1>
 
 <p class="text-muted">Destek talepleri ve cihazlar için özet raporlar.</p>
 
@@ -26,43 +26,58 @@ else
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg">
             <div class="card h-100">
-                <div class="card-body">
-                    <a asp-controller="Tickets" asp-action="Index" asp-route-status="Open" class="stretched-link text-muted small text-decoration-none">Açık</a>
-                    <div class="fs-2 fw-semibold">@Model.OpenTickets</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-status="Open" class="stretched-link text-muted small text-decoration-none">Açık</a>
+                        <div class="fs-2 fw-semibold">@Model.OpenTickets</div>
+                    </div>
+                    <span class="icon-box bg-primary-subtle text-primary-emphasis"><i class="bi bi-circle"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg">
             <div class="card h-100">
-                <div class="card-body">
-                    <a asp-controller="Tickets" asp-action="Index" asp-route-status="InProgress" class="stretched-link text-muted small text-decoration-none">İşlemde</a>
-                    <div class="fs-2 fw-semibold">@Model.InProgressTickets</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-status="InProgress" class="stretched-link text-muted small text-decoration-none">İşlemde</a>
+                        <div class="fs-2 fw-semibold">@Model.InProgressTickets</div>
+                    </div>
+                    <span class="icon-box bg-warning-subtle text-warning-emphasis"><i class="bi bi-hourglass-split"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg">
             <div class="card h-100">
-                <div class="card-body">
-                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="done" class="stretched-link text-muted small text-decoration-none">Çözülen / Kapatılan</a>
-                    <div class="fs-2 fw-semibold">@Model.ResolvedTickets</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-scope="done" class="stretched-link text-muted small text-decoration-none">Çözülen / Kapatılan</a>
+                        <div class="fs-2 fw-semibold">@Model.ResolvedTickets</div>
+                    </div>
+                    <span class="icon-box bg-success-subtle text-success-emphasis"><i class="bi bi-check-circle"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg">
             <div class="card h-100 @(Model.UnassignedActiveTickets > 0 ? "border-warning" : "")">
-                <div class="card-body">
-                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="unassigned" class="stretched-link text-muted small text-decoration-none">Atanmamış Aktif Talep</a>
-                    <div class="fs-2 fw-semibold">@Model.UnassignedActiveTickets</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-scope="unassigned" class="stretched-link text-muted small text-decoration-none">Atanmamış Aktif Talep</a>
+                        <div class="fs-2 fw-semibold">@Model.UnassignedActiveTickets</div>
+                    </div>
+                    <span class="icon-box bg-warning-subtle text-warning-emphasis"><i class="bi bi-inbox"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-12 col-lg">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="text-muted small">Ortalama Çözüm Süresi</div>
-                    <div class="fs-2 fw-semibold">
-                        @(Model.AverageResolutionMinutes is double avg ? FormatDuration(avg) : "-")
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <div class="text-muted small">Ortalama Çözüm Süresi</div>
+                        <div class="fs-2 fw-semibold">
+                            @(Model.AverageResolutionMinutes is double avg ? FormatDuration(avg) : "-")
+                        </div>
                     </div>
+                    <span class="icon-box bg-info-subtle text-info-emphasis"><i class="bi bi-stopwatch"></i></span>
                 </div>
             </div>
         </div>
@@ -77,17 +92,23 @@ else
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
             <div class="card h-100 @(Model.OverdueTickets > 0 ? "border-danger" : "")">
-                <div class="card-body">
-                    <a asp-controller="Tickets" asp-action="Index" asp-route-scope="overdue" class="stretched-link text-muted small text-decoration-none">Hedef Süresi Geçen Aktif Talep</a>
-                    <div class="fs-2 fw-semibold">@Model.OverdueTickets</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <a asp-controller="Tickets" asp-action="Index" asp-route-scope="overdue" class="stretched-link text-muted small text-decoration-none">Hedef Süresi Geçen Aktif Talep</a>
+                        <div class="fs-2 fw-semibold">@Model.OverdueTickets</div>
+                    </div>
+                    <span class="icon-box bg-danger-subtle text-danger-emphasis"><i class="bi bi-alarm"></i></span>
                 </div>
             </div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card h-100">
-                <div class="card-body">
-                    <div class="text-muted small">Hedefinde Çözülme Oranı</div>
-                    <div class="fs-2 fw-semibold">@(Model.SlaComplianceRate is double rate ? $"%{rate:0}" : "-")</div>
+                <div class="card-body d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <div class="text-muted small">Hedefinde Çözülme Oranı</div>
+                        <div class="fs-2 fw-semibold">@(Model.SlaComplianceRate is double rate ? $"%{rate:0}" : "-")</div>
+                    </div>
+                    <span class="icon-box bg-success-subtle text-success-emphasis"><i class="bi bi-bullseye"></i></span>
                 </div>
             </div>
         </div>
@@ -114,7 +135,7 @@ else
                         @foreach (var row in Model.ResolutionByPriority)
                         {
                             <tr>
-                                <td>@Html.DisplayFor(_ => row.Priority)</td>
+                                <td><partial name="_TicketPriorityBadge" model="row.Priority" /></td>
                                 <td class="text-end">@row.ResolvedCount</td>
                                 <td class="text-end">@FormatDuration(row.AverageMinutes)</td>
                             </tr>

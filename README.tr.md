@@ -17,7 +17,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - **Çatı:** ASP.NET Core MVC (.NET 10)
 - **Veritabanı:** Entity Framework Core (Code-First)
 - **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`)
-- **Arayüz:** Razor Views, Bootstrap
+- **Arayüz:** Razor Views, Bootstrap, Bootstrap Icons
 - **Sürüm kontrolü:** Git ve GitHub
 
 ---
@@ -65,6 +65,11 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] "Cihazlarım" sayfası: her kullanıcı kendine zimmetli cihazları görür; çalışanlar taleplere yalnızca kendi cihazlarını ekleyebilir
 - [x] Yönetici (Manager) rolü: tüm talepleri geçmişi ve yorumlarıyla salt okunur görme, pano ve raporlar; cihaz yönetimi ve talep değişikliği yok
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
+
+### Arayüz
+- [x] İkonlu lacivert menü çubuğu, bulunulan bölümün vurgulanması ve kullanıcı menüsü
+- [x] Role göre ana sayfa: canlı sayılarla kısayol kutucukları (taleplerim, cihazlarım, imza bekleyen formlar; BT için bana atanan, atanmamış, hedef süresi aşan, iade bekleyen ve garantisi bitecek olanlar) ve demo sitesinde ziyaretçiler için demo hesaplar
+- [x] Renkli talep durumu ve öncelik rozetleri, ikonlu pano kartları ve telefonda yana kayan tablolar
 
 ### Yönetici Panosu ve Raporlama
 - [x] Tıklanınca ilgili filtreli talep listesini açan özet kartları (açık, işlemde, çözülen/kapatılan, atanmamış aktif talepler)

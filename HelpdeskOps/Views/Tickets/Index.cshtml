@@ -13,17 +13,17 @@
     var priorityItems = new SelectList(Html.GetEnumSelectList<TicketPriority>(), "Value", "Text", priorityValue);
 }
 
-<h1>Destek Talepleri</h1>
+<h1><i class="bi bi-ticket-detailed text-primary me-2"></i>Destek Talepleri</h1>
 
 <p>
     @if (User.IsInRole("ITAdmin"))
     {
-        <a asp-action="Create">Yeni Talep Oluştur</a>
+        <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Yeni Talep Oluştur</a>
     }
     else
     {
         @* Employees try the Tier 0 solution bank first; the ticket form is one click away from there *@
-        <a asp-controller="Solutions" asp-action="Index">Yeni Talep Oluştur</a>
+        <a asp-controller="Solutions" asp-action="Index" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Yeni Talep Oluştur</a>
     }
 </p>
 
@@ -105,8 +105,8 @@ else
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.Title)</td>
                     <td>@item.CategoryPath</td>
-                    <td>@Html.DisplayFor(modelItem => item.Priority)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Status)</td>
+                    <td><partial name="_TicketPriorityBadge" model="item.Priority" /></td>
+                    <td><partial name="_TicketStatusBadge" model="item.Status" /></td>
                     <td><partial name="_SlaBadge" model="item" /></td>
                     <td>@item.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@(item.Device?.Hostname ?? "-")</td>
