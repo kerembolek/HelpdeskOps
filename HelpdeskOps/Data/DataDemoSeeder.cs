@@ -8,7 +8,7 @@ namespace HelpdeskOps.Data;
 public static class DemoDataSeeder
 {
     // Runs in Development, and on the live demo site when "SeedDemoData" is true; never on a real deployment.
-    private const string DemoPassword = "Helpdesk2026!";
+    public const string DemoPassword = "Helpdesk2026!";
 
     private static readonly (string Email, string FirstName, string LastName, string Department, string Role)[] DemoUsers =
     {

@@ -1,0 +1,11 @@
+@model (string Icon, string Color, string Title, string Text)
+
+<div class="col-sm-6">
+    <div class="card h-100">
+        <div class="card-body">
+            <span class="icon-box bg-@Model.Color-subtle text-@Model.Color-emphasis mb-2"><i class="bi bi-@Model.Icon"></i></span>
+            <div class="fw-semibold">@Model.Title</div>
+            <div class="small text-muted">@Model.Text</div>
+        </div>
+    </div>
+</div>
