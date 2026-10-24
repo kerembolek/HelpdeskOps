@@ -1,0 +1,13 @@
+@using HelpdeskOps.Models.Enums
+@model TicketStatus
+
+@{
+    var (style, icon) = Model switch
+    {
+        TicketStatus.Open => ("text-bg-primary", "circle"),
+        TicketStatus.InProgress => ("text-bg-warning", "hourglass-split"),
+        TicketStatus.Resolved => ("text-bg-success", "check-circle"),
+        _ => ("text-bg-secondary", "archive")
+    };
+}
+<span class="badge @style"><i class="bi bi-@icon me-1"></i>@Model.GetDisplayName()</span>

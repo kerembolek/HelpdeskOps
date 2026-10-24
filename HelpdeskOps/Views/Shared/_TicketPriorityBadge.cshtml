@@ -1,0 +1,13 @@
+@using HelpdeskOps.Models.Enums
+@model TicketPriority
+
+@{
+    var style = Model switch
+    {
+        TicketPriority.Critical => "bg-danger-subtle text-danger-emphasis border border-danger-subtle",
+        TicketPriority.High => "bg-warning-subtle text-warning-emphasis border border-warning-subtle",
+        TicketPriority.Medium => "bg-info-subtle text-info-emphasis border border-info-subtle",
+        _ => "bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle"
+    };
+}
+<span class="badge @style">@Model.GetDisplayName()</span>
