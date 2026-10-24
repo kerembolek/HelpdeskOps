@@ -55,6 +55,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Tier 0 self-servis çözüm bankası: çalışanlar talep açmadan önce konu seçip adım adım çözümleri dener; "çözülmedi" denince talep formu doldurulmuş olarak açılır, BT personeli çözümleri yönetir ve her birinin kendi kendine çözüm oranını görür
 - [x] Kademeli kategori yapısı: her kategorinin kendi alt kategorileri var, "Diğer" seçilince kısa bir serbest metin açıklama isteniyor; talep listesi kategoriye göre filtrelenebiliyor
 - [x] Dijital zimmet formları: cihaz zimmetlenince cihaz ve çalışan bilgilerinin bir kopyasını saklayan form açılır, çalışan "Cihazlarım" sayfasından teslim aldığını onaylar, cihaz başkasına verilince veya silinince form kapanır ve her form PDF olarak indirilebilir
+- [x] İmzalı teslim ve iade: çalışan teslim aldığını ve iade talebini (işten ayrılış, cihaz değişimi gibi bir sebeple) ekrana imza atarak onaylar; BT iade edilen cihazı kontrol edip durumunu kaydeder ve imzalayarak teslim alır, cihaz çalışanın üzerinden düşer ve cihaz geçmişine işlenir; PDF'te tüm imzalar ve iade bilgileri yer alır
 
 ### Role Dayalı Erişim Kontrolü (RBAC)
 - [x] Departman alanı olan temel kullanıcı modeli
@@ -80,7 +81,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından onayladığı dijital bir zimmet formu açılıyor ve her form PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
 
 ---
 
@@ -123,7 +124,7 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
 
 ### Demo Hesaplar
 
-Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, zimmetli cihazlar için zimmet formları (biri onay bekliyor), self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur. Diğer ortamlarda yalnızca `SeedDemoData` değeri `true` olduğunda oluşturulur:
+Uygulama `Development` ortamında çalıştığında aşağıdaki hesaplar, bu hesaplara zimmetli, bakım geçmişi ve farklı garanti durumları (garantide, yakında bitiyor, bitmiş) olan birkaç örnek cihaz, bu cihazların portlarına bağlı olduğu bir Cisco switch, zimmetli cihazlar için imzalı zimmet formları (biri imza bekliyor, biri BT'nin teslim alacağı bir iade talebi içeriyor), self-servis çözüm makaleleri ve pano için yorumları ve hareket geçmişiyle birlikte örnek talepler otomatik olarak oluşturulur. Diğer ortamlarda yalnızca `SeedDemoData` değeri `true` olduğunda oluşturulur:
 
 | Rol      | E-posta                | Parola          |
 |----------|------------------------|-----------------|
