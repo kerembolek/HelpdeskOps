@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using HelpdeskOps.Data;
+using HelpdeskOps.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,12 @@ public class NotificationsController : Controller
     private const int ListLimit = 50;
 
     private readonly ApplicationDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public NotificationsController(ApplicationDbContext context)
+    public NotificationsController(ApplicationDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
     }
 
     // GET: Notifications
@@ -42,7 +45,8 @@ public class NotificationsController : Controller
             return NotFound();
         }
 
-        if (notification.ReadAt == null)
+        // The read-only demo leaves notifications unread
+        if (notification.ReadAt == null && !DemoReadOnlyMiddleware.IsEnabled(_configuration))
         {
             notification.ReadAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

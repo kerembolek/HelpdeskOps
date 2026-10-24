@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using HelpdeskOps.Models
 @inject SignInManager<ApplicationUser> SignInManager
+@inject IConfiguration Configuration
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
@@ -20,9 +21,13 @@
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Register"><i class="bi bi-person-plus"></i> Kayıt Ol</a>
-    </li>
+    @* The read-only demo has no registration *@
+    @if (!HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Register"><i class="bi bi-person-plus"></i> Kayıt Ol</a>
+        </li>
+    }
     <li class="nav-item">
         <a class="nav-link" asp-area="Identity" asp-page="/Account/Login"><i class="bi bi-box-arrow-in-right"></i> Giriş Yap</a>
     </li>

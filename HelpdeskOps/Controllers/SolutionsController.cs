@@ -1,6 +1,7 @@
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
+using HelpdeskOps.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ using Microsoft.EntityFrameworkCore;
 public class SolutionsController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public SolutionsController(ApplicationDbContext context)
+    public SolutionsController(ApplicationDbContext context, IConfiguration configuration)
     {
         _context = context;
+        _configuration = configuration;
     }
 
     // GET: Solutions?category=Printer
@@ -68,8 +71,12 @@ public class SolutionsController : Controller
             return NotFound();
         }
 
-        article.EscalatedCount++;
-        await _context.SaveChangesAsync();
+        // The read-only demo still opens the ticket form, but leaves the count as it is
+        if (!DemoReadOnlyMiddleware.IsEnabled(_configuration))
+        {
+            article.EscalatedCount++;
+            await _context.SaveChangesAsync();
+        }
         return RedirectToAction("Create", "Tickets", new { category = article.Category, solutionId = article.Id });
     }
 

@@ -1,4 +1,5 @@
 ﻿@model HelpdeskOps.Models.HomeViewModel
+@inject IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Ana Sayfa";
@@ -12,7 +13,10 @@
             <p class="lead text-muted">Cihazları ve zimmetleri takip edin, destek taleplerini açın ve çözün, ekibin iş yükünü panodan izleyin.</p>
             <div class="d-flex flex-wrap gap-2">
                 <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg"><i class="bi bi-box-arrow-in-right me-1"></i> Giriş Yap</a>
-                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Kayıt Ol</a>
+                @if (!HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration))
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Kayıt Ol</a>
+                }
             </div>
         </div>
         <div class="col-lg-6">
