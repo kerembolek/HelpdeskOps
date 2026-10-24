@@ -65,23 +65,25 @@ public class LoginModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "E-posta adresinizi girin.")]
+        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin.")]
+        [Display(Name = "E-posta")]
         public string Email { get; set; } = default!;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "Parolanızı girin.")]
         [DataType(DataType.Password)]
+        [Display(Name = "Parola")]
         public string Password { get; set; } = default!;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Display(Name = "Remember me?")]
+        [Display(Name = "Beni hatırla")]
         public bool RememberMe { get; set; }
     }
 
@@ -129,7 +131,7 @@ public class LoginModel : PageModel
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ModelState.AddModelError(string.Empty, "E-posta veya parola hatalı.");
                 return Page();
             }
         }

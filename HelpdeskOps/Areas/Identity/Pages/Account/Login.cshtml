@@ -1,83 +1,85 @@
 @page
 @model LoginModel
+@inject IConfiguration Configuration
+@inject IWebHostEnvironment Environment
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Giriş Yap";
+    var readOnlyDemo = HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration);
+    var showDemoAccounts = Environment.IsDevelopment() || Configuration.GetValue<bool>("SeedDemoData");
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-5">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <span class="icon-box bg-primary-subtle text-primary-emphasis mb-2"><i class="bi bi-headset"></i></span>
+                    <h1 class="h3 mb-1">Giriş Yap</h1>
+                    <p class="text-muted small mb-0">HelpdeskOps hesabınızla oturum açın.</p>
                 </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+
+                <form id="account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger small" role="alert"></div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="ad@sirket.com" />
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
                     </div>
-                }
-                else
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="parola" />
+                        <label asp-for="Input.Password" class="form-label"></label>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        <label asp-for="Input.RememberMe" class="form-check-label"></label>
+                    </div>
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Giriş Yap
+                    </button>
+                </form>
+
+                @* The read-only demo has no registration; password reset needs e-mail, which this app does not send *@
+                @if (!readOnlyDemo)
                 {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
+                    <p class="text-center small mt-3 mb-0">
+                        Hesabınız yok mu? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Kayıt olun</a>
+                    </p>
                 }
-            }
-        </section>
+            </div>
+        </div>
+
+        @if (showDemoAccounts)
+        {
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="fw-semibold mb-1"><i class="bi bi-person-badge me-1 text-primary"></i> Demo hesapla dene</div>
+                    <p class="small text-muted mb-2">Bir rol seçin, bilgiler forma doldurulsun.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-demo-email="test@helpdeskops.com">Çalışan</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-demo-email="it@helpdeskops.com">BT Uzmanı</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-demo-email="mudur@helpdeskops.com">Yönetici</button>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    @if (showDemoAccounts)
+    {
+        <script>
+            // Demo buttons fill the form with a published demo account; the visitor still presses "Giriş Yap"
+            document.querySelectorAll('[data-demo-email]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    document.getElementById('Input_Email').value = button.dataset.demoEmail;
+                    document.getElementById('Input_Password').value = '@HelpdeskOps.Data.DemoDataSeeder.DemoPassword';
+                    document.getElementById('login-submit').focus();
+                });
+            });
+        </script>
+    }
 }

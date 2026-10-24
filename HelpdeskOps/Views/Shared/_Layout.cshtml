@@ -30,9 +30,13 @@
                 </button>
                 <div class="navbar-collapse collapse justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
+                        @* Visitors get only the brand link home; every section below needs a signed-in user *@
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
                         <li class="nav-item">
                             <a class="nav-link@(Active("Home"))" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house"></i> Ana Sayfa</a>
                         </li>
+                        }
 
                         @if (User.IsInRole("ITAdmin") || User.IsInRole("Manager"))
                         {
@@ -64,9 +68,12 @@
                         </li>
                         }
 
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
                         <li class="nav-item">
                             <a class="nav-link@(Active("Tickets"))" asp-controller="Tickets" asp-action="Index"><i class="bi bi-ticket-detailed"></i> Talepler</a>
                         </li>
+                        }
                     </ul>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
