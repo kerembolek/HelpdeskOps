@@ -8,6 +8,8 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 > Built as a portfolio project, inspired by hands-on experience in a corporate IT department during an internship.
 
+**Live demo:** [helpdeskops.runasp.net](https://helpdeskops.runasp.net), sign in with one of the [demo accounts](#demo-accounts).
+
 ---
 
 ## Tech Stack
@@ -102,9 +104,26 @@ dotnet run
 
 The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`). Update `appsettings.json` if you use a different SQL Server instance.
 
+Pending migrations are also applied automatically when the app starts. Dates are shown in Turkey time (`Europe/Istanbul`) whatever time zone the server uses.
+
+### Deployment
+
+The live demo runs on MonsterASP.NET and is published from Visual Studio with Web Deploy. Its settings live in an `appsettings.Production.json` file next to `appsettings.json`, which is git-ignored because it holds the hosted database connection string:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=...;Database=...;User Id=...;Password=...;Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
+  },
+  "SeedDemoData": true
+}
+```
+
+`SeedDemoData` turns on the demo data below outside the `Development` environment. The publish profile excludes `App_Data`, so local attachments and keys never reach the server.
+
 ### Demo Accounts
 
-When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history and a mix of active, expiring, and expired warranties, a Cisco switch with those devices patched into its ports, zimmet forms for the assigned devices (one still awaiting confirmation), self-service solution articles, and sample tickets with comments and history for the dashboard automatically (never in other environments):
+When the app runs in the `Development` environment, it creates these accounts, a few sample devices assigned to them with maintenance history and a mix of active, expiring, and expired warranties, a Cisco switch with those devices patched into its ports, zimmet forms for the assigned devices (one still awaiting confirmation), self-service solution articles, and sample tickets with comments and history for the dashboard automatically. Other environments get them only when `SeedDemoData` is `true`:
 
 | Role     | Email                  | Password        |
 |----------|------------------------|-----------------|
