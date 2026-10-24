@@ -1,0 +1,77 @@
+@model HelpdeskOps.Models.CheckInViewModel
+@using HelpdeskOps.Models.Enums
+@using HelpdeskOps.Services
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Cihazı Teslim Al";
+    var form = Model.Form;
+    var statuses = new[] { DeviceStatus.InStorage, DeviceStatus.Faulty, DeviceStatus.Retired }
+        .Select(s => new SelectListItem(s.GetDisplayName(), s.ToString()));
+}
+
+<h1>Cihazı Teslim Al</h1>
+
+<p class="text-muted">Cihazı fiziksel olarak kontrol edin, sonucu kaydedin ve imzalayın. Zimmet kapanır ve cihaz çalışanın üzerinden düşer.</p>
+
+<partial name="_AssignmentFormSummary" model="form" />
+
+@if (form.ReturnRequestedAt is DateTime requestedAt)
+{
+    <div class="card mb-4" style="max-width: 40rem;">
+        <div class="card-header">Çalışanın İade Talebi</div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Talep Tarihi</dt>
+                <dd class="col-sm-8">@requestedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</dd>
+                <dt class="col-sm-4">İade Sebebi</dt>
+                <dd class="col-sm-8">@(form.ReturnReason?.GetDisplayName() ?? "-")</dd>
+                <dt class="col-sm-4">Açıklama</dt>
+                <dd class="col-sm-8">@(form.ReturnNote ?? "-")</dd>
+                @if (form.ReturnSignature != null)
+                {
+                    <dt class="col-sm-4">İmza</dt>
+                    <dd class="col-sm-8"><img src="@SignatureImage.ToDataUrl(form.ReturnSignature)" alt="Çalışanın imzası" class="border rounded bg-white" style="max-height: 5rem; max-width: 100%;" /></dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info" style="max-width: 40rem;">Çalışan iade talebi göndermedi. Cihaz doğrudan size getirildiyse (örneğin işten ayrılışta) buradan teslim alabilirsiniz.</div>
+}
+
+<form asp-action="CheckIn" asp-route-id="@form.Id" method="post" style="max-width: 32rem;">
+    <div class="mb-3">
+        <label asp-for="Condition" class="form-label"></label>
+        <select asp-for="Condition" asp-items="Html.GetEnumSelectList<DeviceCondition>()" class="form-select">
+            <option value="">Seçin</option>
+        </select>
+        <span asp-validation-for="Condition" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Note" class="form-label"></label>
+        <textarea asp-for="Note" class="form-control" rows="3" placeholder="Örn. şarj aleti eksik, kasada çizik var."></textarea>
+        <span asp-validation-for="Note" class="text-danger small"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NewStatus" class="form-label"></label>
+        <select asp-for="NewStatus" asp-items="statuses" class="form-select"></select>
+        <span asp-validation-for="NewStatus" class="text-danger small"></span>
+    </div>
+
+    <p class="small text-muted">İmzanızla cihazı kontrol edip teslim aldığınızı onaylarsınız.</p>
+    <partial name="_SignaturePad" />
+
+    <button type="submit" class="btn btn-success">İmzala ve Teslim Al</button>
+    @if (form.DeviceId is int deviceId)
+    {
+        <a asp-controller="Devices" asp-action="Details" asp-route-id="@deviceId" class="btn btn-outline-secondary ms-2">Vazgeç</a>
+    }
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/signature-pad.js" asp-append-version="true"></script>
+}
