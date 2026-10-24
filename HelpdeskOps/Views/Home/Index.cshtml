@@ -1,29 +1,77 @@
-﻿@{
+﻿@model HelpdeskOps.Models.HomeViewModel
+
+@{
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center py-5">
-    <h1 class="display-5">HelpdeskOps</h1>
-    <p class="lead">Kurumsal BT envanter ve destek talebi yönetim sistemi</p>
-
-    <div class="d-flex flex-wrap justify-content-center gap-2">
-        @if (User.IsInRole("ITAdmin") || User.IsInRole("Manager"))
-        {
-        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Pano</a>
-        <a asp-controller="Reports" asp-action="Index" class="btn btn-primary">Raporlar</a>
-        }
-
-        @if (User.IsInRole("ITAdmin"))
-        {
-        <a asp-controller="Devices" asp-action="Index" class="btn btn-primary">Cihazlar</a>
-        }
-
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-        <a asp-controller="MyDevices" asp-action="Index" class="btn btn-primary">Cihazlarım</a>
-        <a asp-controller="Solutions" asp-action="Index" class="btn btn-primary">Kendin Çöz</a>
-        }
-
-        <a asp-controller="Tickets" asp-action="Index" class="btn btn-primary">Talepler</a>
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <div class="row align-items-center g-4 py-4">
+        <div class="col-lg-6">
+            <h1 class="display-6">BT envanteri ve destek talepleri tek yerde</h1>
+            <p class="lead text-muted">Cihazları ve zimmetleri takip edin, destek taleplerini açın ve çözün, ekibin iş yükünü panodan izleyin.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg"><i class="bi bi-box-arrow-in-right me-1"></i> Giriş Yap</a>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Kayıt Ol</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="row g-3">
+                <partial name="_HomeFeature" model="@(("ticket-detailed", "primary", "Destek Talepleri", "Kategori, öncelik ve hedef süreyle takip edilen talepler."))" />
+                <partial name="_HomeFeature" model="@(("pc-display", "success", "Cihaz Envanteri", "Ağ durumu, garanti ve bakım geçmişiyle cihazlar."))" />
+                <partial name="_HomeFeature" model="@(("pen", "warning", "İmzalı Zimmet", "Ekrana imzayla teslim alma ve iade, PDF formlar."))" />
+                <partial name="_HomeFeature" model="@(("speedometer2", "danger", "Pano ve Raporlar", "Çözüm süreleri, iş yükü ve sorunlu cihazlar."))" />
+            </div>
+        </div>
     </div>
-</div>
+
+    @if (Model.ShowDemoAccounts)
+    {
+        <div class="card mt-2">
+            <div class="card-body">
+                <h2 class="h5"><i class="bi bi-person-badge me-2 text-primary"></i>Demo Hesaplar</h2>
+                <p class="text-muted small">Her rolü denemek için bu hesaplardan biriyle giriş yapın. Parola hepsinde aynı: <code>@HelpdeskOps.Data.DemoDataSeeder.DemoPassword</code></p>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="fw-semibold">Çalışan</div>
+                        <code>test@helpdeskops.com</code>
+                        <div class="small text-muted">Talep açar, cihazlarını ve zimmetlerini görür.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="fw-semibold">BT Uzmanı</div>
+                        <code>it@helpdeskops.com</code>
+                        <div class="small text-muted">Talepleri çözer, cihazları ve zimmetleri yönetir.</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="fw-semibold">Yönetici</div>
+                        <code>mudur@helpdeskops.com</code>
+                        <div class="small text-muted">Tüm talepleri, panoyu ve raporları görür.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <h1>Merhaba@(Model.FirstName != null ? $", {Model.FirstName}" : "")</h1>
+    <p class="text-muted">Bugün ne yapmak istersiniz?</p>
+
+    <div class="row g-3 mb-4">
+        @foreach (var tile in Model.PersonalTiles)
+        {
+            <partial name="_HomeTile" model="tile" />
+        }
+    </div>
+
+    @if (Model.TeamTiles.Any())
+    {
+        <h2 class="h5 mt-2">BT İşleri</h2>
+        <div class="row g-3 mb-4">
+            @foreach (var tile in Model.TeamTiles)
+            {
+                <partial name="_HomeTile" model="tile" />
+            }
+        </div>
+    }
+}
