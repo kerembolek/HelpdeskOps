@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Ticket attachments uploaded while running locally
 App_Data/
+
+# Production settings hold the hosted database connection string; they stay on this machine only
+appsettings.Production.json

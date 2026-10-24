@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using HelpdeskOps;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using HelpdeskOps.Data;
@@ -113,7 +114,7 @@ public class DevicesController : Controller
 
     private void ValidateWarrantyDates(Device device)
     {
-        if (device.PurchaseDate?.Date > DateTime.Today)
+        if (device.PurchaseDate?.Date > TurkeyTime.Today)
         {
             ModelState.AddModelError(nameof(Device.PurchaseDate), "Satın alma tarihi ileri bir tarih olamaz.");
         }
@@ -208,7 +209,7 @@ public class DevicesController : Controller
     public async Task<IActionResult> Index(string? warranty)
     {
         var devices = _context.Devices.Include(d => d.AssignedUser).AsQueryable();
-        var today = DateTime.Today;
+        var today = TurkeyTime.Today;
 
         switch (warranty)
         {
@@ -329,7 +330,7 @@ public class DevicesController : Controller
         }
 
         description = description?.Trim();
-        var date = eventDate?.Date ?? DateTime.Today;
+        var date = eventDate?.Date ?? TurkeyTime.Today;
 
         string? error = null;
         if (!ManualEventTypes.Contains(type))
@@ -338,7 +339,7 @@ public class DevicesController : Controller
             error = "Açıklama zorunludur.";
         else if (description.Length > 500)
             error = "Açıklama en fazla 500 karakter olabilir.";
-        else if (date > DateTime.Today)
+        else if (date > TurkeyTime.Today)
             error = "İşlem tarihi ileri bir tarih olamaz.";
 
         if (error != null)
@@ -348,10 +349,10 @@ public class DevicesController : Controller
         }
         else
         {
-            // Noon local time keeps the stored UTC value on the same calendar day
-            var eventDateUtc = date == DateTime.Today
+            // Noon Turkey time keeps the stored UTC value on the same calendar day
+            var eventDateUtc = date == TurkeyTime.Today
                 ? DateTime.UtcNow
-                : DateTime.SpecifyKind(date.AddHours(12), DateTimeKind.Local).ToUniversalTime();
+                : TurkeyTime.ToUtc(date.AddHours(12));
 
             _context.DeviceEvents.Add(new DeviceEvent
             {
@@ -427,7 +428,7 @@ public class DevicesController : Controller
             {
                 Hostname = "MUH-LT-010", IpAddress = "10.10.20.110", SerialNumber = "ORNEK-0001", Brand = "Lenovo", Model = "ThinkPad E14",
                 DeviceType = DeviceType.Laptop, Status = DeviceStatus.Active,
-                PurchaseDate = DateTime.Today.AddMonths(-1), WarrantyEndDate = DateTime.Today.AddMonths(23)
+                PurchaseDate = TurkeyTime.Today.AddMonths(-1), WarrantyEndDate = TurkeyTime.Today.AddMonths(23)
             }, "calisan@ornek.com"),
             (new Device
             {
@@ -450,7 +451,7 @@ public class DevicesController : Controller
             .ToListAsync();
 
         var csv = DeviceCsvImporter.ToCsv(devices.Select(d => (d, d.AssignedUser?.Email)));
-        return File(csv, "text/csv; charset=utf-8", $"cihazlar-{DateTime.Now:yyyyMMdd}.csv");
+        return File(csv, "text/csv; charset=utf-8", $"cihazlar-{TurkeyTime.Now:yyyyMMdd}.csv");
     }
 
     // GET: DEVICES/Import

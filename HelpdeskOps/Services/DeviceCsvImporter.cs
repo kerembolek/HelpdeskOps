@@ -109,7 +109,7 @@ public static class DeviceCsvImporter
             Validator.TryValidateObject(device, new ValidationContext(device), validation, validateAllProperties: true);
             errors.AddRange(validation.Select(v => v.ErrorMessage ?? "geçersiz değer"));
 
-            if (purchaseDate?.Date > DateTime.Today)
+            if (purchaseDate?.Date > TurkeyTime.Today)
                 errors.Add("satın alma tarihi ileri bir tarih olamaz");
             if (purchaseDate != null && warrantyEnd?.Date < purchaseDate.Value.Date)
                 errors.Add("garanti bitişi satın alma tarihinden önce olamaz");

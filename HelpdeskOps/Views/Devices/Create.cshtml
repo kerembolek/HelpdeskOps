@@ -43,7 +43,7 @@
             </div>
             <div class="mb-3">
                 <label asp-for="PurchaseDate" class="control-label"></label>
-                <input asp-for="PurchaseDate" class="form-control" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <input asp-for="PurchaseDate" class="form-control" max="@TurkeyTime.Today.ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="PurchaseDate" class="text-danger"></span>
             </div>
             <div class="mb-3">

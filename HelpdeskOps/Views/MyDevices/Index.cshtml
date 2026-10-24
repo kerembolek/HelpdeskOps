@@ -80,7 +80,7 @@ else
                         <td>@form.FormNumber</td>
                         <td>@form.Hostname <span class="text-muted small">@form.BrandModel</span></td>
                         <td>@form.SerialNumber</td>
-                        <td>@form.IssuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@form.IssuedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
                         <td><partial name="_AssignmentFormStatus" model="form" /></td>
                         <td>
                             @if (form.AcceptedAt == null && form.ReturnedAt == null)
