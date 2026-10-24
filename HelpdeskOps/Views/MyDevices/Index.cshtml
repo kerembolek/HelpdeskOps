@@ -54,7 +54,12 @@ else
 
 <section id="assignment-forms" class="mt-5">
     <h2 class="h4">Zimmet Formlarım</h2>
-    <p class="text-muted small">Size teslim edilen cihazların zimmet kayıtları. Cihazı teslim aldıysanız formu onaylayın.</p>
+    <p class="text-muted small">Size teslim edilen cihazların zimmet kayıtları. Cihazı teslim aldığınızda formu imzalayın; iade etmek istediğinizde buradan iade talebi gönderin.</p>
+
+    @if (TempData["FormMessage"] is string formMessage)
+    {
+        <div class="alert alert-success">@formMessage</div>
+    }
 
     @if (ViewBag.AssignmentForms is not List<HelpdeskOps.Models.AssignmentForm> forms || !forms.Any())
     {
@@ -85,9 +90,11 @@ else
                         <td>
                             @if (form.AcceptedAt == null && form.ReturnedAt == null)
                             {
-                                <form asp-action="Accept" asp-route-id="@form.Id" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-success">Teslim Aldım</button>
-                                </form>
+                                <a asp-action="Accept" asp-route-id="@form.Id" class="btn btn-sm btn-success">İmzala</a>
+                            }
+                            else if (form.AcceptedAt != null && form.ReturnedAt == null && form.ReturnRequestedAt == null)
+                            {
+                                <a asp-action="Return" asp-route-id="@form.Id" class="btn btn-sm btn-outline-primary">İade Et</a>
                             }
                             <a asp-controller="AssignmentForms" asp-action="Pdf" asp-route-id="@form.Id" class="btn btn-sm btn-outline-secondary">PDF İndir</a>
                         </td>

@@ -138,6 +138,12 @@ namespace HelpdeskOps.Data
                 .WithMany()
                 .HasForeignKey(f => f.IssuedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<AssignmentForm>()
+                .HasOne(f => f.ReceivedBy)
+                .WithMany()
+                .HasForeignKey(f => f.ReceivedById)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

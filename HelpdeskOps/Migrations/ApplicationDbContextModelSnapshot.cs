@@ -106,6 +106,9 @@ namespace HelpdeskOps.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<byte[]>("AcceptanceSignature")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<DateTime?>("AcceptedAt")
                         .HasColumnType("datetime2");
 
@@ -140,6 +143,35 @@ namespace HelpdeskOps.Migrations
                     b.Property<string>("IssuedByName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReceivedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ReceivedByName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("ReceiverSignature")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ReturnCheckNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("ReturnCondition")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReturnNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("ReturnReason")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReturnRequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("ReturnSignature")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<DateTime?>("ReturnedAt")
                         .HasColumnType("datetime2");
 
@@ -156,6 +188,8 @@ namespace HelpdeskOps.Migrations
                     b.HasIndex("DeviceId");
 
                     b.HasIndex("IssuedById");
+
+                    b.HasIndex("ReceivedById");
 
                     b.HasIndex("UserId");
 
@@ -694,6 +728,11 @@ namespace HelpdeskOps.Migrations
                         .HasForeignKey("IssuedById")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "ReceivedBy")
+                        .WithMany()
+                        .HasForeignKey("ReceivedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -703,6 +742,8 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("Device");
 
                     b.Navigation("IssuedBy");
+
+                    b.Navigation("ReceivedBy");
 
                     b.Navigation("User");
                 });

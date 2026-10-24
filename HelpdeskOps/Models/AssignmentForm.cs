@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HelpdeskOps.Models.Enums;
 
 namespace HelpdeskOps.Models;
 
@@ -44,9 +45,40 @@ public class AssignmentForm
     [Display(Name = "Onay Tarihi")]
     public DateTime? AcceptedAt { get; set; }
 
-    // Set when the device is assigned to someone else, taken back to storage, or deleted
+    // PNG of the signature the employee draws when confirming receipt
+    public byte[]? AcceptanceSignature { get; set; }
+
+    // Set when the device is checked in by IT, assigned to someone else, taken back to storage, or deleted
     [Display(Name = "İade Tarihi")]
     public DateTime? ReturnedAt { get; set; }
+
+    // Return request the employee sends from "Cihazlarım", signed by them
+    [Display(Name = "İade Talebi Tarihi")]
+    public DateTime? ReturnRequestedAt { get; set; }
+
+    [Display(Name = "İade Sebebi")]
+    public ReturnReason? ReturnReason { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Çalışanın Açıklaması")]
+    public string? ReturnNote { get; set; }
+
+    public byte[]? ReturnSignature { get; set; }
+
+    // Filled in by the IT staff member who checks the device in; the name is copied like the issuer's
+    [Display(Name = "Kontrol Sonucu")]
+    public DeviceCondition? ReturnCondition { get; set; }
+
+    [StringLength(500)]
+    [Display(Name = "Kontrol Notu")]
+    public string? ReturnCheckNote { get; set; }
+
+    public string? ReceivedById { get; set; }
+    public ApplicationUser? ReceivedBy { get; set; }
+
+    public string? ReceivedByName { get; set; }
+
+    public byte[]? ReceiverSignature { get; set; }
 
     // "ZF-2026-00012"
     [NotMapped]
