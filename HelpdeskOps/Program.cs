@@ -27,8 +27,20 @@ builder.Services.AddDbContext<ApplicationDbContext>((services, options) =>
     options.UseSqlServer(connectionString)
         .AddInterceptors(services.GetRequiredService<NotificationEmailInterceptor>()));
 
-// New accounts must confirm their address only when real mail can reach them
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = emailOptions.DeliversRealMail)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+    {
+        // New accounts must confirm their address only when real mail can reach them
+        options.SignIn.RequireConfirmedAccount = emailOptions.DeliversRealMail;
+
+        // Longer passwords with some variety; the existing digit, case, and symbol rules stay on
+        options.Password.RequiredLength = 10;
+        options.Password.RequiredUniqueChars = 4;
+
+        // Five wrong passwords lock the account for 15 minutes (the read-only demo turns this off at sign-in)
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.AllowedForNewUsers = true;
+    })
     .AddRoles<IdentityRole>()
     .AddErrorDescriber<HelpdeskOps.Services.TurkishIdentityErrorDescriber>()
     .AddEntityFrameworkStores<ApplicationDbContext>();

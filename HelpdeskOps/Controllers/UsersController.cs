@@ -41,6 +41,8 @@ public class UsersController : Controller
                 Name = u.FirstName + " " + u.LastName,
                 u.Email,
                 u.Department,
+                u.TwoFactorEnabled,
+                u.LockoutEnd,
                 DeviceCount = u.AssignedDevices.Count,
                 // Tickets assigned to this person that are still being worked on
                 ActiveTicketCount = u.AssignedTickets.Count(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)
@@ -56,7 +58,8 @@ public class UsersController : Controller
             .ToDictionary(g => g.Key, g => g.Select(x => x.Name).MaxBy(n => Array.IndexOf(AppRoles.All, n)));
 
         var model = rows
-            .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount))
+            .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount,
+                u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow))
             .Where(u => string.IsNullOrEmpty(role) || u.Role == role)
             .ToList();
 
@@ -65,6 +68,25 @@ public class UsersController : Controller
         ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || ViewBag.Role != null;
         ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         return View(model);
+    }
+
+    // POST: Users/Unlock/abc
+    // Lifts a lockout from too many wrong passwords, for someone who called the helpdesk
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unlock(string id, string? returnUrl)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        await _userManager.SetLockoutEndDateAsync(user, null);
+        await _userManager.ResetAccessFailedCountAsync(user);
+
+        TempData["UserMessage"] = $"{user.FirstName} {user.LastName} hesabının kilidi açıldı.";
+        return Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl) : RedirectToAction(nameof(Index));
     }
 
     // POST: Users/ChangeRole/abc

@@ -81,7 +81,7 @@ public class RegisterModel : PageModel
         public string Email { get; set; } = default!;
 
         [Required(ErrorMessage = "Şifre zorunludur.")]
-        [StringLength(100, ErrorMessage = "Şifre en az {2}, en fazla {1} karakter olmalıdır.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "Şifre en az {2}, en fazla {1} karakter olmalıdır.", MinimumLength = 10)]
         [DataType(DataType.Password)]
         [Display(Name = "Şifre")]
         public string Password { get; set; } = default!;
