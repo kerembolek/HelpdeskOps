@@ -20,12 +20,15 @@ builder.Services.AddSingleton<IEmailSender, QueuedEmailSender>();
 builder.Services.AddHostedService<EmailDeliveryService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<NotificationEmailInterceptor>();
+builder.Services.AddSingleton<HelpdeskOps.Services.AuditInterceptor>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>((services, options) =>
     options.UseSqlServer(connectionString)
-        .AddInterceptors(services.GetRequiredService<NotificationEmailInterceptor>()));
+        .AddInterceptors(
+            services.GetRequiredService<HelpdeskOps.Services.AuditInterceptor>(),
+            services.GetRequiredService<NotificationEmailInterceptor>()));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
