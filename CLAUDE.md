@@ -7,8 +7,8 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 - Code, identifiers, comments, and commit messages are in English. All UI text is in Turkish.
 
 ## Git workflow
-- Big or important changes (new features, auth/roles, migrations, multi-commit work) go on their own branch (`feature/...`, `fix/...`, `docs/...`), then a GitHub PR, then a merge into `master`.
-- Small fixes, typos, and purely visual tweaks are committed straight to `master`. When unsure, use a branch.
+- Big or important changes (new features, auth/roles, migrations, multi-commit work) go on their own branch (`feature/...`, `fix/...`, `docs/...`), then a GitHub PR, then a merge into `main`.
+- Small fixes, typos, and purely visual tweaks are committed straight to `main`. When unsure, use a branch.
 - Claude builds and checks a branch in the browser; only when it works, Claude pushes it, opens the PR, and merges it.
 - PRs are merged with **Rebase and merge** (linear history, no merge commits).
 - The user sets a daily cap on GitHub contributions. Every commit and every opened PR counts; commits count on their author date. Plan the list up front and ask before anything that could go over.
