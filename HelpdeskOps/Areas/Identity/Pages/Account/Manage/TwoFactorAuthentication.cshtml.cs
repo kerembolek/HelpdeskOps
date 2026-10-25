@@ -82,7 +82,7 @@ public class TwoFactorAuthenticationModel : PageModel
         }
 
         await _signInManager.ForgetTwoFactorClientAsync();
-        StatusMessage = "The current browser has been forgotten. When you login again from this browser you will be prompted for your 2fa code.";
+        StatusMessage = "Bu tarayıcı unutuldu. Buradan tekrar giriş yaptığınızda doğrulama kodu istenecek.";
         return RedirectToPage();
     }
 }

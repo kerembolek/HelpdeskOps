@@ -59,7 +59,7 @@ public class ResetAuthenticatorModel : PageModel
         _logger.LogInformation("User with ID '{UserId}' has reset their authentication app key.", user.Id);
 
         await _signInManager.RefreshSignInAsync(user);
-        StatusMessage = "Your authenticator app key has been reset, you will need to configure your authenticator app using the new key.";
+        StatusMessage = "Uygulama anahtarı sıfırlandı. Doğrulama uygulamanızı yeni anahtarla yeniden kurun.";
 
         return RedirectToPage("./EnableAuthenticator");
     }

@@ -59,17 +59,17 @@ public class LoginWith2faModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "{0} alanını doldurun.")]
+        [StringLength(7, ErrorMessage = "{0} 6 haneli olmalıdır.", MinimumLength = 6)]
         [DataType(DataType.Text)]
-        [Display(Name = "Authenticator code")]
+        [Display(Name = "Doğrulama kodu")]
         public string TwoFactorCode { get; set; } = default!;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Display(Name = "Remember this machine")]
+        [Display(Name = "Bu cihazı hatırla")]
         public bool RememberMachine { get; set; }
     }
 
@@ -123,7 +123,7 @@ public class LoginWith2faModel : PageModel
         else
         {
             _logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", user.Id);
-            ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
+            ModelState.AddModelError(string.Empty, "Doğrulama kodu hatalı.");
             return Page();
         }
     }

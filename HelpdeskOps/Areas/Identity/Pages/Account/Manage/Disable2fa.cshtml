@@ -1,25 +1,15 @@
 @page
 @model Disable2faModel
 @{
-    ViewData["Title"] = "Disable two-factor authentication (2FA)";
+    ViewData["Title"] = "İki Adımlı Doğrulamayı Kapat";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
-
+<h2 class="h4">@ViewData["Title"]</h2>
 <div class="alert alert-warning" role="alert">
-    <p>
-        <strong>This action only disables 2FA.</strong>
-    </p>
-    <p>
-        Disabling 2FA does not change the keys used in authenticator apps. If you wish to change the key
-        used in an authenticator app you should <a asp-page="./ResetAuthenticator">reset your authenticator keys.</a>
-    </p>
+    Girişte artık yalnızca şifreniz istenir. Doğrulama uygulamanızdaki anahtar değişmez; daha sonra tekrar açabilirsiniz.
 </div>
-
-<div>
-    <form method="post">
-        <button class="btn btn-danger" type="submit">Disable 2FA</button>
-    </form>
-</div>
+<form method="post">
+    <button class="btn btn-danger" type="submit">Kapat</button>
+</form>
