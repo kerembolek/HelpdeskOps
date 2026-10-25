@@ -219,6 +219,13 @@ public static class DemoDataSeeder
                         $"Could not seed {demo.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
             }
 
+            // Demo addresses count as confirmed, so password reset mails reach accounts created before seeding did this
+            if (!user.EmailConfirmed)
+            {
+                user.EmailConfirmed = true;
+                await userManager.UpdateAsync(user);
+            }
+
             if (!await userManager.IsInRoleAsync(user, demo.Role))
                 await userManager.AddToRoleAsync(user, demo.Role);
         }

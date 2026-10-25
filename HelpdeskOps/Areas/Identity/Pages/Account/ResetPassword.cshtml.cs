@@ -40,17 +40,19 @@ public class ResetPasswordModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "E-posta adresinizi girin.")]
+        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin.")]
+        [Display(Name = "E-posta")]
         public string Email { get; set; } = default!;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "Yeni şifrenizi girin.")]
+        [StringLength(100, ErrorMessage = "{0} en az {2}, en fazla {1} karakter olmalıdır.", MinimumLength = 6)]
         [DataType(DataType.Password)]
+        [Display(Name = "Yeni şifre")]
         public string Password { get; set; } = default!;
 
         /// <summary>
@@ -58,8 +60,8 @@ public class ResetPasswordModel : PageModel
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Display(Name = "Yeni şifre (tekrar)")]
+        [Compare("Password", ErrorMessage = "Şifreler birbiriyle eşleşmiyor.")]
         public string? ConfirmPassword { get; set; }
 
         /// <summary>

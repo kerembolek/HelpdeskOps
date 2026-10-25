@@ -2,11 +2,14 @@
 @model LoginModel
 @inject IConfiguration Configuration
 @inject IWebHostEnvironment Environment
+@inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.Email.EmailOptions> EmailOptions
 
 @{
     ViewData["Title"] = "Giriş Yap";
     var readOnlyDemo = HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration);
     var showDemoAccounts = Environment.IsDevelopment() || Configuration.GetValue<bool>("SeedDemoData");
+    // Password reset and confirmation need outgoing mail, and the read-only demo keeps those pages closed
+    var showEmailLinks = EmailOptions.Value.IsEnabled && !readOnlyDemo;
 }
 
 <div class="row justify-content-center py-4">
@@ -40,7 +43,15 @@
                     </button>
                 </form>
 
-                @* The read-only demo has no registration; password reset needs e-mail, which this app does not send *@
+                @if (showEmailLinks)
+                {
+                    <div class="d-flex justify-content-between small mt-3">
+                        <a id="forgot-password" asp-page="./ForgotPassword">Şifremi unuttum</a>
+                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Doğrulama e-postası</a>
+                    </div>
+                }
+
+                @* The read-only demo has no registration *@
                 @if (!readOnlyDemo)
                 {
                     <p class="text-center small mt-3 mb-0">
