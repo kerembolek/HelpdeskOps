@@ -46,6 +46,9 @@ public class EnableAuthenticatorModel : PageModel
     /// </summary>
     public string? AuthenticatorUri { get; set; }
 
+    // The QR code for AuthenticatorUri as inline SVG, drawn on the server so no script library is needed
+    public string? QrCodeSvg { get; set; }
+
     /// <summary>
     ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -77,10 +80,10 @@ public class EnableAuthenticatorModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [Required(ErrorMessage = "{0} alanını doldurun.")]
+        [StringLength(7, ErrorMessage = "{0} 6 haneli olmalıdır.", MinimumLength = 6)]
         [DataType(DataType.Text)]
-        [Display(Name = "Verification Code")]
+        [Display(Name = "Doğrulama kodu")]
         public string Code { get; set; } = default!;
     }
 
@@ -119,7 +122,7 @@ public class EnableAuthenticatorModel : PageModel
 
         if (!is2faTokenValid)
         {
-            ModelState.AddModelError("Input.Code", "Verification code is invalid.");
+            ModelState.AddModelError("Input.Code", "Doğrulama kodu hatalı.");
             await LoadSharedKeyAndQrCodeUriAsync(user);
             return Page();
         }
@@ -128,7 +131,7 @@ public class EnableAuthenticatorModel : PageModel
         var userId = await _userManager.GetUserIdAsync(user);
         _logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
 
-        StatusMessage = "Your authenticator app has been verified.";
+        StatusMessage = "Doğrulama uygulamanız kuruldu, iki adımlı doğrulama açıldı.";
 
         if (await _userManager.CountRecoveryCodesAsync(user) == 0)
         {
@@ -156,6 +159,9 @@ public class EnableAuthenticatorModel : PageModel
 
         var email = await _userManager.GetEmailAsync(user);
         AuthenticatorUri = GenerateQrCodeUri(email!, unformattedKey!);
+        using var qrData = new QRCoder.QRCodeGenerator().CreateQrCode(AuthenticatorUri, QRCoder.QRCodeGenerator.ECCLevel.Q);
+        QrCodeSvg = new QRCoder.SvgQRCode(qrData).GetGraphic(5, "#000000", "#ffffff", drawQuietZones: true,
+            sizingMode: QRCoder.SvgQRCode.SizingMode.ViewBoxAttribute);
     }
 
     private string FormatKey(string unformattedKey)
@@ -180,7 +186,7 @@ public class EnableAuthenticatorModel : PageModel
         return string.Format(
             CultureInfo.InvariantCulture,
             AuthenticatorUriFormat,
-            _urlEncoder.Encode("Microsoft.AspNetCore.Identity.UI"),
+            _urlEncoder.Encode("HelpdeskOps"),
             _urlEncoder.Encode(email),
             unformattedKey);
     }

@@ -75,7 +75,7 @@ public class GenerateRecoveryCodesModel : PageModel
         RecoveryCodes = recoveryCodes!.ToArray();
 
         _logger.LogInformation("User with ID '{UserId}' has generated new 2FA recovery codes.", userId);
-        StatusMessage = "You have generated new recovery codes.";
+        StatusMessage = "Yeni kurtarma kodları oluşturuldu.";
         return RedirectToPage("./ShowRecoveryCodes");
     }
 }

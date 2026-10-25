@@ -1,25 +1,19 @@
 @page
 @model ShowRecoveryCodesModel
 @{
-    ViewData["Title"] = "Recovery codes";
+    ViewData["Title"] = "Kurtarma Kodları";
     ViewData["ActivePage"] = "TwoFactorAuthentication";
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
+<h2 class="h4">@ViewData["Title"]</h2>
 <div class="alert alert-warning" role="alert">
-    <p>
-        <strong>Put these codes in a safe place.</strong>
-    </p>
-    <p>
-        If you lose your device and don't have the recovery codes you will lose access to your account.
-    </p>
+    <strong>Bu kodları güvenli bir yere kaydedin.</strong>
+    Telefonunuzu kaybederseniz hesabınıza ancak bu kodlarla girebilirsiniz. Her kod bir kez kullanılabilir.
 </div>
-<div class="row">
-    <div class="col-md-12">
-        @for (var row = 0; row < (Model.RecoveryCodes?.Length ?? 0); row += 2)
-        {
-            <code class="recovery-code">@Model.RecoveryCodes![row]</code><text>&nbsp;</text><code class="recovery-code">@Model.RecoveryCodes[row + 1]</code><br />
-        }
-    </div>
+<div class="row row-cols-2 g-2" style="max-width: 24rem;">
+    @foreach (var code in Model.RecoveryCodes ?? Array.Empty<string>())
+    {
+        <div class="col"><code class="recovery-code fs-6">@code</code></div>
+    }
 </div>
