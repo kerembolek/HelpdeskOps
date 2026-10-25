@@ -95,7 +95,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### 1. Aşama: Şirketlerin olmazsa olmazları
 - [x] E-posta: uygulama içi her bildirim e-postayla da gider, şifre sıfırlama ve e-posta doğrulama çalışır, hepsi Türkçe (SMTP ya da yerelde `.eml` dosyaları)
-- [ ] Hesap güvenliği: hatalı girişlerde kilitleme, iki adımlı doğrulama, daha sıkı şifre kuralları
+- [x] Hesap güvenliği: 5 hatalı şifrede 15 dakikalık kilit (BT kullanıcı listesinden kilidi açabilir), doğrulama uygulamasıyla iki adımlı giriş (QR kod ve kurtarma kodları), en az 10 karakterlik şifreler ve Türkçe "Hesabım" sayfası
 - [ ] Denetim kaydı: cihaz, talep, zimmet formu ve rollerde kim neyi ne zaman değiştirdi
 - [ ] KVKK: aydınlatma metni, saklama süreleri, kişisel verilerin dışa aktarılması ve silinmesi
 - [ ] Binlerce cihaz ve talep için sayfalama ve daha hızlı listeler
