@@ -1,5 +1,7 @@
 # HelpdeskOps
 
+[![CI](https://github.com/kerembolek/HelpdeskOps/actions/workflows/ci.yml/badge.svg)](https://github.com/kerembolek/HelpdeskOps/actions/workflows/ci.yml)
+
 [Türkçe sürüm](README.tr.md)
 
 An enterprise-style IT Inventory and Helpdesk Ticketing System, built with ASP.NET Core MVC (.NET 10).
@@ -18,6 +20,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - **Database:** Entity Framework Core (Code-First)
 - **Authentication:** ASP.NET Core Identity with role-based authorization (`Employee`, `ITAdmin`)
 - **Frontend:** Razor Views, Bootstrap, Bootstrap Icons
+- **Testing:** xUnit unit tests, run by GitHub Actions on every push and pull request
 - **Version Control:** Git & GitHub
 
 ---
@@ -66,6 +69,10 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] Manager role: read-only access to every ticket with its history and comments, plus the dashboard and reports; no device management or ticket changes
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
+### Quality
+- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, and the read-only demo middleware
+- [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
+
 ### Interface
 - [x] Navy navbar with icons, the current section highlighted, and a user menu
 - [x] Role-based home page: shortcut tiles with live counts (my tickets, my devices, forms to sign; for IT: assigned to me, unassigned, past target time, pending returns, expiring warranties) and, on the demo site, the demo accounts for visitors
@@ -104,9 +111,11 @@ Prerequisites: the .NET 10 SDK and the EF Core command-line tools (`dotnet tool 
 git clone https://github.com/kerembolek/HelpdeskOps.git
 cd HelpdeskOps
 dotnet restore
-dotnet ef database update
-dotnet run
+dotnet ef database update --project HelpdeskOps
+dotnet run --project HelpdeskOps
 ```
+
+Run the unit tests with `dotnet test` from the repository root.
 
 The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`). Update `appsettings.json` if you use a different SQL Server instance.
 

@@ -1,5 +1,7 @@
 # HelpdeskOps
 
+[![CI](https://github.com/kerembolek/HelpdeskOps/actions/workflows/ci.yml/badge.svg)](https://github.com/kerembolek/HelpdeskOps/actions/workflows/ci.yml)
+
 [English version](README.md)
 
 ASP.NET Core MVC (.NET 10) ile geliştirilmiş, kurumsal tarzda bir BT envanter ve yardım masası (helpdesk) destek talebi yönetim sistemi.
@@ -18,6 +20,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - **Veritabanı:** Entity Framework Core (Code-First)
 - **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`)
 - **Arayüz:** Razor Views, Bootstrap, Bootstrap Icons
+- **Test:** xUnit birim testleri; her push ve pull request'te GitHub Actions ile çalışır
 - **Sürüm kontrolü:** Git ve GitHub
 
 ---
@@ -66,6 +69,10 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Yönetici (Manager) rolü: tüm talepleri geçmişi ve yorumlarıyla salt okunur görme, pano ve raporlar; cihaz yönetimi ve talep değişikliği yok
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
+### Kalite
+- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını ve salt okunur demo ara katmanını kapsayan xUnit test projesi
+- [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
+
 ### Arayüz
 - [x] İkonlu lacivert menü çubuğu, bulunulan bölümün vurgulanması ve kullanıcı menüsü
 - [x] Role göre ana sayfa: canlı sayılarla kısayol kutucukları (taleplerim, cihazlarım, imza bekleyen formlar; BT için bana atanan, atanmamış, hedef süresi aşan, iade bekleyen ve garantisi bitecek olanlar) ve demo sitesinde ziyaretçiler için demo hesaplar
@@ -104,9 +111,11 @@ Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığ
 git clone https://github.com/kerembolek/HelpdeskOps.git
 cd HelpdeskOps
 dotnet restore
-dotnet ef database update
-dotnet run
+dotnet ef database update --project HelpdeskOps
+dotnet run --project HelpdeskOps
 ```
+
+Birim testlerini depo kökünden `dotnet test` ile çalıştırabilirsiniz.
 
 Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kullanır. Farklı bir SQL Server örneği kullanıyorsanız `appsettings.json` dosyasını güncelleyin.
 
