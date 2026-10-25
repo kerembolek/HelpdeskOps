@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -128,8 +127,10 @@ public class RegisterModel : PageModel
                     values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                     protocol: Request.Scheme)!;
 
-                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                await _emailSender.SendEmailAsync(Input.Email, "E-posta adresinizi doğrulayın",
+                    HelpdeskOps.Services.Email.EmailTemplate.MessageWithButton(
+                        "HelpdeskOps hesabınız oluşturuldu. Kullanmaya başlamak için e-posta adresinizi doğrulayın.",
+                        "Adresimi Doğrula", callbackUrl));
 
                 if (_userManager.Options.SignIn.RequireConfirmedAccount)
                 {

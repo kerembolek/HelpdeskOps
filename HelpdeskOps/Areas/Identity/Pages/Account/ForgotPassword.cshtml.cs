@@ -4,7 +4,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -44,8 +43,9 @@ public class ForgotPasswordModel : PageModel
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "E-posta adresinizi girin.")]
+        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin.")]
+        [Display(Name = "E-posta")]
         public string Email { get; set; } = default!;
     }
 
@@ -72,8 +72,10 @@ public class ForgotPasswordModel : PageModel
 
             await _emailSender.SendEmailAsync(
                 Input.Email,
-                "Reset Password",
-                $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                "Şifre sıfırlama",
+                HelpdeskOps.Services.Email.EmailTemplate.MessageWithButton(
+                    "HelpdeskOps hesabınız için şifre sıfırlama istendi. Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.",
+                    "Yeni Şifre Belirle", callbackUrl));
 
             return RedirectToPage("./ForgotPasswordConfirmation");
         }

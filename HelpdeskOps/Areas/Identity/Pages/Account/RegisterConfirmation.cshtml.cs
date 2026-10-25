@@ -59,8 +59,8 @@ public class RegisterConfirmationModel : PageModel
         }
 
         Email = email;
-        // Once you add a real email sender, you should remove this code that lets you confirm the account
-        DisplayConfirmAccountLink = true;
+        // The confirmation link only travels by e-mail; showing it here would let anyone confirm an address they do not own
+        DisplayConfirmAccountLink = false;
         if (DisplayConfirmAccountLink)
         {
             var userId = await _userManager.GetUserIdAsync(user);

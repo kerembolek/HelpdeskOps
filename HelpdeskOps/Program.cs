@@ -1,7 +1,9 @@
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -10,13 +12,25 @@ QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// E-mail: queued by requests, sent in the background; the "Email" settings section picks the delivery mode
+var emailOptions = builder.Configuration.GetSection(EmailOptions.SectionName).Get<EmailOptions>() ?? new EmailOptions();
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));
+builder.Services.AddSingleton<EmailQueue>();
+builder.Services.AddSingleton<IEmailSender, QueuedEmailSender>();
+builder.Services.AddHostedService<EmailDeliveryService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<NotificationEmailInterceptor>();
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ApplicationDbContext>((services, options) =>
+    options.UseSqlServer(connectionString)
+        .AddInterceptors(services.GetRequiredService<NotificationEmailInterceptor>()));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+// New accounts must confirm their address only when real mail can reach them
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = emailOptions.DeliversRealMail)
     .AddRoles<IdentityRole>()
+    .AddErrorDescriber<HelpdeskOps.Services.TurkishIdentityErrorDescriber>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 // Re-check sign-in cookies against the security stamp every minute, so a role change takes effect quickly
