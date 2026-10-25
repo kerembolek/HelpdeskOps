@@ -96,7 +96,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 ### Phase 1: Must-haves for a company
 - [x] E-mail: every in-app notification is also e-mailed, password reset and e-mail confirmation work, all in Turkish (SMTP, or `.eml` files locally)
 - [x] Account security: 15-minute lockout after 5 wrong passwords (IT can unlock from the user list), two-factor sign-in with an authenticator app (QR code and recovery codes), passwords of at least 10 characters, and a Turkish "Hesabım" page
-- [ ] Audit log: who changed what and when, across devices, tickets, zimmet forms, and roles
+- [x] Audit log: every change to devices, tickets, zimmet forms, articles, attachments, users, and roles is recorded automatically with who, when, IP address, and old and new values (password hashes never stored), on a filterable, paged IT page
 - [ ] KVKK: privacy notice, retention periods, and export or deletion of a person's data
 - [ ] Paging and faster lists for thousands of devices and tickets
 - [ ] Self-hosted install guide (IIS and Docker) with a backup plan

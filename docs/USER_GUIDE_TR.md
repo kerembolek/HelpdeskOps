@@ -15,6 +15,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 9. [Raporlar](#9-raporlar)
 10. [Kullanıcılar](#10-kullanıcılar)
 11. [Hesabım ve Güvenlik](#11-hesabım-ve-güvenlik)
+12. [Denetim Kaydı](#12-denetim-kaydı)
 
 ## 1. Giriş ve Roller
 
@@ -274,3 +275,14 @@ Sağ üstteki kişi ikonundan **Hesabım** sayfası açılır (salt okunur demo 
 4. Gösterilen 10 kurtarma kodunu güvenli bir yere kaydedin. Telefonunuzu kaybederseniz giriş sayfasındaki **Kurtarma koduyla girin** bağlantısıyla bu kodlardan birini kullanabilirsiniz; her kod bir kez geçerlidir.
 
 Bu sayfadan kurtarma kodları yenilenebilir, uygulama anahtarı sıfırlanabilir ya da iki adımlı doğrulama kapatılabilir.
+
+## 12. Denetim Kaydı
+
+**Denetim Kaydı** yalnızca BT personeline açıktır ve kişi ikonundaki menüden açılır. Cihaz, talep, zimmet formu, çözüm makalesi, talep eki, kullanıcı ve rol değişikliklerinin her biri otomatik kaydedilir; kayıtlar değiştirilemez.
+
+![Denetim Kaydı](images/20-audit-log.png)
+
+- Her satırda tarih, değişikliği yapan kişi ve IP adresi, işlem (Oluşturuldu, Değiştirildi, Silindi), kayıt ve değişen alanların eski ve yeni değerleri görünür. Kişiler kimlik numarasıyla değil adlarıyla yazılır.
+- Şifre değişiklikleri yalnızca "değiştirildi" olarak görünür; şifrenin kendisi ya da hash'i hiçbir zaman kaydedilmez.
+- Arama kutusu kişi, kayıt adı ve değerlerde arar; kayıt türü ve tarih aralığıyla süzülebilir. Liste sayfa başına 50 kayıt gösterir.
+- Cihaz ve talep ayrıntı sayfalarındaki **Denetim Kaydı** düğmesi yalnızca o kaydın geçmişini açar.
