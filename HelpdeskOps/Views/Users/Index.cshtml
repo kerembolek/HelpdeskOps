@@ -67,7 +67,21 @@ else
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.Name</td>
+                    <td>
+                        @user.Name
+                        @if (user.TwoFactorEnabled)
+                        {
+                            <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" title="İki adımlı doğrulama açık"><i class="bi bi-shield-check"></i> 2FA</span>
+                        }
+                        @if (user.IsLockedOut)
+                        {
+                            <span class="badge text-bg-danger ms-1"><i class="bi bi-lock"></i> Kilitli</span>
+                            <form asp-action="Unlock" asp-route-id="@user.Id" method="post" class="d-inline">
+                                <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                <button type="submit" class="btn btn-sm btn-link p-0 ms-1">Kilidi aç</button>
+                            </form>
+                        }
+                    </td>
                     <td>@user.Email</td>
                     <td>@(user.Department ?? "-")</td>
                     <td>

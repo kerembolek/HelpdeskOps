@@ -22,11 +22,13 @@ public class LoginModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ILogger<LoginModel> _logger;
+    private readonly IConfiguration _configuration;
 
-    public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+    public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger, IConfiguration configuration)
     {
         _signInManager = signInManager;
         _logger = logger;
+        _configuration = configuration;
     }
 
     /// <summary>
@@ -113,8 +115,10 @@ public class LoginModel : PageModel
         if (ModelState.IsValid)
         {
             // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            // Failed passwords count toward lockout, except on the read-only demo, where anyone could lock the shared
+            // demo accounts by typing wrong passwords on purpose (security)
+            var lockoutOnFailure = !HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(_configuration);
+            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");

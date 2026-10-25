@@ -50,7 +50,7 @@ public class ResetPasswordModel : PageModel
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [Required(ErrorMessage = "Yeni şifrenizi girin.")]
-        [StringLength(100, ErrorMessage = "{0} en az {2}, en fazla {1} karakter olmalıdır.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "{0} en az {2}, en fazla {1} karakter olmalıdır.", MinimumLength = 10)]
         [DataType(DataType.Password)]
         [Display(Name = "Yeni şifre")]
         public string Password { get; set; } = default!;
