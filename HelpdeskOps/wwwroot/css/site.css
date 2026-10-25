@@ -75,6 +75,16 @@ body {
   border-radius: .375rem;
   padding-left: .65rem !important;
   padding-right: .65rem !important;
+  white-space: nowrap;
+}
+
+/* Laptop widths: tighter menu entries so the full IT menu stays on one line */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .app-navbar .nav-link {
+    padding-left: .45rem !important;
+    padding-right: .45rem !important;
+    font-size: .95rem;
+  }
 }
 
 .app-navbar .nav-link.active,

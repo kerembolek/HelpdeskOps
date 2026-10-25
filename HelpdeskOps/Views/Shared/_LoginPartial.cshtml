@@ -7,8 +7,9 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle"></i> @User.Identity?.Name
+        @* On mid-size screens only the icon shows, so the IT menu fits on one line *@
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="@User.Identity?.Name">
+            <i class="bi bi-person-circle"></i> <span class="d-xl-none d-xxl-inline">@User.Identity?.Name</span>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
             <li>
