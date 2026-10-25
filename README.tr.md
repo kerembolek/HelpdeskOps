@@ -89,6 +89,31 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ---
 
+## Yol Haritası: Satılabilir Ürüne Doğru
+
+İlk yol haritası tamamlandı. Sonraki aşamalar, bir şirketin satın almadan önce sorduklarını ve HelpdeskOps'u Türkçe arayüz, zimmet ve KVKK'ya uygun kayıtlar ve kendi sunucusunda çalışma isteyen Türk KOBİ'leri (20-200 çalışan) için öne çıkaracak özellikleri hedefler.
+
+### 1. Aşama: Şirketlerin olmazsa olmazları
+- [x] E-posta: uygulama içi her bildirim e-postayla da gider, şifre sıfırlama ve e-posta doğrulama çalışır, hepsi Türkçe (SMTP ya da yerelde `.eml` dosyaları)
+- [ ] Hesap güvenliği: hatalı girişlerde kilitleme, iki adımlı doğrulama, daha sıkı şifre kuralları
+- [ ] Denetim kaydı: cihaz, talep, zimmet formu ve rollerde kim neyi ne zaman değiştirdi
+- [ ] KVKK: aydınlatma metni, saklama süreleri, kişisel verilerin dışa aktarılması ve silinmesi
+- [ ] Binlerce cihaz ve talep için sayfalama ve daha hızlı listeler
+- [ ] Kendi sunucusuna kurulum rehberi (IIS ve Docker) ve yedekleme planı
+
+### 2. Aşama: Farklılaştıran özellikler
+- [ ] QR etiketler: cihazdaki etiketi okutmak o cihaz için talep (çalışan) ya da cihaz kartını (BT) açar; yazdırılabilir etiket sayfaları
+- [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
+- [ ] Otomatik envanter: küçük bir PowerShell aracı seri no, RAM, disk ve Windows sürümünü bildirir
+- [ ] Hesapları, cihazları ve imzalı iadeleri birbirine bağlayan işe giriş ve çıkış kontrol listeleri
+- [ ] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA
+- [ ] Yazılım lisansı ve sarf malzemesi (toner, kartuş) takibi
+
+### 3. Aşama: Ek değer
+- [ ] E-postayla talep açma
+- [ ] Microsoft Teams bildirimleri
+- [ ] Kategori, öncelik ve uygun çözüm makalesi için yapay zekâ önerileri
+
 ## Proje Durumu
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
@@ -136,6 +161,27 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
 ```
 
 `SeedDemoData`, aşağıdaki demo verilerini `Development` dışındaki ortamlarda da açar. `DemoReadOnly` herkese açık demoyu salt okunur yapar: giriş ve çıkış dışındaki her form gönderimi bir uyarıyla reddedilir, kayıt ve hesap yönetimi sayfaları kapanır, bildirim açmak onu okundu yapmaz ve ziyaretçilere değişikliklerin kaydedilmediğini söyleyen bir şerit gösterilir. Yayınlama profili `App_Data` klasörünü dışarıda bırakır; yerel ekler ve anahtarlar sunucuya gitmez.
+
+### E-posta
+
+`Email` ayar bölümü e-postaların nasıl gönderileceğini seçer. `Mode` değeri `None` (varsayılan, hiçbir şey gönderilmez; canlı demo böyle çalışır), `Pickup` (her e-posta `App_Data/mail-outbox` klasörüne `.eml` dosyası olarak yazılır; `appsettings.Development.json` bunu açar) ya da `Smtp` olabilir. Gerçek gönderim için SMTP ayarlarını `appsettings.json` yerine git'in yok saydığı `appsettings.Production.json` dosyasına ya da user secrets'a yazın:
+
+```json
+{
+  "Email": {
+    "Mode": "Smtp",
+    "Host": "smtp.example.com",
+    "Port": 587,
+    "UseStartTls": true,
+    "UserName": "...",
+    "Password": "...",
+    "FromAddress": "helpdesk@example.com",
+    "FromName": "HelpdeskOps"
+  }
+}
+```
+
+E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan bir e-posta sunucusu sayfaları yavaşlatmaz. Uygulama içi her bildirim alıcısına e-postayla da gider. `Smtp` modunda yeni hesapların giriş yapmadan önce e-posta adresini doğrulaması gerekir ve giriş sayfasında şifre sıfırlama bağlantısı görünür.
 
 ### Demo Hesaplar
 

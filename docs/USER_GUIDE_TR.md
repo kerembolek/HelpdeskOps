@@ -19,6 +19,11 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 
 Uygulamayı kullanmak için **Giriş Yap** sayfasında e-posta ve parolayla oturum açılır. Hesabı olmayan kullanıcılar **Kayıt olun** bağlantısıyla ad, soyad ve departman bilgisini girerek kayıt olabilir; yeni hesaplar **Çalışan** rolüyle açılır. Demo sitesinde giriş formunun altındaki **Çalışan**, **BT Uzmanı** ve **Yönetici** düğmeleri formu ilgili demo hesabıyla doldurur.
 
+E-posta gönderimi ayarlanmışsa giriş sayfasında iki bağlantı daha görünür:
+
+- **Şifremi unuttum**: e-posta adresine bir şifre sıfırlama bağlantısı gönderir; bağlantı yeni şifre belirleme sayfasını açar.
+- **Doğrulama e-postası**: kayıt sırasında gelen doğrulama e-postası kaybolduysa yeniden gönderir. Gerçek e-posta gönderimi açıkken yeni hesaplar adreslerini doğrulamadan giriş yapamaz.
+
 ![Giriş Ekranı](images/01-login.png)
 
 Her kullanıcının tek bir rolü vardır. Rol, kullanıcının hangi menüleri ve işlemleri göreceğini belirler:
@@ -211,7 +216,7 @@ Sağ üstteki zil ikonunun yanındaki sayı okunmamış bildirimleri gösterir. 
 
 ![Bildirimler](images/13-notifications.png)
 
-Bir bildirime tıklamak ilgili sayfayı açar ve bildirimi okunmuş sayar. **Tümünü Okundu İşaretle** düğmesi tüm bildirimleri okunmuş yapar.
+Bir bildirime tıklamak ilgili sayfayı açar ve bildirimi okunmuş sayar. E-posta gönderimi ayarlanmışsa her bildirim, ilgili sayfaya giden bir bağlantıyla birlikte e-postayla da gönderilir. **Tümünü Okundu İşaretle** düğmesi tüm bildirimleri okunmuş yapar.
 
 ## 8. Pano
 
