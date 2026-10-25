@@ -18,6 +18,16 @@
                 <li>
                     <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index"><i class="bi bi-person-gear me-2"></i>Hesabım</a>
                 </li>
+            }
+            @* The audit log reads only, so IT can open it on the read-only demo too *@
+            @if (User.IsInRole("ITAdmin"))
+            {
+                <li>
+                    <a class="dropdown-item" asp-area="" asp-controller="Audit" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Denetim Kaydı</a>
+                </li>
+            }
+            @if (!HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration) || User.IsInRole("ITAdmin"))
+            {
                 <li><hr class="dropdown-divider" /></li>
             }
             <li>

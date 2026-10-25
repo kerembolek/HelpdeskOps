@@ -1,0 +1,133 @@
+@model HelpdeskOps.Models.AuditListViewModel
+@using HelpdeskOps.Models.Enums
+@using HelpdeskOps.Services
+
+@{
+    ViewData["Title"] = "Denetim Kaydı";
+    var pageUrl = (int p) => Url.Action("Index", new { entityType = Model.EntityType, entityId = Model.EntityId, q = Model.Query,
+        from = Model.From?.ToString("yyyy-MM-dd"), to = Model.To?.ToString("yyyy-MM-dd"), page = p });
+}
+
+<h1><i class="bi bi-journal-text text-primary me-2"></i>Denetim Kaydı</h1>
+
+<p class="text-muted">Cihaz, talep, zimmet formu, çözüm makalesi, ek, kullanıcı ve rol değişikliklerinin kim tarafından, ne zaman ve nereden yapıldığı. Kayıtlar otomatik tutulur ve değiştirilemez.</p>
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+    @if (Model.EntityId != null)
+    {
+        <input type="hidden" name="entityId" value="@Model.EntityId" />
+    }
+    <div class="col-md-3">
+        <label for="q" class="form-label small text-muted mb-1">Ara</label>
+        <input id="q" name="q" value="@Model.Query" class="form-control" placeholder="Kişi, kayıt ya da değer" />
+    </div>
+    <div class="col-md-3">
+        <label for="entityType" class="form-label small text-muted mb-1">Kayıt Türü</label>
+        <select id="entityType" name="entityType" class="form-select">
+            <option value="">Tümü</option>
+            @foreach (var (key, name) in AuditInterceptor.EntityNames)
+            {
+                <option value="@key" selected="@(key == Model.EntityType)">@name</option>
+            }
+        </select>
+    </div>
+    <div class="col-6 col-md-2">
+        <label for="from" class="form-label small text-muted mb-1">Başlangıç</label>
+        <input id="from" name="from" type="date" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-6 col-md-2">
+        <label for="to" class="form-label small text-muted mb-1">Bitiş</label>
+        <input id="to" name="to" type="date" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filtrele</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
+    </div>
+</form>
+
+@if (Model.EntityId != null)
+{
+    <div class="alert alert-secondary py-2 small">Yalnızca tek bir kaydın geçmişi gösteriliyor. <a asp-action="Index">Tüm kayıtlara dön</a></div>
+}
+
+@if (!Model.Logs.Any())
+{
+    <div class="alert alert-info">Seçilen ölçütlere uyan kayıt bulunmuyor.</div>
+}
+else
+{
+    <p class="small text-muted mb-2">@Model.Total kayıt · sayfa @Model.Page / @Model.PageCount</p>
+    <table class="table table-hover align-top">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Kişi</th>
+                <th>İşlem</th>
+                <th>Kayıt</th>
+                <th>Değişiklikler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                var link = HelpdeskOps.Models.AuditListViewModel.LinkOf(log);
+                var actionStyle = log.Action switch
+                {
+                    AuditAction.Created => "text-bg-success",
+                    AuditAction.Deleted => "text-bg-danger",
+                    _ => "text-bg-primary"
+                };
+                <tr>
+                    <td class="text-nowrap">@log.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        @(log.UserName ?? "Sistem")
+                        @if (log.IpAddress != null)
+                        {
+                            <div class="small text-muted">@log.IpAddress</div>
+                        }
+                    </td>
+                    <td><span class="badge @actionStyle">@log.Action.GetDisplayName()</span></td>
+                    <td>
+                        <div class="small text-muted">@AuditInterceptor.EntityNames.GetValueOrDefault(log.EntityType, log.EntityType)</div>
+                        @if (link != null)
+                        {
+                            <a href="@link">@(log.EntityLabel ?? log.EntityId)</a>
+                        }
+                        else
+                        {
+                            @(log.EntityLabel ?? log.EntityId)
+                        }
+                    </td>
+                    <td class="small">
+                        @foreach (var change in HelpdeskOps.Models.AuditListViewModel.ChangesOf(log))
+                        {
+                            <div>
+                                <span class="text-muted">@change.Field:</span>
+                                @if (change.Old != null)
+                                {
+                                    <span class="text-decoration-line-through text-danger-emphasis">@change.Old</span>
+                                    <span class="text-muted">→</span>
+                                }
+                                <span>@(change.New ?? "(boş)")</span>
+                            </div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.PageCount > 1)
+    {
+        <nav aria-label="Sayfalar">
+            <ul class="pagination">
+                <li class="page-item @(Model.Page == 1 ? "disabled" : "")"><a class="page-link" href="@pageUrl(Model.Page - 1)">Önceki</a></li>
+                @for (var p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.PageCount, Model.Page + 2); p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")"><a class="page-link" href="@pageUrl(p)">@p</a></li>
+                }
+                <li class="page-item @(Model.Page == Model.PageCount ? "disabled" : "")"><a class="page-link" href="@pageUrl(Model.Page + 1)">Sonraki</a></li>
+            </ul>
+        </nav>
+    }
+}
