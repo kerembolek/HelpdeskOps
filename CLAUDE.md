@@ -29,7 +29,7 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 - Demo data lives in `Data/DataDemoSeeder.cs`, runs only in Development, and is idempotent (match on email or serial number).
 
 ## Build and verify
-- Build: `dotnet build` in `HelpdeskOps/`. Run: `dotnet run --launch-profile http` (http://localhost:5161).
+- Build: `dotnet build` in `HelpdeskOps/`. Tests: `dotnet test` from the repository root (xUnit project `HelpdeskOps.Tests`, also run by GitHub Actions CI). Run: `dotnet run --launch-profile http` (http://localhost:5161).
 - Before calling a feature done, build it and check it in the browser with both demo roles (accounts are listed in `README.md`).
 
 ## Docs
