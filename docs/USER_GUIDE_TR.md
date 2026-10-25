@@ -14,6 +14,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 8. [Pano](#8-pano)
 9. [Raporlar](#9-raporlar)
 10. [Kullanıcılar](#10-kullanıcılar)
+11. [Hesabım ve Güvenlik](#11-hesabım-ve-güvenlik)
 
 ## 1. Giriş ve Roller
 
@@ -252,3 +253,24 @@ Bir kullanıcının rolü, satırındaki listeden yeni rol seçilip **Kaydet** d
 - Kimse kendi rolünü değiştiremez; satırında "(siz)" yazar.
 - BT personeli rolünden çıkarılan kişinin aktif talepleri atanmamış taleplere alınır ve her talebin geçmişine kaydedilir.
 - Rol değişikliği, kullanıcının açık oturumunda en geç bir dakika içinde geçerli olur.
+
+Üst üste 5 kez hatalı şifre giren kullanıcının hesabı 15 dakikalığına kilitlenir ve listede **Kilitli** rozetiyle görünür. Telefonla arayan bir çalışan için **Kilidi aç** bağlantısı kilidi hemen kaldırır. İki adımlı doğrulamayı açmış kullanıcıların adının yanında **2FA** rozeti görünür.
+
+## 11. Hesabım ve Güvenlik
+
+Sağ üstteki kişi ikonundan **Hesabım** sayfası açılır (salt okunur demo sitesinde kapalıdır):
+
+- **Profil**: e-posta ve telefon bilgisi.
+- **Şifre**: mevcut şifreyle yeni şifre belirlenir. Şifre en az 10 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.
+- **İki Adımlı Doğrulama**: girişte şifrenin yanında telefondaki doğrulama uygulamasının ürettiği 6 haneli kod da istenir.
+
+![İki Adımlı Doğrulama Kurulumu](images/19-two-factor.png)
+
+İki adımlı doğrulamayı açmak için:
+
+1. **Doğrulama uygulaması ekle** düğmesine basın.
+2. Microsoft Authenticator ya da Google Authenticator ile ekrandaki QR kodu okutun (ya da anahtarı elle girin).
+3. Uygulamanın gösterdiği kodu yazıp **Doğrula ve Aç**'a basın.
+4. Gösterilen 10 kurtarma kodunu güvenli bir yere kaydedin. Telefonunuzu kaybederseniz giriş sayfasındaki **Kurtarma koduyla girin** bağlantısıyla bu kodlardan birini kullanabilirsiniz; her kod bir kez geçerlidir.
+
+Bu sayfadan kurtarma kodları yenilenebilir, uygulama anahtarı sıfırlanabilir ya da iki adımlı doğrulama kapatılabilir.
