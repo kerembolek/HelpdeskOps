@@ -17,7 +17,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 
 ## 1. Giriş ve Roller
 
-Uygulamayı kullanmak için sağ üstteki **Giriş Yap** bağlantısından e-posta ve parolayla oturum açılır. Hesabı olmayan kullanıcılar **Kayıt Ol** ile ad, soyad ve departman bilgisini girerek kayıt olabilir; yeni hesaplar **Çalışan** rolüyle açılır.
+Uygulamayı kullanmak için **Giriş Yap** sayfasında e-posta ve parolayla oturum açılır. Hesabı olmayan kullanıcılar **Kayıt olun** bağlantısıyla ad, soyad ve departman bilgisini girerek kayıt olabilir; yeni hesaplar **Çalışan** rolüyle açılır. Demo sitesinde giriş formunun altındaki **Çalışan**, **BT Uzmanı** ve **Yönetici** düğmeleri formu ilgili demo hesabıyla doldurur.
 
 ![Giriş Ekranı](images/01-login.png)
 
@@ -29,11 +29,16 @@ Her kullanıcının tek bir rolü vardır. Rol, kullanıcının hangi menüleri 
 | Yönetici (Manager) | Tüm talepleri geçmişleri ve yorumlarıyla okur, Pano ve Raporlar sayfalarını görür. Hiçbir kaydı değiştiremez. |
 | BT Personeli (ITAdmin) | Cihazları ve talepleri yönetir, talepleri atar ve kapatır, kullanıcı rollerini değiştirir, pano ve raporlara erişir. |
 
-Geliştirme ortamında hazır demo hesapları ve parolaları için README.tr.md dosyasındaki **Demo Hesaplar** bölümüne bakınız.
+Geliştirme ortamında ve demo sitesinde hazır demo hesapları bulunur; hesaplar ve parola için README.tr.md dosyasındaki **Demo Hesaplar** bölümüne bakınız. Herkese açık demo sitesi salt okunurdur: tüm ekranlar gezilebilir ama hiçbir değişiklik kaydedilmez ve kayıt olunamaz.
 
 ## 2. Ana Sayfa ve Menü
 
-Ana Sayfa, kullanıcının rolüne göre erişebildiği bölümlere kısayol düğmeleri sunar. Aynı bölümler üst menüde de yer alır. Sağ üstteki **Bildirimler** bağlantısı okunmamış bildirim sayısını gösterir (bkz. [Bildirimler](#7-bildirimler)).
+Ana Sayfa, kullanıcıyı adıyla karşılar ve rolüne göre canlı sayılar içeren kısayol kutucukları gösterir:
+
+- **Herkes için**: Yeni Talep, Taleplerim (açık ve işlemdeki talepler), Cihazlarım, imza bekleyen zimmet formu varsa **İmza Bekleyen Formlar** ve Kendin Çöz.
+- **BT İşleri** (BT personeli ve yöneticiler): Bana Atanan, Atanmamış Talepler, Hedef Süresi Aşan, Tüm Aktif Talepler, İade Bekleyen Cihazlar ve Garantisi Bitecekler (BT personeli), Pano ve Raporlar. Bekleyen iş olan kutucuklar sarı ya da kırmızı görünür.
+
+Aynı bölümler üst menüde ikonlarıyla yer alır; bulunulan bölüm vurgulanır. Sağ üstteki zil ikonu okunmamış bildirim sayısını gösterir (bkz. [Bildirimler](#7-bildirimler)); kişi ikonundaki menüden oturum kapatılır.
 
 ![Ana Sayfa](images/02-home.png)
 
@@ -50,6 +55,7 @@ Cihaz yönetimi yalnızca **BT Personeli** rolüne açıktır.
 - IP adresinin solundaki nokta cihazın ağ durumunu gösterir: yeşil nokta cihazın ping'e yanıt verdiğini, kırmızı nokta yanıt vermediğini belirtir. **Ağ Durumunu Yenile** düğmesi kontrolü tekrarlar.
 - Garanti sütunundaki rozetler garantinin durumunu gösterir: **Garantide**, **Yakında Bitiyor** (30 gün içinde) ve **Garanti Bitti**. Üstteki **Garanti** filtresiyle yalnızca garantisi yakında bitecek ya da bitmiş cihazlar listelenebilir.
 - Dizüstü ve masaüstü bilgisayarların satırındaki **RDP** bağlantısı, Uzak Masaüstü Bağlantısı ile açılan bir `.rdp` dosyası indirir.
+- Çalışanların iade talebi gönderdiği cihazlar listenin üstündeki sarı kutuda sıralanır; cihaz adına tıklamak teslim alma ekranını açar (bkz. [3.5 Geri Gelen Cihazı Teslim Alma](#35-geri-gelen-cihazı-teslim-alma)).
 
 ### 3.2 Yeni Cihaz Ekleme
 
@@ -81,7 +87,7 @@ Listedeki **Detay** bağlantısı cihazın tüm bilgilerini, garanti ve servis b
 Sayfanın alt bölümlerinde şunlar bulunur:
 
 - **Port Tablosu** (yalnızca switch'lerde): switch'in hangi portuna hangi cihazın bağlı olduğu.
-- **Zimmet Formları**: cihaz her zimmetlendiğinde açılan formlar, durumları (onay bekliyor, teslim alındı, iade edildi) ve **PDF İndir** bağlantısı. PDF, imza alanlı bir teslim formudur.
+- **Zimmet Formları**: cihaz her zimmetlendiğinde açılan formlar, durumları (onay bekliyor, teslim alındı, iade bekliyor, iade edildi), açık formlar için **Teslim Al** düğmesi ve **PDF İndir** bağlantısı. PDF'te teslim bilgileri ve çalışanın imzası, iade edilmiş formlarda ikinci sayfada iade bilgileri ve iki tarafın iade imzaları yer alır.
 - **Cihaz Geçmişi**: format, donanım yükseltme, parça değişimi ve onarım kayıtları ile otomatik tutulan zimmet, durum ve port değişiklikleri. BT personeli bu bölümdeki formdan elle kayıt ekleyebilir.
 
 ### 3.4 CSV ile İçe ve Dışa Aktarma
@@ -95,6 +101,19 @@ Cihazlar sayfasındaki **CSV'den İçe Aktar** düğmesi, birden çok cihazı te
 3. Herhangi bir satırda sorun varsa hiçbir cihaz eklenmez; sorunlar satır numaralarıyla listelenir. Düzeltip dosyayı yeniden yükleyin.
 
 Tek seferde en fazla 500 cihaz eklenebilir. Zimmetli olarak içe aktarılan cihazlar için zimmet kaydı ve zimmet formu otomatik oluşturulur. **CSV Olarak Dışa Aktar** düğmesi tüm cihazları aynı biçimde indirir.
+
+### 3.5 Geri Gelen Cihazı Teslim Alma
+
+Çalışan "Cihazlarım" sayfasından iade talebi gönderdiğinde tüm BT personeline bildirim gider. Cihaz BT'ye getirildiğinde **Teslim Al** ekranında çalışanın iade sebebi, açıklaması ve imzası görülür.
+
+![Cihazı Teslim Al](images/18-check-in.png)
+
+1. Cihazı fiziksel olarak kontrol edip **Kontrol Sonucu**'nu seçin: Sağlam, Hasarlı veya Eksik parça / aksesuar.
+2. Gerekirse **Kontrol Notu** yazın (örn. "şarj aleti eksik").
+3. **Cihazın Yeni Durumu**'nu seçin: Depoda, Arızalı veya Hizmet Dışı.
+4. İmza alanına imzanızı atıp **İmzala ve Teslim Al**'a basın.
+
+Zimmet formu kapanır, cihaz çalışanın üzerinden düşer, cihaz geçmişine iade ve kontrol sonucu yazılır ve çalışana bildirim gider. Çalışan iade talebi göndermeden cihazı elden getirdiyse (örneğin işten ayrılışta) teslim alma yine aynı ekrandan yapılabilir.
 
 ## 4. Kendin Çöz
 
@@ -115,6 +134,7 @@ BT personeli **Kendin Çöz → Çözümleri Yönet** ekranından çözüm makal
 
 ![Talep Listesi](images/07-ticket-list.png)
 
+- Öncelik (Kritik kırmızıdan Düşük griye) ve durum (Açık, İşlemde, Çözüldü, Kapatıldı) renkli rozetlerle gösterilir.
 - Üstteki filtrelerle başlık veya açıklamada arama yapılabilir; kategori, durum ve önceliğe göre süzülebilir.
 - **Görünüm** listesi aktif talepleri, çözülen/kapatılan talepleri, hedef süresi geçenleri, BT personeline atananları ve atanmamış talepleri ayırır.
 - **Hedef Süre** sütunu önceliğe göre belirlenen çözüm hedefine (Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat) göre talebin durumunu gösterir: **Zamanında**, **Süre doluyor**, **Gecikti**, **Hedefte çözüldü**, **Geç çözüldü**.
@@ -122,7 +142,7 @@ BT personeli **Kendin Çöz → Çözümleri Yönet** ekranından çözüm makal
 
 ### 5.2 Yeni Talep Oluşturma
 
-Çalışanlar için **Yeni Talep Oluştur** bağlantısı önce Kendin Çöz sayfasına yönlendirir; oradan doğrudan talep formuna geçilebilir. BT personeli formu doğrudan açar ve telefonla ya da yüz yüze gelen talepleri **Talep Eden** alanından çalışan adına açabilir.
+Çalışanlar için **Yeni Talep Oluştur** düğmesi önce Kendin Çöz sayfasına yönlendirir; oradan doğrudan talep formuna geçilebilir. BT personeli formu doğrudan açar ve telefonla ya da yüz yüze gelen talepleri **Talep Eden** alanından çalışan adına açabilir.
 
 ![Yeni Talep Formu](images/08-ticket-create.png)
 
@@ -170,19 +190,28 @@ Durum **Çözüldü** ya da **Kapatıldı** olarak kaydedildiğinde **Çözülme
 
 ![Cihazlarım](images/12-my-devices.png)
 
-**Zimmet Formlarım** bölümünde kullanıcı adına açılmış zimmet formları yer alır. Cihazı teslim alan kullanıcı **Teslim Aldım** düğmesiyle formu onaylar. **PDF İndir** düğmesi imza alanlı teslim formunu indirir. Cihaz başka birine verildiğinde, depoya alındığında veya silindiğinde form **İade edildi** olarak kapanır.
+**Zimmet Formlarım** bölümünde kullanıcı adına açılmış zimmet formları yer alır:
+
+- **İmzala**: cihazı teslim alan kullanıcı form bilgilerini ve taahhüt metnini görür, imza alanına fare ya da parmağıyla imzasını atıp **İmzala ve Teslim Aldım**'a basar.
+- **İade Et**: imzalanmış bir cihazı iade etmek için sebep (işten ayrılış, cihaz değişimi, arıza, görev değişikliği, diğer) seçilir, isteğe bağlı açıklama yazılır ve imza atılır. Form **İade bekliyor** durumuna geçer ve BT personeline bildirim gider.
+- **PDF İndir**: zimmet formunu imzalarıyla birlikte indirir.
+
+![Cihaz İadesi](images/17-return-request.png)
+
+BT personeli cihazı kontrol edip teslim aldığında (bkz. [3.5 Geri Gelen Cihazı Teslim Alma](#35-geri-gelen-cihazı-teslim-alma)) form **İade edildi** olarak kapanır. Cihaz başka birine verildiğinde, depoya alındığında veya silindiğinde de form kapanır.
 
 ## 7. Bildirimler
 
-Sağ üstteki **Bildirimler** bağlantısının yanındaki sayı okunmamış bildirimleri gösterir. Bildirimler şu durumlarda oluşur:
+Sağ üstteki zil ikonunun yanındaki sayı okunmamış bildirimleri gösterir. Bildirimler şu durumlarda oluşur:
 
 - Talebinize BT ekibi yorum yazdığında veya talebinizin durumu değiştiğinde,
 - Talebiniz BT ekibi tarafından üstlenildiğinde ya da adınıza talep açıldığında,
-- (BT personeli için) bir talep size atandığında, talep eden yorum yazdığında veya talebi değerlendirdiğinde.
+- (BT personeli için) bir talep size atandığında, talep eden yorum yazdığında veya talebi değerlendirdiğinde,
+- (BT personeli için) bir çalışan cihaz iade talebi gönderdiğinde; çalışan da cihazı teslim alındığında bildirim alır.
 
 ![Bildirimler](images/13-notifications.png)
 
-Bir bildirime tıklamak ilgili talebi açar ve bildirimi okunmuş sayar. **Tümünü Okundu İşaretle** düğmesi tüm bildirimleri okunmuş yapar.
+Bir bildirime tıklamak ilgili sayfayı açar ve bildirimi okunmuş sayar. **Tümünü Okundu İşaretle** düğmesi tüm bildirimleri okunmuş yapar.
 
 ## 8. Pano
 
@@ -190,7 +219,7 @@ Bir bildirime tıklamak ilgili talebi açar ve bildirimi okunmuş sayar. **Tüm�
 
 ![Pano](images/14-dashboard.png)
 
-- **Özet kartları**: açık, işlemde, çözülen/kapatılan ve atanmamış aktif talep sayıları ile ortalama çözüm süresi. Kartlara tıklamak ilgili filtreli talep listesini açar.
+- **Özet kartları**: ikonlu kartlarda açık, işlemde, çözülen/kapatılan ve atanmamış aktif talep sayıları ile ortalama çözüm süresi. Kartlara tıklamak ilgili filtreli talep listesini açar.
 - **Hedef Çözüm Süreleri (SLA)**: hedef süresi geçen aktif talepler ve hedefinde çözülen taleplerin oranı.
 - **Önceliğe Göre Çözüm Süresi** ve **Departman İş Yükü** tabloları.
 - **Kronik Sorunlu Cihazlar**: en çok talep alan marka ve modeller.
