@@ -89,6 +89,31 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ---
 
+## Roadmap: Toward a Sellable Product
+
+The original roadmap is complete. The next phases target what a company asks before buying, and what sets HelpdeskOps apart for Turkish SMBs (20-200 employees) that want a Turkish interface, zimmet and KVKK-ready records, and a self-hosted install.
+
+### Phase 1: Must-haves for a company
+- [x] E-mail: every in-app notification is also e-mailed, password reset and e-mail confirmation work, all in Turkish (SMTP, or `.eml` files locally)
+- [ ] Account security: lockout after failed sign-ins, two-factor authentication, a stricter password policy
+- [ ] Audit log: who changed what and when, across devices, tickets, zimmet forms, and roles
+- [ ] KVKK: privacy notice, retention periods, and export or deletion of a person's data
+- [ ] Paging and faster lists for thousands of devices and tickets
+- [ ] Self-hosted install guide (IIS and Docker) with a backup plan
+
+### Phase 2: Differentiators
+- [ ] QR labels: scanning a device's sticker opens a ticket for it (employee) or its device card (IT); printable label sheets
+- [ ] Sign-in with Active Directory / Microsoft Entra ID and user sync
+- [ ] Automatic inventory: a small PowerShell agent reports serial number, RAM, disk, and Windows version
+- [ ] Onboarding and offboarding checklists that tie accounts, devices, and signed returns together
+- [ ] Business-hours SLA with Turkish public holidays
+- [ ] Software license and consumables (toner, cartridges) tracking
+
+### Phase 3: Extras
+- [ ] Open tickets by e-mail
+- [ ] Microsoft Teams notifications
+- [ ] AI suggestions for category, priority, and matching self-service articles
+
 ## Project Status
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
@@ -136,6 +161,27 @@ The live demo runs on MonsterASP.NET and is published from Visual Studio with We
 ```
 
 `SeedDemoData` turns on the demo data below outside the `Development` environment. `DemoReadOnly` makes the public demo read-only: every form post except sign-in and sign-out is refused with a notice, registration and account management pages are closed, opening a notification does not mark it read, and a banner tells visitors that changes are not saved. The publish profile excludes `App_Data`, so local attachments and keys never reach the server.
+
+### E-mail
+
+The `Email` settings section picks how mail goes out. `Mode` is `None` (default, nothing is sent; the live demo runs like this), `Pickup` (each mail is written as an `.eml` file to `App_Data/mail-outbox`, which `appsettings.Development.json` turns on), or `Smtp`. For real delivery, put the SMTP settings in the git-ignored `appsettings.Production.json` or in user secrets, never in `appsettings.json`:
+
+```json
+{
+  "Email": {
+    "Mode": "Smtp",
+    "Host": "smtp.example.com",
+    "Port": 587,
+    "UseStartTls": true,
+    "UserName": "...",
+    "Password": "...",
+    "FromAddress": "helpdesk@example.com",
+    "FromName": "HelpdeskOps"
+  }
+}
+```
+
+Mail is queued and sent in the background, so a slow or failing mail server never slows down a page. Every in-app notification is also mailed to its recipient. With `Smtp`, new accounts must confirm their e-mail address before signing in, and the sign-in page offers password reset.
 
 ### Demo Accounts
 
