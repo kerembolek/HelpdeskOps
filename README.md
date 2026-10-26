@@ -21,6 +21,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - **Authentication:** ASP.NET Core Identity with role-based authorization (`Employee`, `ITAdmin`)
 - **Frontend:** Razor Views, Bootstrap, Bootstrap Icons
 - **Testing:** xUnit unit tests, run by GitHub Actions on every push and pull request
+- **Deployment:** Docker Compose with SQL Server 2022 Express, or IIS on Windows Server
 - **Version Control:** Git & GitHub
 
 ---
@@ -99,7 +100,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] Audit log: every change to devices, tickets, zimmet forms, articles, attachments, users, and roles is recorded automatically with who, when, IP address, and old and new values (password hashes never stored), on a filterable, paged IT page
 - [x] KVKK: a Turkish privacy notice (aydınlatma metni) with recorded reading, a personal data download in "Hesabım" and for IT, anonymization of former employees that keeps tickets and zimmet forms, and daily retention periods for notifications, attachments, audit log entries and IP addresses, and zimmet form signatures
 - [ ] Paging and faster lists for thousands of devices and tickets
-- [ ] Self-hosted install guide (IIS and Docker) with a backup plan
+- [x] Self-hosted install guide (Docker Compose and IIS) with HTTPS, a first IT staff member from settings, and tested backup and restore scripts for both
 
 ### Phase 2: Differentiators
 - [ ] QR labels: scanning a device's sticker opens a ticket for it (employee) or its device card (IT); printable label sheets
@@ -125,6 +126,7 @@ Assigning a device opens a digital zimmet form that the employee signs in "My De
 ## Documentation
 
 - [User Guide (Turkish)](docs/USER_GUIDE_TR.md): walkthrough of the current UI with screenshots.
+- [Install and Backup Guide (Turkish)](docs/INSTALL_TR.md): installing on a company server with Docker or IIS, HTTPS, updates, and the backup plan.
 
 ---
 
@@ -145,6 +147,17 @@ Run the unit tests with `dotnet test` from the repository root.
 The default connection string uses SQL Server LocalDB (`(localdb)\mssqllocaldb`). Update `appsettings.json` if you use a different SQL Server instance.
 
 Pending migrations are also applied automatically when the app starts. Dates are shown in Turkey time (`Europe/Istanbul`) whatever time zone the server uses.
+
+### Installing on a Company Server
+
+[docs/INSTALL_TR.md](docs/INSTALL_TR.md) covers both supported setups step by step. In short, with Docker:
+
+```bash
+cp .env.example .env    # set DB_PASSWORD, INITIAL_ADMIN_EMAIL, and KVKK_CONTROLLER_NAME
+docker compose up -d --build
+```
+
+The app runs on port 8080 with SQL Server 2022 Express, and keeps attachments and sign-in keys in the `app-data` volume. A fresh install has no IT staff member: register the address set in `InitialAdminEmail` (`INITIAL_ADMIN_EMAIL` in `.env`) and restart the app to make that account the first one; the setting does nothing once IT staff exist. `scripts/` holds backup and restore scripts for Docker (`backup-docker.sh`, `restore-docker.sh`) and for IIS (`Backup-HelpdeskOps.ps1`, `Restore-HelpdeskOps.ps1`).
 
 ### Deployment
 
