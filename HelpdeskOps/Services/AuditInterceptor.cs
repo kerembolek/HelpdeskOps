@@ -140,6 +140,13 @@ public class AuditInterceptor : SaveChangesInterceptor
                 }
             }
 
+            // Anonymizing a person must not copy their old name and e-mail into the audit log, so only the fact is kept
+            if (entry.Entity is ApplicationUser && action == AuditAction.Updated
+                && entry.Property(nameof(ApplicationUser.AnonymizedAt)) is { IsModified: true, CurrentValue: not null } anonymized)
+            {
+                values = new() { (anonymized.Metadata.Name, null, anonymized.CurrentValue) };
+            }
+
             // An update that only touched housekeeping values (a sign-in, a counter) is not worth a record
             if (action == AuditAction.Updated && values.Count == 0)
             {

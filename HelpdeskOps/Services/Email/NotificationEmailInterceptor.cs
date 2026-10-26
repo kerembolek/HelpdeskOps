@@ -46,7 +46,7 @@ public class NotificationEmailInterceptor : SaveChangesInterceptor
         {
             var userIds = notifications.Select(n => n.UserId).Distinct().ToList();
             var emails = await eventData.Context.Set<ApplicationUser>()
-                .Where(u => userIds.Contains(u.Id) && u.Email != null)
+                .Where(u => userIds.Contains(u.Id) && u.Email != null && u.AnonymizedAt == null)
                 .ToDictionaryAsync(u => u.Id, u => u.Email!, cancellationToken);
 
             var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";

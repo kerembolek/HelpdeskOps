@@ -15,12 +15,15 @@ public class UsersController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PersonalDataExporter _exporter;
+    private readonly PersonalDataAnonymizer _anonymizer;
 
-    public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, PersonalDataExporter exporter)
+    public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, PersonalDataExporter exporter,
+        PersonalDataAnonymizer anonymizer)
     {
         _context = context;
         _userManager = userManager;
         _exporter = exporter;
+        _anonymizer = anonymizer;
     }
 
     // GET: Users?q=&role=
@@ -46,6 +49,7 @@ public class UsersController : Controller
                 u.Department,
                 u.TwoFactorEnabled,
                 u.LockoutEnd,
+                u.AnonymizedAt,
                 DeviceCount = u.AssignedDevices.Count,
                 // Tickets assigned to this person that are still being worked on
                 ActiveTicketCount = u.AssignedTickets.Count(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)
@@ -62,7 +66,7 @@ public class UsersController : Controller
 
         var model = rows
             .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount,
-                u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow))
+                u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow && u.AnonymizedAt == null, u.AnonymizedAt != null))
             .Where(u => string.IsNullOrEmpty(role) || u.Role == role)
             .ToList();
 
@@ -80,7 +84,7 @@ public class UsersController : Controller
     public async Task<IActionResult> Unlock(string id, string? returnUrl)
     {
         var user = await _userManager.FindByIdAsync(id);
-        if (user == null)
+        if (user == null || user.AnonymizedAt != null)
         {
             return NotFound();
         }
@@ -116,6 +120,12 @@ public class UsersController : Controller
         if (user.Id == currentUserId)
         {
             TempData["UserError"] = "Kendi rolünüzü değiştiremezsiniz.";
+            return Back();
+        }
+
+        if (user.AnonymizedAt != null)
+        {
+            TempData["UserError"] = "Anonimleştirilmiş kullanıcıya rol verilemez.";
             return Back();
         }
 
@@ -184,5 +194,48 @@ public class UsersController : Controller
         var data = await _exporter.ExportAsync(user.Id);
         await _exporter.RecordExportAsync(user.Id, HttpContext);
         return File(data!, "application/json", PersonalDataExporter.FileName(user));
+    }
+
+    // GET: Users/Anonymize/abc
+    // Confirmation page: what will be erased, what stays, and anything that has to be done first
+    public async Task<IActionResult> Anonymize(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Blocker = await _anonymizer.CheckAsync(user, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        ViewBag.TicketCount = await _context.Tickets.CountAsync(t => t.RequesterId == user.Id);
+        ViewBag.FormCount = await _context.AssignmentForms.CountAsync(f => f.UserId == user.Id);
+        return View(user);
+    }
+
+    // POST: Users/Anonymize/abc
+    // KVKK deletion for a former employee: erases who they were but keeps the company records they are part of
+    [HttpPost, ActionName("Anonymize")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AnonymizeConfirmed(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Checked again on the server; the confirmation page could be stale
+        var blocker = await _anonymizer.CheckAsync(user, User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (blocker != null)
+        {
+            TempData["UserError"] = blocker;
+            return RedirectToAction(nameof(Anonymize), new { id });
+        }
+
+        var name = $"{user.FirstName} {user.LastName}";
+        await _anonymizer.AnonymizeAsync(user);
+
+        TempData["UserMessage"] = $"{name} anonimleştirildi. Kayıtlarında artık \"{PersonalDataAnonymizer.AnonymousName}\" görünüyor.";
+        return RedirectToAction(nameof(Index));
     }
 }

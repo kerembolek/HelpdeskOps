@@ -108,6 +108,7 @@ public class TicketsController : Controller
     private async Task LoadRequestersAsync(string? selectedId = null)
     {
         var users = await _context.Users
+            .Where(u => u.AnonymizedAt == null)
             .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
             .Select(u => new
             {
@@ -353,7 +354,8 @@ public class TicketsController : Controller
         ModelState.Remove(nameof(Ticket.RequesterId));
         ModelState.Remove(nameof(Ticket.Requester));
 
-        if (ticket.RequesterId != currentUserId && await _userManager.FindByIdAsync(ticket.RequesterId) == null)
+        // The requester must exist and must not be an anonymized former employee
+        if (ticket.RequesterId != currentUserId && await _userManager.FindByIdAsync(ticket.RequesterId) is not { AnonymizedAt: null })
         {
             ModelState.AddModelError(nameof(Ticket.RequesterId), "Seçilen kullanıcı bulunamadı.");
         }

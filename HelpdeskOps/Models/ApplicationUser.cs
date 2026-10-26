@@ -25,6 +25,10 @@ namespace HelpdeskOps.Models
         [Display(Name = "Aydınlatma Metni Okunma Tarihi")]
         public DateTime? PrivacyNoticeReadAt { get; set; }
 
+        // Set when IT anonymizes a former employee for KVKK; the account stays so their records keep their links
+        [Display(Name = "Anonimleştirilme Tarihi")]
+        public DateTime? AnonymizedAt { get; set; }
+
         public ICollection<Device> AssignedDevices { get; set; } = new List<Device>();
         public ICollection<Ticket> RequestedTickets { get; set; } = new List<Ticket>();
         public ICollection<Ticket> AssignedTickets { get; set; } = new List<Ticket>();

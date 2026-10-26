@@ -27,6 +27,7 @@ public class DevicesController : Controller
     private async Task LoadUsersAsync(string? selectedId = null)
     {
         var users = await _context.Users
+            .Where(u => u.AnonymizedAt == null)
             .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
             .Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName + (u.Department != null ? " (" + u.Department + ")" : "") })
             .ToListAsync();
@@ -106,7 +107,7 @@ public class DevicesController : Controller
     // Zimmet için seçilen kullanıcının gerçekten var olduğunu doğrular
     private async Task ValidateAssignedUserAsync(string? userId)
     {
-        if (!string.IsNullOrEmpty(userId) && !await _context.Users.AnyAsync(u => u.Id == userId))
+        if (!string.IsNullOrEmpty(userId) && !await _context.Users.AnyAsync(u => u.Id == userId && u.AnonymizedAt == null))
         {
             ModelState.AddModelError(nameof(Device.AssignedUserId), "Seçilen kullanıcı bulunamadı.");
         }
