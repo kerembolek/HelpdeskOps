@@ -79,6 +79,13 @@ using (var scope = app.Services.CreateScope())
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole(role));
     }
+    // A fresh install gets its first IT staff member from the "InitialAdminEmail" setting
+    var initialAdmin = await HelpdeskOps.Services.InitialAdmin.EnsureAsync(
+        scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>(),
+        app.Configuration[HelpdeskOps.Services.InitialAdmin.SettingName]);
+    if (initialAdmin != null)
+        app.Logger.LogWarning("{Message}", initialAdmin);
+
     // The live demo site turns seeding on with "SeedDemoData": true in its own appsettings.Production.json
     if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("SeedDemoData"))
         await DemoDataSeeder.SeedAsync(scope.ServiceProvider);
