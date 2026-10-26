@@ -31,6 +31,7 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 ## Build and verify
 - Build: `dotnet build` in `HelpdeskOps/`. Tests: `dotnet test` from the repository root (xUnit project `HelpdeskOps.Tests`, also run by GitHub Actions CI). Run: `dotnet run --launch-profile http` (http://localhost:5161).
 - Before calling a feature done, build it and check it in the browser with both demo roles (accounts are listed in `README.md`).
+- Production installs: `Dockerfile` and `docker-compose.yml` at the root, backup scripts in `scripts/`, steps in `docs/INSTALL_TR.md`. Keep them in step when settings, `App_Data` contents, or startup behavior change.
 
 ## Docs
 - Update `README.md` and `README.tr.md` in the same branch as any feature that changes behavior (roadmap checkboxes, project status).

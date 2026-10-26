@@ -21,6 +21,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`)
 - **Arayüz:** Razor Views, Bootstrap, Bootstrap Icons
 - **Test:** xUnit birim testleri; her push ve pull request'te GitHub Actions ile çalışır
+- **Kurulum:** SQL Server 2022 Express ile Docker Compose ya da Windows Server'da IIS
 - **Sürüm kontrolü:** Git ve GitHub
 
 ---
@@ -99,7 +100,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Denetim kaydı: cihaz, talep, zimmet formu, makale, ek, kullanıcı ve rollerdeki her değişiklik kim, ne zaman, hangi IP adresinden ve eski ile yeni değerleriyle otomatik kaydedilir (şifre hash'i asla saklanmaz); BT için filtrelenebilir, sayfalı bir ekran
 - [x] KVKK: okunduğu kaydedilen Türkçe aydınlatma metni, "Hesabım"da ve BT için kişisel veri indirme, talepleri ve zimmet formlarını koruyarak ayrılan çalışanın anonimleştirilmesi; bildirimler, ekler, denetim kaydı ve IP adresleri ile zimmet formu imzaları için her gün uygulanan saklama süreleri
 - [ ] Binlerce cihaz ve talep için sayfalama ve daha hızlı listeler
-- [ ] Kendi sunucusuna kurulum rehberi (IIS ve Docker) ve yedekleme planı
+- [x] Kendi sunucusuna kurulum rehberi (Docker Compose ve IIS): HTTPS, ayarlardan ilk BT yöneticisi ve ikisi için de denenmiş yedekleme ve geri yükleme betikleri
 
 ### 2. Aşama: Farklılaştıran özellikler
 - [ ] QR etiketler: cihazdaki etiketi okutmak o cihaz için talep (çalışan) ya da cihaz kartını (BT) açar; yazdırılabilir etiket sayfaları
@@ -125,6 +126,7 @@ Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığ
 ## Dokümantasyon
 
 - [Kullanım Kılavuzu (Türkçe)](docs/USER_GUIDE_TR.md): uygulamanın mevcut arayüzünü ekran görüntüleriyle anlatan kılavuz.
+- [Kurulum ve Yedekleme Rehberi](docs/INSTALL_TR.md): Docker ya da IIS ile şirket sunucusuna kurulum, HTTPS, güncelleme ve yedekleme planı.
 
 ---
 
@@ -145,6 +147,17 @@ Birim testlerini depo kökünden `dotnet test` ile çalıştırabilirsiniz.
 Varsayılan bağlantı dizesi SQL Server LocalDB (`(localdb)\mssqllocaldb`) kullanır. Farklı bir SQL Server örneği kullanıyorsanız `appsettings.json` dosyasını güncelleyin.
 
 Bekleyen migration'lar uygulama açılırken de otomatik uygulanır. Tarihler, sunucunun saat dilimi ne olursa olsun Türkiye saatiyle (`Europe/Istanbul`) gösterilir.
+
+### Şirket Sunucusuna Kurulum
+
+[docs/INSTALL_TR.md](docs/INSTALL_TR.md) desteklenen iki kurulumu adım adım anlatır. Docker ile kısaca:
+
+```bash
+cp .env.example .env    # DB_PASSWORD, INITIAL_ADMIN_EMAIL ve KVKK_CONTROLLER_NAME değerlerini girin
+docker compose up -d --build
+```
+
+Uygulama SQL Server 2022 Express ile 8080 numaralı portta çalışır; ekleri ve oturum anahtarlarını `app-data` biriminde tutar. Yeni kurulumda BT yöneticisi yoktur: `InitialAdminEmail` (`.env` içinde `INITIAL_ADMIN_EMAIL`) ayarındaki adresle kayıt olup uygulamayı yeniden başlatınca o hesap ilk BT yöneticisi olur; sistemde BT yöneticisi varken bu ayar hiçbir şey yapmaz. `scripts/` klasöründe Docker (`backup-docker.sh`, `restore-docker.sh`) ve IIS (`Backup-HelpdeskOps.ps1`, `Restore-HelpdeskOps.ps1`) için yedekleme ve geri yükleme betikleri vardır.
 
 ### Yayınlama
 
