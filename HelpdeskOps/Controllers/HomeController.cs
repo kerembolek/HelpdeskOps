@@ -1,7 +1,10 @@
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
+using HelpdeskOps.Services.Kvkk;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
@@ -13,12 +16,15 @@ namespace HelpdeskOps.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly IConfiguration _configuration;
+        private readonly KvkkOptions _kvkk;
 
-        public HomeController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration configuration)
+        public HomeController(ApplicationDbContext context, IWebHostEnvironment environment, IConfiguration configuration,
+            IOptions<KvkkOptions> kvkk)
         {
             _context = context;
             _environment = environment;
             _configuration = configuration;
+            _kvkk = kvkk.Value;
         }
 
         // Shortcut tiles with live counts; visitors who are not signed in see the sign-in options instead
@@ -106,9 +112,33 @@ namespace HelpdeskOps.Controllers
             return View(model);
         }
 
-        public IActionResult Privacy()
+        // KVKK privacy notice (aydınlatma metni); open to visitors, since people read it before they register
+        public async Task<IActionResult> Privacy()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var readAt = userId == null
+                ? null
+                : await _context.Users.Where(u => u.Id == userId && u.PrivacyNoticeVersion == _kvkk.NoticeVersion)
+                    .Select(u => u.PrivacyNoticeReadAt).FirstOrDefaultAsync();
+            return View(new PrivacyViewModel(_kvkk, readAt));
+        }
+
+        // POST: Home/AcknowledgePrivacy
+        // Records that the signed-in user read the current notice version
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcknowledgePrivacy(string? returnUrl)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user != null && user.PrivacyNoticeVersion != _kvkk.NoticeVersion)
+            {
+                user.PrivacyNoticeVersion = _kvkk.NoticeVersion;
+                user.PrivacyNoticeReadAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+            return Url.IsLocalUrl(returnUrl) ? LocalRedirect(returnUrl) : RedirectToAction(nameof(Index));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -1,7 +1,108 @@
-﻿@{
-    ViewData["Title"] = "Gizlilik";
+﻿@model PrivacyViewModel
+@{
+    ViewData["Title"] = "KVKK Aydınlatma Metni";
+    var kvkk = Model.Kvkk;
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <h1><i class="bi bi-shield-check text-primary me-2"></i>@ViewData["Title"]</h1>
+        <p class="text-muted">6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 10. maddesi uyarınca · Sürüm @kvkk.NoticeVersion</p>
 
-<p>Bu uygulama bir portföy projesidir ve gerçek kullanıcı verisi işlenmez.</p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @if (Model.ReadAt is DateTime readAt)
+            {
+                <div class="alert alert-success d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Bu metni @readAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") tarihinde okuduğunuzu onayladınız.</span>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <span><i class="bi bi-info-circle me-1"></i>Metni okuduktan sonra onaylayın.</span>
+                    <form asp-action="AcknowledgePrivacy" method="post" class="m-0">
+                        <input type="hidden" name="returnUrl" value="@Url.Action("Privacy")" />
+                        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-check2 me-1"></i>Okudum, anladım</button>
+                    </form>
+                </div>
+            }
+        }
+
+        <div class="card">
+            <div class="card-body p-4 privacy-notice">
+                <h2 class="h5">1. Veri sorumlusu</h2>
+                <p>
+                    Kişisel verileriniz, veri sorumlusu sıfatıyla <strong>@kvkk.ControllerName</strong>
+                    @if (!string.IsNullOrEmpty(kvkk.ControllerAddress))
+                    {
+                        <span>(@kvkk.ControllerAddress)</span>
+                    }
+                    tarafından, BT varlık ve destek talebi süreçlerini yürütmek için kullanılan HelpdeskOps uygulamasında işlenir.
+                </p>
+
+                <h2 class="h5">2. İşlenen kişisel veriler</h2>
+                <ul>
+                    <li><strong>Kimlik ve iletişim:</strong> ad, soyad, e-posta adresi, departman.</li>
+                    <li><strong>Hesap güvenliği:</strong> şifrenin geri döndürülemez özeti, iki adımlı doğrulama ayarı, hatalı giriş sayısı.</li>
+                    <li><strong>Talep kayıtları:</strong> açtığınız talepler, yorumlar, eklediğiniz dosyalar ve memnuniyet değerlendirmeleriniz.</li>
+                    <li><strong>Zimmet kayıtları:</strong> size teslim edilen cihazlar, zimmet ve iade formları ile bu formlardaki imzanız.</li>
+                    <li><strong>İşlem güvenliği:</strong> uygulamada yaptığınız değişikliklerin tarihi ve IP adresiniz (denetim kaydı).</li>
+                    <li><strong>Bildirimler:</strong> uygulama içi bildirimler ve size gönderilen e-postalar.</li>
+                </ul>
+
+                <h2 class="h5">3. İşleme amaçları</h2>
+                <ul>
+                    <li>BT destek taleplerinin alınması, atanması, çözülmesi ve hizmet kalitesinin ölçülmesi,</li>
+                    <li>şirkete ait cihazların kime teslim edildiğinin ve iadesinin kayıt altına alınması (zimmet),</li>
+                    <li>bilgi güvenliğinin sağlanması, yetkisiz erişimin önlenmesi ve yapılan işlemlerin denetlenebilmesi,</li>
+                    <li>talepleriniz hakkında sizi bilgilendirmek.</li>
+                </ul>
+
+                <h2 class="h5">4. Toplama yöntemi ve hukuki sebep</h2>
+                <p>
+                    Verileriniz; hesap açılırken, talep oluştururken, zimmet formu imzalarken ve uygulamayı kullanırken elektronik ortamda,
+                    otomatik yollarla toplanır. KVKK'nın 5. maddesinin 2. fıkrasındaki şu hukuki sebeplere dayanılır:
+                </p>
+                <ul>
+                    <li>(c) iş sözleşmesinin kurulması ve ifası için gerekli olması,</li>
+                    <li>(ç) veri sorumlusunun hukuki yükümlülüğünü yerine getirmesi,</li>
+                    <li>(e) bir hakkın tesisi, kullanılması veya korunması (örneğin zimmet kayıtları),</li>
+                    <li>(f) temel hak ve özgürlüklerinize zarar vermemek kaydıyla veri sorumlusunun meşru menfaati (örneğin bilgi güvenliği).</li>
+                </ul>
+
+                <h2 class="h5">5. Aktarım</h2>
+                <p>
+                    Verileriniz yalnızca şirket içinde, görevi gereği erişmesi gereken BT ekibi ve yöneticilerle paylaşılır.
+                    Yasal bir zorunluluk olduğunda yetkili kamu kurum ve kuruluşlarına aktarılabilir. Uygulama şirketin kendi
+                    sunucusunda çalışır ve verileriniz yurt dışına aktarılmaz.
+                </p>
+
+                <h2 class="h5">6. Haklarınız</h2>
+                <p>KVKK'nın 11. maddesi uyarınca veri sorumlusuna başvurarak:</p>
+                <ul>
+                    <li>kişisel verilerinizin işlenip işlenmediğini öğrenme ve işlenmişse buna ilişkin bilgi talep etme,</li>
+                    <li>işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+                    <li>aktarıldığı üçüncü kişileri bilme,</li>
+                    <li>eksik veya yanlış işlenmişse düzeltilmesini, işlenme sebepleri ortadan kalkmışsa silinmesini veya yok edilmesini isteme,</li>
+                    <li>bu işlemlerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+                    <li>otomatik sistemlerle analiz edilmesi sonucu aleyhinize bir sonuç çıkmasına itiraz etme,</li>
+                    <li>kanuna aykırı işleme nedeniyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>
+                </ul>
+                <p class="mb-0">
+                    haklarına sahipsiniz. Başvurularınızı
+                    @if (!string.IsNullOrEmpty(kvkk.ContactEmail))
+                    {
+                        <span><a href="mailto:@kvkk.ContactEmail">@kvkk.ContactEmail</a> adresine</span>
+                    }
+                    else
+                    {
+                        <span>şirketinizin BT ekibine</span>
+                    }
+                    iletebilirsiniz. Başvurular en geç 30 gün içinde ücretsiz olarak sonuçlandırılır.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

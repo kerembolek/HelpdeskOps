@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.Kvkk;
+using Microsoft.Extensions.Options;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
@@ -28,13 +30,15 @@ public class RegisterModel : PageModel
     private readonly IUserEmailStore<ApplicationUser> _emailStore;
     private readonly ILogger<RegisterModel> _logger;
     private readonly IEmailSender _emailSender;
+    private readonly KvkkOptions _kvkk;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
         IUserStore<ApplicationUser> userStore,
         SignInManager<ApplicationUser> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IOptions<KvkkOptions> kvkk)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -42,6 +46,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _kvkk = kvkk.Value;
     }
 
     /// <summary>
@@ -108,6 +113,9 @@ public class RegisterModel : PageModel
             user.FirstName = Input.FirstName;
             user.LastName = Input.LastName;
             user.Department = Input.Department;
+            // The form states that registering confirms reading the privacy notice it links to
+            user.PrivacyNoticeVersion = _kvkk.NoticeVersion;
+            user.PrivacyNoticeReadAt = DateTime.UtcNow;
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

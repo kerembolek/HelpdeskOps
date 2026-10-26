@@ -53,6 +53,9 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options => options.Val
 
 builder.Services.AddSingleton<HelpdeskOps.Services.AttachmentStorage>();
 
+// KVKK: data controller details for the privacy notice
+builder.Services.Configure<HelpdeskOps.Services.Kvkk.KvkkOptions>(builder.Configuration.GetSection(HelpdeskOps.Services.Kvkk.KvkkOptions.SectionName));
+
 // Keep data protection keys on disk so sign-in cookies survive app pool recycles on shared hosting
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys")));

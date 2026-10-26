@@ -75,6 +75,13 @@ namespace HelpdeskOps.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("PrivacyNoticeReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PrivacyNoticeVersion")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
