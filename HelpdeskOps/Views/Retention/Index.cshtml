@@ -1,0 +1,96 @@
+@model RetentionViewModel
+@{
+    ViewData["Title"] = "Saklama Süreleri";
+    var totalDue = Model.Rules.Sum(r => r.Due);
+}
+
+<h1><i class="bi bi-hourglass-split text-primary me-2"></i>@ViewData["Title"]</h1>
+<p class="text-muted">
+    KVKK gereği kişisel veriler, işlenme amacının gerektirdiği süre kadar saklanır. Aşağıdaki kurallar her gün otomatik uygulanır;
+    süreler <code>appsettings.json</code> içindeki <code>Kvkk:Retention</code> bölümünden değiştirilir (0 kuralı kapatır).
+</p>
+
+@if (TempData["RetentionMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Veri</th>
+            <th>Saklama Süresi</th>
+            <th>Süre Dolunca</th>
+            <th class="text-end">Şu An Süresi Dolan</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var (rule, due) in Model.Rules)
+        {
+            <tr>
+                <td class="fw-semibold">@rule.Name</td>
+                <td class="text-nowrap">
+                    @if (rule.Days > 0)
+                    {
+                        @RetentionPeriod.Format(rule.Days)
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary">Kapalı</span>
+                    }
+                </td>
+                <td class="small">@rule.WhatHappens</td>
+                <td class="text-end">
+                    @if (due > 0)
+                    {
+                        <span class="badge text-bg-warning">@due</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">0</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form asp-action="Run" method="post" class="mb-4">
+    <button type="submit" class="btn @(totalDue > 0 ? "btn-primary" : "btn-outline-primary")">
+        <i class="bi bi-play-circle me-1"></i>Şimdi Uygula
+    </button>
+    <span class="text-muted small ms-2">Günlük çalışmayı beklemeden süresi dolan verileri hemen siler. İşlem denetim kaydına yazılır.</span>
+</form>
+
+<h2 class="h5">Son Çalışmalar</h2>
+@if (Model.RecentRuns.Count == 0)
+{
+    <div class="alert alert-info">Henüz süresi dolan veri silinmedi.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Tarih</th>
+                <th>Çalıştıran</th>
+                <th>Yapılanlar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var run in Model.RecentRuns)
+            {
+                <tr>
+                    <td class="text-nowrap">@run.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@(run.UserName ?? "Sistem (günlük)")</td>
+                    <td class="small">
+                        @foreach (var change in AuditListViewModel.ChangesOf(run))
+                        {
+                            <div>@change.Field: @change.New</div>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
