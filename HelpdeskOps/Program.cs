@@ -53,10 +53,12 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options => options.Val
 
 builder.Services.AddSingleton<HelpdeskOps.Services.AttachmentStorage>();
 
-// KVKK: data controller details for the privacy notice, personal data export, and anonymization
+// KVKK: data controller details for the privacy notice, personal data export, anonymization, and daily retention
 builder.Services.Configure<HelpdeskOps.Services.Kvkk.KvkkOptions>(builder.Configuration.GetSection(HelpdeskOps.Services.Kvkk.KvkkOptions.SectionName));
 builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.PersonalDataExporter>();
 builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.PersonalDataAnonymizer>();
+builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.RetentionCleaner>();
+builder.Services.AddHostedService<HelpdeskOps.Services.Kvkk.RetentionService>();
 
 // Keep data protection keys on disk so sign-in cookies survive app pool recycles on shared hosting
 builder.Services.AddDataProtection()

@@ -25,7 +25,9 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["SolutionArticle"] = "Çözüm Makalesi",
         ["TicketAttachment"] = "Talep Eki",
         ["ApplicationUser"] = "Kullanıcı",
-        ["UserRole"] = "Kullanıcı Rolü"
+        ["UserRole"] = "Kullanıcı Rolü",
+        // Not a record type: the summary RetentionCleaner writes after deleting expired personal data
+        ["Retention"] = "Saklama Süresi"
     };
 
     // Housekeeping values that change on their own or mean nothing to a reader

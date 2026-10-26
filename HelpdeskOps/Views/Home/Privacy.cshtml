@@ -79,7 +79,32 @@
                     sunucusunda çalışır ve verileriniz yurt dışına aktarılmaz.
                 </p>
 
-                <h2 class="h5">6. Haklarınız</h2>
+                <h2 class="h5">6. Saklama süreleri</h2>
+                <p>
+                    Verileriniz, işlenme amacının gerektirdiği süre kadar saklanır. Hesap bilgileriniz ve talepleriniz siz şirkette çalıştığınız
+                    sürece tutulur; ayrıldığınızda hesabınız anonimleştirilir. Aşağıdaki süreler dolunca veriler her gün otomatik olarak silinir:
+                </p>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Veri</th>
+                            <th>Süre</th>
+                            <th>Süre dolunca</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var rule in HelpdeskOps.Services.Kvkk.RetentionCleaner.Rules(kvkk.Retention).Where(r => r.Days > 0))
+                        {
+                            <tr>
+                                <td>@rule.Name</td>
+                                <td class="text-nowrap">@RetentionPeriod.Format(rule.Days)</td>
+                                <td class="small">@rule.WhatHappens</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <h2 class="h5">7. Haklarınız</h2>
                 <p>KVKK'nın 11. maddesi uyarınca veri sorumlusuna başvurarak:</p>
                 <ul>
                     <li>kişisel verilerinizin işlenip işlenmediğini öğrenme ve işlenmişse buna ilişkin bilgi talep etme,</li>

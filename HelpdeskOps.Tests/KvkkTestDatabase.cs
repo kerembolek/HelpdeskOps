@@ -83,7 +83,7 @@ public abstract class KvkkTestDatabase : IDisposable
         Context.ChangeTracker.Clear();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         Context.Dispose();
         _connection.Dispose();
