@@ -42,6 +42,10 @@
                 <label asp-for="Input.ConfirmPassword"></label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+            <p class="small text-muted">
+                Kayıt olarak, kişisel verilerinizin nasıl işlendiğini anlatan
+                <a asp-area="" asp-controller="Home" asp-action="Privacy" target="_blank">KVKK Aydınlatma Metni</a>'ni okuduğunuzu onaylarsınız.
+            </p>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Kayıt Ol</button>
         </form>
     </div>

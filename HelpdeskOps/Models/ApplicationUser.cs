@@ -17,6 +17,13 @@ namespace HelpdeskOps.Models
         [Display(Name = "Departman")]
         public string? Department { get; set; }
 
+        // The privacy notice version the user last confirmed reading, and when; proof that they were informed under KVKK
+        [StringLength(20)]
+        [Display(Name = "Aydınlatma Metni Sürümü")]
+        public string? PrivacyNoticeVersion { get; set; }
+
+        [Display(Name = "Aydınlatma Metni Okunma Tarihi")]
+        public DateTime? PrivacyNoticeReadAt { get; set; }
 
         public ICollection<Device> AssignedDevices { get; set; } = new List<Device>();
         public ICollection<Ticket> RequestedTickets { get; set; } = new List<Ticket>();

@@ -103,6 +103,10 @@
                 <span>@demoMessage</span>
             </div>
         }
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            @await Component.InvokeAsync("PrivacyNotice")
+        }
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -110,7 +114,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - HelpdeskOps - <a asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik</a>
+            &copy; 2026 - HelpdeskOps - <a asp-area="" asp-controller="Home" asp-action="Privacy">KVKK Aydınlatma Metni</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
