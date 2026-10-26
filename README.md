@@ -70,7 +70,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, and the read-only demo middleware
+- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, the audit log, and the KVKK export, anonymization, and retention rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -97,7 +97,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] E-mail: every in-app notification is also e-mailed, password reset and e-mail confirmation work, all in Turkish (SMTP, or `.eml` files locally)
 - [x] Account security: 15-minute lockout after 5 wrong passwords (IT can unlock from the user list), two-factor sign-in with an authenticator app (QR code and recovery codes), passwords of at least 10 characters, and a Turkish "Hesabım" page
 - [x] Audit log: every change to devices, tickets, zimmet forms, articles, attachments, users, and roles is recorded automatically with who, when, IP address, and old and new values (password hashes never stored), on a filterable, paged IT page
-- [ ] KVKK: privacy notice, retention periods, and export or deletion of a person's data
+- [x] KVKK: a Turkish privacy notice (aydınlatma metni) with recorded reading, a personal data download in "Hesabım" and for IT, anonymization of former employees that keeps tickets and zimmet forms, and daily retention periods for notifications, attachments, audit log entries and IP addresses, and zimmet form signatures
 - [ ] Paging and faster lists for thousands of devices and tickets
 - [ ] Self-hosted install guide (IIS and Docker) with a backup plan
 
@@ -118,7 +118,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list. Every item on the current roadmap is implemented.
+Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list. For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day.
 
 ---
 
@@ -182,6 +182,30 @@ The `Email` settings section picks how mail goes out. `Mode` is `None` (default,
 ```
 
 Mail is queued and sent in the background, so a slow or failing mail server never slows down a page. Every in-app notification is also mailed to its recipient. With `Smtp`, new accounts must confirm their e-mail address before signing in, and the sign-in page offers password reset.
+
+### KVKK
+
+The `Kvkk` settings section holds the data controller details shown on the privacy notice and the retention periods in days (0 turns a rule off). Raise `NoticeVersion` whenever the notice text changes, so every user is asked to read it again:
+
+```json
+{
+  "Kvkk": {
+    "NoticeVersion": "2026-10",
+    "ControllerName": "Örnek Teknoloji A.Ş.",
+    "ControllerAddress": "...",
+    "ContactEmail": "kvkk@example.com",
+    "Retention": {
+      "NotificationDays": 180,
+      "AttachmentDays": 730,
+      "AuditIpAddressDays": 730,
+      "AuditLogDays": 3650,
+      "AssignmentFormDays": 3650
+    }
+  }
+}
+```
+
+The privacy notice text is a starting point, not legal advice; have it reviewed before going live. The retention rules run a minute after startup and then daily (not on the read-only demo), and IT can run them from the "Saklama Süreleri" page.
 
 ### Demo Accounts
 

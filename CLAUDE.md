@@ -37,4 +37,4 @@ IT inventory and helpdesk ticketing system: ASP.NET Core MVC (.NET 10), EF Core 
 - `docs/USER_GUIDE_TR.md` has screenshots. Update it when the UI changes visibly; batching at milestones is fine.
 
 ## Open items
-- None. `docs/USER_GUIDE_TR.md` covers every screen as of 2026-10-23; screenshots are 800px wide PNGs in `docs/images`.
+- None. `docs/USER_GUIDE_TR.md` covers every screen as of 2026-10-26; screenshots are 800x544 PNGs (a 1280x870 page scaled down) in `docs/images`.
