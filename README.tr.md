@@ -70,7 +70,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını ve salt okunur demo ara katmanını kapsayan xUnit test projesi
+- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -97,7 +97,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] E-posta: uygulama içi her bildirim e-postayla da gider, şifre sıfırlama ve e-posta doğrulama çalışır, hepsi Türkçe (SMTP ya da yerelde `.eml` dosyaları)
 - [x] Hesap güvenliği: 5 hatalı şifrede 15 dakikalık kilit (BT kullanıcı listesinden kilidi açabilir), doğrulama uygulamasıyla iki adımlı giriş (QR kod ve kurtarma kodları), en az 10 karakterlik şifreler ve Türkçe "Hesabım" sayfası
 - [x] Denetim kaydı: cihaz, talep, zimmet formu, makale, ek, kullanıcı ve rollerdeki her değişiklik kim, ne zaman, hangi IP adresinden ve eski ile yeni değerleriyle otomatik kaydedilir (şifre hash'i asla saklanmaz); BT için filtrelenebilir, sayfalı bir ekran
-- [ ] KVKK: aydınlatma metni, saklama süreleri, kişisel verilerin dışa aktarılması ve silinmesi
+- [x] KVKK: okunduğu kaydedilen Türkçe aydınlatma metni, "Hesabım"da ve BT için kişisel veri indirme, talepleri ve zimmet formlarını koruyarak ayrılan çalışanın anonimleştirilmesi; bildirimler, ekler, denetim kaydı ve IP adresleri ile zimmet formu imzaları için her gün uygulanan saklama süreleri
 - [ ] Binlerce cihaz ve talep için sayfalama ve daha hızlı listeler
 - [ ] Kendi sunucusuna kurulum rehberi (IIS ve Docker) ve yedekleme planı
 
@@ -118,7 +118,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. Mevcut yol haritasındaki tüm maddeler tamamlandı.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor.
 
 ---
 
@@ -182,6 +182,30 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
 ```
 
 E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan bir e-posta sunucusu sayfaları yavaşlatmaz. Uygulama içi her bildirim alıcısına e-postayla da gider. `Smtp` modunda yeni hesapların giriş yapmadan önce e-posta adresini doğrulaması gerekir ve giriş sayfasında şifre sıfırlama bağlantısı görünür.
+
+### KVKK
+
+`Kvkk` ayar bölümü, aydınlatma metninde görünen veri sorumlusu bilgilerini ve gün cinsinden saklama sürelerini tutar (0 kuralı kapatır). Metin her değiştiğinde `NoticeVersion` değerini yükseltin; böylece tüm kullanıcılardan metni yeniden onaylamaları istenir:
+
+```json
+{
+  "Kvkk": {
+    "NoticeVersion": "2026-10",
+    "ControllerName": "Örnek Teknoloji A.Ş.",
+    "ControllerAddress": "...",
+    "ContactEmail": "kvkk@example.com",
+    "Retention": {
+      "NotificationDays": 180,
+      "AttachmentDays": 730,
+      "AuditIpAddressDays": 730,
+      "AuditLogDays": 3650,
+      "AssignmentFormDays": 3650
+    }
+  }
+}
+```
+
+Aydınlatma metni bir başlangıç şablonudur, hukuki görüş değildir; canlıya almadan önce bir hukukçuya kontrol ettirin. Saklama kuralları uygulama açıldıktan bir dakika sonra ve ardından her gün çalışır (salt okunur demoda çalışmaz); BT bunları "Saklama Süreleri" sayfasından elle de çalıştırabilir.
 
 ### Demo Hesaplar
 

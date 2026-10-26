@@ -16,6 +16,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 10. [Kullanıcılar](#10-kullanıcılar)
 11. [Hesabım ve Güvenlik](#11-hesabım-ve-güvenlik)
 12. [Denetim Kaydı](#12-denetim-kaydı)
+13. [KVKK ve Kişisel Veriler](#13-kvkk-ve-kişisel-veriler)
 
 ## 1. Giriş ve Roller
 
@@ -255,6 +256,8 @@ Bir kullanıcının rolü, satırındaki listeden yeni rol seçilip **Kaydet** d
 - BT personeli rolünden çıkarılan kişinin aktif talepleri atanmamış taleplere alınır ve her talebin geçmişine kaydedilir.
 - Rol değişikliği, kullanıcının açık oturumunda en geç bir dakika içinde geçerli olur.
 
+**KVKK** sütunundaki düğmeler kişinin verilerini indirir ve ayrılan çalışanı anonimleştirir (bkz. [13. KVKK ve Kişisel Veriler](#13-kvkk-ve-kişisel-veriler)).
+
 Üst üste 5 kez hatalı şifre giren kullanıcının hesabı 15 dakikalığına kilitlenir ve listede **Kilitli** rozetiyle görünür. Telefonla arayan bir çalışan için **Kilidi aç** bağlantısı kilidi hemen kaldırır. İki adımlı doğrulamayı açmış kullanıcıların adının yanında **2FA** rozeti görünür.
 
 ## 11. Hesabım ve Güvenlik
@@ -264,6 +267,7 @@ Sağ üstteki kişi ikonundan **Hesabım** sayfası açılır (salt okunur demo 
 - **Profil**: e-posta ve telefon bilgisi.
 - **Şifre**: mevcut şifreyle yeni şifre belirlenir. Şifre en az 10 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.
 - **İki Adımlı Doğrulama**: girişte şifrenin yanında telefondaki doğrulama uygulamasının ürettiği 6 haneli kod da istenir.
+- **Kişisel Verilerim**: sizinle ilgili tutulan verileri indirme (bkz. [13.2](#132-kişisel-verilerim)).
 
 ![İki Adımlı Doğrulama Kurulumu](images/19-two-factor.png)
 
@@ -278,7 +282,7 @@ Bu sayfadan kurtarma kodları yenilenebilir, uygulama anahtarı sıfırlanabilir
 
 ## 12. Denetim Kaydı
 
-**Denetim Kaydı** yalnızca BT personeline açıktır ve kişi ikonundaki menüden açılır. Cihaz, talep, zimmet formu, çözüm makalesi, talep eki, kullanıcı ve rol değişikliklerinin her biri otomatik kaydedilir; kayıtlar değiştirilemez.
+**Denetim Kaydı** yalnızca BT personeline açıktır ve kişi ikonundaki menüden açılır. Cihaz, talep, zimmet formu, çözüm makalesi, talep eki, kullanıcı ve rol değişikliklerinin her biri otomatik kaydedilir; kayıtlar elle değiştirilemez. Yalnızca KVKK işlemleri (anonimleştirme ve saklama süreleri) kayıtlardaki kişisel bilgileri temizler.
 
 ![Denetim Kaydı](images/20-audit-log.png)
 
@@ -286,3 +290,61 @@ Bu sayfadan kurtarma kodları yenilenebilir, uygulama anahtarı sıfırlanabilir
 - Şifre değişiklikleri yalnızca "değiştirildi" olarak görünür; şifrenin kendisi ya da hash'i hiçbir zaman kaydedilmez.
 - Arama kutusu kişi, kayıt adı ve değerlerde arar; kayıt türü ve tarih aralığıyla süzülebilir. Liste sayfa başına 50 kayıt gösterir.
 - Cihaz ve talep ayrıntı sayfalarındaki **Denetim Kaydı** düğmesi yalnızca o kaydın geçmişini açar.
+- KVKK kapsamında yapılan veri indirmeleri **Dışa Aktarıldı** işlemiyle, günlük saklama süresi temizliği **Saklama Süresi** kayıt türüyle görünür.
+
+## 13. KVKK ve Kişisel Veriler
+
+HelpdeskOps, 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) için dört araç sunar: aydınlatma metni, kişinin kendi verilerini indirmesi, ayrılan çalışanın anonimleştirilmesi ve saklama sürelerinin otomatik uygulanması.
+
+### 13.1 Aydınlatma Metni
+
+Sayfanın altındaki ve giriş sayfasındaki **KVKK Aydınlatma Metni** bağlantısı, giriş yapmadan da okunabilen metni açar. Metin veri sorumlusunu, işlenen verileri, amaçları, hukuki sebepleri, aktarımı, saklama sürelerini ve KVKK'nın 11. maddesindeki hakları anlatır.
+
+![KVKK Aydınlatma Metni](images/21-privacy-notice.png)
+
+- Giriş yapan kullanıcı metnin güncel sürümünü onaylayana kadar sayfaların üstünde mavi bir uyarı görür. **Okudum, anladım** düğmesi onay tarihini kaydeder; bu kayıt, şirketin aydınlatma yükümlülüğünü yerine getirdiğinin kanıtıdır.
+- Kayıt formu metne bağlantı verir; kayıt olan kişinin onayı otomatik kaydedilir.
+- Şirket adı, adresi, başvuru e-postası ve metin sürümü `appsettings.json` içindeki `Kvkk` bölümünden değiştirilir. Sürüm yükseltildiğinde herkesten metni yeniden onaylaması istenir.
+
+### 13.2 Kişisel Verilerim
+
+**Hesabım → Kişisel Verilerim** sayfasındaki **Verilerimi İndir (JSON)** düğmesi, sizinle ilgili tutulan her şeyi tek bir dosyada indirir: hesap bilgileri, açtığınız ve size atanan talepler, yorumlarınız, yüklediğiniz dosyaların listesi, zimmetli cihazlarınız, zimmet formlarınız, bildirimleriniz ve denetim kaydındaki işlemleriniz. Şifre özeti, doğrulama anahtarı ve imza görüntüleri dosyaya konmaz.
+
+![Kişisel Verilerim](images/22-personal-data.png)
+
+Talepler ve zimmet formları şirket kayıtları olduğu için kullanıcı hesabını kendisi silemez. Silme talepleri BT ekibine iletilir.
+
+### 13.3 Kullanıcıyı Anonimleştirme (BT)
+
+Şirketten ayrılan ya da silme talebinde bulunan bir çalışan için BT personeli, **Kullanıcılar** sayfasındaki KVKK sütunundan iki işlem yapabilir:
+
+- **İndirme düğmesi**: kişinin verilerini, kendisinin indirebildiği dosyayla aynı biçimde indirir. Başvuruya cevap verirken kullanılır.
+- **Anonimleştir düğmesi**: onay sayfasını açar. Sayfa nelerin silineceğini ve nelerin kalacağını listeler.
+
+![Kullanıcıyı Anonimleştir](images/23-anonymize.png)
+
+Anonimleştirme geri alınamaz:
+
+- Ad, soyad, e-posta, telefon ve departman silinir. Hesap "Silinmiş Kullanıcı" adını alır, kalıcı olarak kilitlenir ve açık oturumları kapanır. Rolleri, iki adımlı doğrulaması ve bildirimleri silinir.
+- Talepler, yorumlar ve talep geçmişi "Silinmiş Kullanıcı" adıyla kalır. Denetim kaydındaki IP adresleri ile kişinin adının ve e-postasının geçtiği yerler temizlenir.
+- Zimmet formları cihaz teslimini kanıtladıkları için adı ve imzasıyla saklanır; saklama süresi dolunca bu bilgiler otomatik silinir.
+- Kişinin üzerinde cihaz, iade edilmemiş zimmet formu ya da aktif talep varsa işlem yapılmaz; sayfa önce ne yapılması gerektiğini söyler. Kimse kendi hesabını anonimleştiremez.
+- Anonimleştirilmiş kullanıcı listede **Anonimleştirildi** rozetiyle görünür ve cihaz atama ya da talep açma listelerinde çıkmaz.
+
+### 13.4 Saklama Süreleri (BT)
+
+Kişi ikonundaki menüden açılan **Saklama Süreleri** sayfası, kişisel verilerin ne kadar saklanacağını gösterir. Kurallar her gün otomatik uygulanır:
+
+| Veri | Süre | Süre dolunca |
+| --- | --- | --- |
+| Bildirimler | 6 ay | Silinir |
+| Talep ekleri | 2 yıl (talep çözüldükten veya kapatıldıktan sonra) | Dosyalar silinir, talep kalır |
+| Denetim kaydı IP adresleri | 2 yıl | IP adresi silinir, kayıt kalır |
+| Denetim kaydı | 10 yıl | Kayıt silinir |
+| Zimmet formları | 10 yıl (iadeden sonra) | Ad, departman, açıklama ve imzalar silinir; cihaz bilgileri kalır |
+
+![Saklama Süreleri](images/24-retention.png)
+
+- **Şu An Süresi Dolan** sütunu, bir sonraki çalışmada silinecek kayıt sayısını gösterir. **Şimdi Uygula** düğmesi günlük çalışmayı beklemeden kuralları hemen uygular.
+- **Son Çalışmalar** tablosu her çalışmada neyin silindiğini gösterir; aynı bilgi denetim kaydına da yazılır.
+- Süreler `appsettings.json` içindeki `Kvkk:Retention` bölümünden gün olarak değiştirilir; 0 o kuralı kapatır. Aydınlatma metnindeki tablo aynı ayarlardan oluşur.
