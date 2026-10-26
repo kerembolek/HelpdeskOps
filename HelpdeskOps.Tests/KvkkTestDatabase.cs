@@ -4,6 +4,8 @@ using HelpdeskOps.Models.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Text.Json;
 
 namespace HelpdeskOps.Tests;
 
@@ -14,10 +16,11 @@ public abstract class KvkkTestDatabase : IDisposable
     private readonly SqliteConnection _connection = new("DataSource=:memory:");
     protected readonly ApplicationDbContext Context;
 
-    protected KvkkTestDatabase()
+    protected KvkkTestDatabase(params IInterceptor[] interceptors)
     {
         _connection.Open();
-        Context = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>().UseSqlite(_connection).Options);
+        Context = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(_connection).AddInterceptors(interceptors).Options);
         Context.Database.EnsureCreated();
 
         Context.Roles.Add(new IdentityRole("Employee") { Id = "role-emp", NormalizedName = "EMPLOYEE" });
@@ -72,7 +75,8 @@ public abstract class KvkkTestDatabase : IDisposable
         {
             UserId = "it-1", UserName = "it@x.com", IpAddress = "10.0.0.7", Action = AuditAction.Updated,
             EntityType = "Device", EntityId = "1", EntityLabel = "PC-01",
-            Changes = "[{\"Field\":\"Zimmetli Kullanıcı\",\"Old\":null,\"New\":\"Onur Güçlü\"}]"
+            // Serialized the way AuditInterceptor does, with "ü" and "ç" escaped
+            Changes = JsonSerializer.Serialize(new[] { new AuditChange("Zimmetli Kullanıcı", null, "Onur Güçlü") })
         });
 
         Context.SaveChanges();
