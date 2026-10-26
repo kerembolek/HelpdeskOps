@@ -43,6 +43,15 @@ public class DurationFormatTests
     {
         Assert.Equal(expected, DurationFormat.FromMinutes(minutes));
     }
+
+    [Theory]
+    [InlineData(0, "0 dk")]
+    [InlineData(59.4, "59 dk")]
+    [InlineData(59.6, "1 saat")]
+    public void FromMinutes_RoundsToWholeMinutes(double minutes, string expected)
+    {
+        Assert.Equal(expected, DurationFormat.FromMinutes(minutes));
+    }
 }
 
 public class DeviceTests
