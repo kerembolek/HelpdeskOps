@@ -37,4 +37,11 @@ jobs:
         run: dotnet build HelpdeskOps.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test HelpdeskOps.slnx --configuration Release --no-build --verbosity normal
+        run: dotnet test HelpdeskOps.slnx --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
