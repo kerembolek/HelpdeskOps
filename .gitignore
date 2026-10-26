@@ -367,3 +367,7 @@ App_Data/
 
 # Production settings hold the hosted database connection string; they stay on this machine only
 appsettings.Production.json
+
+# Docker install: secrets and database backups stay on the server
+.env
+backups/

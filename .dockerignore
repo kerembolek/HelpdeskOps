@@ -1,0 +1,11 @@
+# Keep build output, local data, secrets, and Git history out of the image build
+**/bin/
+**/obj/
+**/App_Data/
+**/appsettings.Production.json
+**/*.user
+.git/
+.vs/
+publish/
+HelpdeskOps.Tests/
+docs/
