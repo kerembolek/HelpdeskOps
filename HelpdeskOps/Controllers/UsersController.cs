@@ -2,6 +2,7 @@ using System.Security.Claims;
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
+using HelpdeskOps.Services.Kvkk;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ public class UsersController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly PersonalDataExporter _exporter;
 
-    public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, PersonalDataExporter exporter)
     {
         _context = context;
         _userManager = userManager;
+        _exporter = exporter;
     }
 
     // GET: Users?q=&role=
@@ -164,5 +167,22 @@ public class UsersController : Controller
         TempData["UserMessage"] = $"{user.FirstName} {user.LastName} artık {AppRoles.DisplayName(role)}."
             + (released > 0 ? $" Üzerindeki {released} aktif talep atanmamış taleplere alındı." : "");
         return Back();
+    }
+
+    // POST: Users/ExportData/abc
+    // Everything kept about a person, for a KVKK request they made to the company; the audit log records the download
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ExportData(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var data = await _exporter.ExportAsync(user.Id);
+        await _exporter.RecordExportAsync(user.Id, HttpContext);
+        return File(data!, "application/json", PersonalDataExporter.FileName(user));
     }
 }

@@ -6,7 +6,9 @@ public enum AuditAction
 {
     [Display(Name = "Oluşturuldu")] Created,
     [Display(Name = "Değiştirildi")] Updated,
-    [Display(Name = "Silindi")] Deleted
+    [Display(Name = "Silindi")] Deleted,
+    // A person's data was downloaded for a KVKK request
+    [Display(Name = "Dışa Aktarıldı")] Exported
 }
 
 // One saved change to a device, ticket, zimmet form, article, attachment, user, or role, written automatically by

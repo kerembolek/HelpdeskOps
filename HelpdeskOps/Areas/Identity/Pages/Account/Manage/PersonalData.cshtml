@@ -1,27 +1,35 @@
 @page
 @model PersonalDataModel
 @{
-    ViewData["Title"] = "Personal Data";
+    ViewData["Title"] = "Kişisel Verilerim";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h3>@ViewData["Title"]</h3>
+<h2 class="h4">@ViewData["Title"]</h2>
+<p class="text-muted">
+    HelpdeskOps'ta sizinle ilgili tutulan verileri KVKK'nın 11. maddesi kapsamında buradan indirebilirsiniz. Neyin, hangi amaçla
+    işlendiğini <a asp-area="" asp-controller="Home" asp-action="Privacy">KVKK Aydınlatma Metni</a> anlatır.
+</p>
 
-<div class="row">
-    <div class="col-md-6">
-        <p>Your account contains personal data that you have given us. This page allows you to download or delete that data.</p>
-        <p>
-            <strong>Deleting this data will permanently remove your account, and this cannot be recovered.</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post">
-            <button class="btn btn-primary" type="submit">Download</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-danger">Delete</a>
-        </p>
-    </div>
-</div>
+<h3 class="h6 mt-4">Verilerimi indir</h3>
+<p class="small">
+    Hesap bilgileriniz, açtığınız talepler, yorumlarınız, yüklediğiniz dosyaların listesi, zimmetli cihazlarınız, zimmet formlarınız,
+    bildirimleriniz ve denetim kaydındaki işlemleriniz tek bir JSON dosyasında iner. İndirme işlemi denetim kaydına yazılır.
+</p>
+<form id="download-data" asp-page="DownloadPersonalData" method="post">
+    <button class="btn btn-primary" type="submit"><i class="bi bi-download me-1"></i>Verilerimi İndir (JSON)</button>
+</form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+<h3 class="h6 mt-4">Düzeltme ve silme</h3>
+<p class="small mb-1">
+    Adınızı, soyadınızı ve departmanınızı <a asp-page="./Index">Profil</a> sayfasından düzeltebilirsiniz.
+</p>
+<p class="small mb-0">
+    Talepleriniz ve zimmet formlarınız şirket kayıtlarıdır, bu yüzden hesabınızı kendiniz silemezsiniz. Şirketten ayrıldığınızda
+    ya da silme talebinde bulunduğunuzda BT ekibi hesabınızı anonimleştirir: adınız, e-postanız ve iletişim bilgileriniz silinir,
+    kayıtlar "Silinmiş Kullanıcı" adıyla kalır.
+    @if (!string.IsNullOrEmpty(Model.ContactEmail))
+    {
+        <span>Başvuru adresi: <a href="mailto:@Model.ContactEmail">@Model.ContactEmail</a></span>
+    }
+</p>
