@@ -31,8 +31,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Server=db;Database=HelpdeskOps;User Id=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=True"
-      # Behind a reverse proxy that terminates HTTPS, so sign-in cookies, redirects, and audit IP addresses are right
-      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      # Only behind a reverse proxy that terminates HTTPS: then cookies, redirects, and audit IP addresses use the real
+      # client. Left off otherwise, because anyone reaching the app directly could fake their IP address in the audit log.
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: ${BEHIND_PROXY:-false}
       TZ: Europe/Istanbul
       # Keep the SQL text of every query out of the logs
       Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command: Warning
