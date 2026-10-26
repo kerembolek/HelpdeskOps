@@ -1,31 +1,25 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.Kvkk;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account.Manage;
 
+// Sends the signed-in user everything HelpdeskOps keeps about them, instead of Identity's default file with only the account fields
 public class DownloadPersonalDataModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ILogger<DownloadPersonalDataModel> _logger;
+    private readonly PersonalDataExporter _exporter;
 
-    public DownloadPersonalDataModel(
-        UserManager<ApplicationUser> userManager,
-        ILogger<DownloadPersonalDataModel> logger)
+    public DownloadPersonalDataModel(UserManager<ApplicationUser> userManager, PersonalDataExporter exporter)
     {
         _userManager = userManager;
-        _logger = logger;
+        _exporter = exporter;
     }
 
     public IActionResult OnGet()
@@ -41,26 +35,8 @@ public class DownloadPersonalDataModel : PageModel
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
         }
 
-        _logger.LogInformation("User with ID '{UserId}' asked for their personal data.", _userManager.GetUserId(User));
-
-        // Only include personal data for download
-        var personalData = new Dictionary<string, string?>();
-        var personalDataProps = typeof(ApplicationUser).GetProperties().Where(
-                        prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
-        foreach (var p in personalDataProps)
-        {
-            personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
-        }
-
-        var logins = await _userManager.GetLoginsAsync(user);
-        foreach (var l in logins)
-        {
-            personalData.Add($"{l.LoginProvider} external login provider key", l.ProviderKey);
-        }
-
-        personalData.Add($"Authenticator Key", await _userManager.GetAuthenticatorKeyAsync(user));
-
-        Response.Headers.TryAdd("Content-Disposition", "attachment; filename=PersonalData.json");
-        return new FileContentResult(JsonSerializer.SerializeToUtf8Bytes(personalData), "application/json");
+        var data = await _exporter.ExportAsync(user.Id);
+        await _exporter.RecordExportAsync(user.Id, HttpContext);
+        return File(data!, "application/json", PersonalDataExporter.FileName(user));
     }
 }

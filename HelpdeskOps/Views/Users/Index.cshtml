@@ -61,6 +61,7 @@ else
                 <th>Rol</th>
                 <th class="text-end">Zimmetli Cihaz</th>
                 <th class="text-end">Üzerindeki Aktif Talep</th>
+                <th class="text-end">KVKK</th>
             </tr>
         </thead>
         <tbody>
@@ -109,6 +110,13 @@ else
                     </td>
                     <td class="text-end">@user.DeviceCount</td>
                     <td class="text-end">@user.ActiveTicketCount</td>
+                    <td class="text-end text-nowrap">
+                        <form asp-action="ExportData" asp-route-id="@user.Id" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Kişisel verilerini JSON olarak indir">
+                                <i class="bi bi-download"></i> Veriler
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
