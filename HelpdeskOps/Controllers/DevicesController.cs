@@ -205,11 +205,11 @@ public class DevicesController : Controller
             .ToList();
     }
 
-    // GET: DEVICES/Index?warranty=
+    // GET: DEVICES/Index?warranty=&page=2
     // warranty: "expiring" (ends within WarrantyExpiringSoonDays) or "expired"; retired devices are left out of both
-    public async Task<IActionResult> Index(string? warranty)
+    public async Task<IActionResult> Index(string? warranty, int page = 1)
     {
-        var devices = _context.Devices.Include(d => d.AssignedUser).AsQueryable();
+        var devices = _context.Devices.AsNoTracking().Include(d => d.AssignedUser).AsQueryable();
         var today = TurkeyTime.Today;
 
         switch (warranty)
@@ -218,15 +218,15 @@ public class DevicesController : Controller
                 var soon = today.AddDays(Device.WarrantyExpiringSoonDays);
                 devices = devices.Where(d => d.Status != DeviceStatus.Retired
                     && d.WarrantyEndDate >= today && d.WarrantyEndDate <= soon)
-                    .OrderBy(d => d.WarrantyEndDate);
+                    .OrderBy(d => d.WarrantyEndDate).ThenBy(d => d.Id);
                 break;
             case "expired":
                 devices = devices.Where(d => d.Status != DeviceStatus.Retired && d.WarrantyEndDate < today)
-                    .OrderByDescending(d => d.WarrantyEndDate);
+                    .OrderByDescending(d => d.WarrantyEndDate).ThenBy(d => d.Id);
                 break;
             default:
                 warranty = null;
-                devices = devices.OrderBy(d => d.Hostname);
+                devices = devices.OrderBy(d => d.Hostname).ThenBy(d => d.Id);
                 break;
         }
 
@@ -236,8 +236,10 @@ public class DevicesController : Controller
             .Where(f => f.ReturnRequestedAt != null && f.ReturnedAt == null)
             .OrderBy(f => f.ReturnRequestedAt)
             .ToListAsync();
-        return View(await devices.ToListAsync());
+        return View(await PagedList<Device>.CreateAsync(devices, page, PageSize));
     }
+
+    private const int PageSize = 25;
 
     private const int PingTimeoutMs = 1000;
     private const int PingBatchLimit = 100;
