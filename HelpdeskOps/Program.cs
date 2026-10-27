@@ -64,6 +64,9 @@ builder.Services.AddHostedService<HelpdeskOps.Services.Kvkk.RetentionService>();
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys")));
 
+builder.Services.Configure<HelpdeskOps.Services.Inventory.InventoryOptions>(builder.Configuration.GetSection(HelpdeskOps.Services.Inventory.InventoryOptions.SectionName));
+builder.Services.AddScoped<HelpdeskOps.Services.Inventory.InventoryImporter>();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -41,6 +41,7 @@ services:
       Kvkk__ControllerName: ${KVKK_CONTROLLER_NAME:?Set KVKK_CONTROLLER_NAME in .env}
       Kvkk__ControllerAddress: ${KVKK_CONTROLLER_ADDRESS:-}
       Kvkk__ContactEmail: ${KVKK_CONTACT_EMAIL:-}
+      Inventory__ApiKey: ${INVENTORY_API_KEY:-}
       Email__Mode: ${EMAIL_MODE:-None}
       Email__Host: ${SMTP_HOST:-}
       Email__Port: ${SMTP_PORT:-587}
