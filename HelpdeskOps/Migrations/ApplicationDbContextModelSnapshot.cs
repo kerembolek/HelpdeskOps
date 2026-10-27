@@ -17,7 +17,7 @@ namespace HelpdeskOps.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.13")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -277,6 +277,9 @@ namespace HelpdeskOps.Migrations
                     b.Property<int>("DeviceType")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DiskGb")
+                        .HasColumnType("int");
+
                     b.Property<string>("Hostname")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -285,14 +288,28 @@ namespace HelpdeskOps.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("LastInventoryAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("LastUpdated")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Model")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("OsVersion")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Processor")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTime?>("PurchaseDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("RamGb")
+                        .HasColumnType("int");
 
                     b.Property<string>("SerialNumber")
                         .IsRequired()

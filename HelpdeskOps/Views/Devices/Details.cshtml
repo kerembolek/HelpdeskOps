@@ -38,6 +38,20 @@
     <dt class="col-sm-3">Satın Alma Tarihi</dt>
     <dd class="col-sm-9">@(Model.PurchaseDate?.ToString("dd.MM.yyyy") ?? "-")</dd>
 
+    <dt class="col-sm-3">Donanım</dt>
+    <dd class="col-sm-9">
+        @if (Model.LastInventoryAt is DateTime inventoryAt)
+        {
+            <div>@(Model.Processor ?? "İşlemci bilinmiyor") · @(Model.RamGb?.ToString() ?? "?") GB RAM · @(Model.DiskGb?.ToString() ?? "?") GB disk</div>
+            <div>@Model.OsVersion</div>
+            <div class="small text-muted">Envanter ajanının son raporu: @inventoryAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</div>
+        }
+        else
+        {
+            <span class="text-muted">Envanter ajanından rapor gelmedi.</span>
+        }
+    </dd>
+
     <dt class="col-sm-3">Garanti Bitişi</dt>
     <dd class="col-sm-9"><partial name="_WarrantyBadge" model="Model" /></dd>
 

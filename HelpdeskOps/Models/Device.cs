@@ -87,6 +87,24 @@ namespace HelpdeskOps.Models
         // Devices patched into this switch (only used when DeviceType is Switch)
         public ICollection<Device> ConnectedDevices { get; set; } = new List<Device>();
 
+        // Hardware details reported by the inventory agent; server-owned, never bound from forms
+        [Display(Name = "İşlemci")]
+        [StringLength(100)]
+        public string? Processor { get; set; }
+
+        [Display(Name = "RAM (GB)")]
+        public int? RamGb { get; set; }
+
+        [Display(Name = "Disk (GB)")]
+        public int? DiskGb { get; set; }
+
+        [Display(Name = "İşletim Sistemi")]
+        [StringLength(100)]
+        public string? OsVersion { get; set; }
+
+        [Display(Name = "Son Envanter")]
+        public DateTime? LastInventoryAt { get; set; }
+
         // Remote Desktop only makes sense for computers
         public bool SupportsRemoteDesktop() => DeviceType is DeviceType.Laptop or DeviceType.Desktop;
 
