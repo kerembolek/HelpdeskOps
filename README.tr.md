@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
+- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -99,7 +99,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Hesap güvenliği: 5 hatalı şifrede 15 dakikalık kilit (BT kullanıcı listesinden kilidi açabilir), doğrulama uygulamasıyla iki adımlı giriş (QR kod ve kurtarma kodları), en az 10 karakterlik şifreler ve Türkçe "Hesabım" sayfası
 - [x] Denetim kaydı: cihaz, talep, zimmet formu, makale, ek, kullanıcı ve rollerdeki her değişiklik kim, ne zaman, hangi IP adresinden ve eski ile yeni değerleriyle otomatik kaydedilir (şifre hash'i asla saklanmaz); BT için filtrelenebilir, sayfalı bir ekran
 - [x] KVKK: okunduğu kaydedilen Türkçe aydınlatma metni, "Hesabım"da ve BT için kişisel veri indirme, talepleri ve zimmet formlarını koruyarak ayrılan çalışanın anonimleştirilmesi; bildirimler, ekler, denetim kaydı ve IP adresleri ile zimmet formu imzaları için her gün uygulanan saklama süreleri
-- [ ] Binlerce cihaz ve talep için sayfalama ve daha hızlı listeler
+- [x] Sayfalama ve daha hızlı listeler: cihaz, talep ve kullanıcı listeleri sayfa başına 25 kayıt (denetim kaydı 50) gösterir, yalnızca açılan sayfayı yükler ve arama ile filtreleri her sayfa bağlantısında korur
 - [x] Kendi sunucusuna kurulum rehberi (Docker Compose ve IIS): HTTPS, ayarlardan ilk BT yöneticisi ve ikisi için de denenmiş yedekleme ve geri yükleme betikleri
 
 ### 2. Aşama: Farklılaştıran özellikler
