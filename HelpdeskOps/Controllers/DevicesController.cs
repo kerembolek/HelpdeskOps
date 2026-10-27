@@ -278,6 +278,21 @@ public class DevicesController : Controller
         }
     }
 
+    // GET: DEVICES/Labels?ids=1&ids=2
+    // A printable sheet of QR stickers; without ids it prints every device that is still in use
+    public async Task<IActionResult> Labels([FromQuery] int[] ids)
+    {
+        var devices = _context.Devices.AsNoTracking();
+        devices = ids.Length > 0
+            ? devices.Where(d => ids.Contains(d.Id))
+            : devices.Where(d => d.Status != DeviceStatus.Retired);
+
+        var labels = (await devices.OrderBy(d => d.Hostname).ThenBy(d => d.Id).ToListAsync())
+            .Select(d => new DeviceLabel(d, QrCode.Svg(Url.Action("Device", "Scan", new { id = d.Id }, Request.Scheme)!)))
+            .ToList();
+        return View(labels);
+    }
+
     // GET: DEVICES/Rdp/5
     // Downloads a .rdp file; Windows opens it with Remote Desktop Connection
     public async Task<IActionResult> Rdp(int id)
