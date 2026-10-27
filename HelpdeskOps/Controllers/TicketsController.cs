@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity;
 [Authorize]
 public class TicketsController : Controller
 {
+    private const int PageSize = 25;
+
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AttachmentStorage _storage;
@@ -140,16 +142,17 @@ public class TicketsController : Controller
     // ITAdmin works on every ticket; Manager can read every ticket but not change it
     private bool CanSeeAllTickets() => User.IsInRole("ITAdmin") || User.IsInRole("Manager");
 
-    // GET: TICKETS/Index?q=&category=&status=&priority=&scope=
+    // GET: TICKETS/Index?q=&category=&status=&priority=&scope=&page=2
     // scope: "active" (open + in progress), "done" (resolved + closed), "overdue" (active and past the SLA target),
     // "mine" (ITAdmin only) and "unassigned" (ITAdmin and Manager; active and without an assignee)
-    public async Task<IActionResult> Index(string? q, TicketCategory? category, TicketStatus? status, TicketPriority? priority, string? scope)
+    public async Task<IActionResult> Index(string? q, TicketCategory? category, TicketStatus? status, TicketPriority? priority, string? scope, int page = 1)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var isAdmin = User.IsInRole("ITAdmin");
         var canSeeAll = CanSeeAllTickets();
 
         var query = _context.Tickets
+            .AsNoTracking()
             .Include(t => t.Device)
             .Include(t => t.Requester)
             .Include(t => t.AssignedTo)
@@ -212,7 +215,7 @@ public class TicketsController : Controller
         ViewBag.Scope = scope;
         ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || category != null || status != null || priority != null || scope != null;
 
-        return View(await query.OrderByDescending(t => t.CreatedAt).ToListAsync());
+        return View(await PagedList<Ticket>.CreateAsync(query.OrderByDescending(t => t.CreatedAt).ThenByDescending(t => t.Id), page, PageSize));
     }
 
     // GET: TICKETS/Details/5
