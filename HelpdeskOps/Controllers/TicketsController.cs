@@ -303,13 +303,33 @@ public class TicketsController : Controller
     }
 
     // GET: TICKETS/Create
-    // category and solutionId come from the Tier 0 solution bank ("Çözülmedi, talep aç")
-    public async Task<IActionResult> Create(TicketCategory? category, int? solutionId)
+    // category and solutionId come from the Tier 0 solution bank ("Çözülmedi, talep aç");
+    // deviceId comes from a scanned device sticker (/d/5)
+    public async Task<IActionResult> Create(TicketCategory? category, int? solutionId, int? deviceId)
     {
-        await LoadDevicesAsync();
+        await LoadDevicesAsync(deviceId);
         if (User.IsInRole("ITAdmin"))
         {
             await LoadRequestersAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+
+        var scanned = deviceId == null ? null
+            : await _context.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.Id == deviceId);
+        if (scanned != null)
+        {
+            // Employees may only pick their own devices, so a shared printer or someone else's computer
+            // is named in the description instead; IT still sees exactly which device was scanned
+            var canPick = await DevicesForCurrentUser().AnyAsync(d => d.Id == scanned.Id);
+            ViewBag.ScannedDevice = scanned.Hostname;
+            return View(new Ticket
+            {
+                Title = "",
+                Description = canPick ? "" : $"Etiketi okutulan cihaz: {scanned.Hostname} (Seri No: {scanned.SerialNumber})\n\n",
+                Category = TicketCategories.For(scanned.DeviceType),
+                Priority = TicketPriority.Medium,
+                DeviceId = canPick ? scanned.Id : null,
+                RequesterId = ""
+            });
         }
 
         var triedSolution = solutionId == null ? null
