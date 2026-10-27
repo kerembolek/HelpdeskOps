@@ -226,6 +226,23 @@ SMTP açıkken yeni hesaplar, giriş yapmadan önce e-posta adreslerini doğrula
 
 Aydınlatma metni şirket bilgilerini ayarlardan alır. Metin bir başlangıç şablonudur, hukuki görüş değildir; kullanıma açmadan önce şirketinizin hukuk danışmanına okutun. Saklama süreleri `Kvkk:Retention` ayarlarıyla değiştirilir (bkz. [Kullanım Kılavuzu, bölüm 13](USER_GUIDE_TR.md#13-kvkk-ve-kişisel-veriler)).
 
+### 4.4 Otomatik envanter
+
+`scripts/Send-Inventory.ps1` her bilgisayarın seri numarasını, marka/modelini, işlemcisini, RAM'ini, sistem diskini, Windows sürümünü ve IP adresini HelpdeskOps'a gönderir. Bilgisayar seri numarasıyla eşleştirilir: kayıtlıysa güncellenir, değilse yeni cihaz olarak eklenir. Elle girilen marka ve model ezilmez.
+
+1. Uzun, rastgele bir anahtar üretin (örn. `openssl rand -hex 32`) ve ayarlara yazın:
+   - Docker: `.env` içinde `INVENTORY_API_KEY=...`
+   - IIS: `appsettings.Production.json` içinde `"Inventory": { "ApiKey": "..." }`
+   Anahtar boşsa `/api/inventory` adresi kapalıdır (404).
+2. Betiği tüm bilgisayarların okuyabildiği bir paylaşıma koyun (örn. `\\sunucu\netlogon`).
+3. Group Policy ile oturum açılışında ve günde bir kez çalışan bir zamanlanmış görev dağıtın:
+   `powershell.exe -NoProfile -ExecutionPolicy Bypass -File \\sunucu\netlogon\Send-Inventory.ps1 -ServerUrl https://helpdesk.sirket.com -ApiKey <anahtar>`
+4. Önce bir bilgisayarda `-DryRun` ile deneyin; gönderilecek bilgiler ekrana yazılır, hiçbir şey gönderilmez.
+
+Antivirüs uyarısı: Sistem bilgisi toplayıp bir sunucuya gönderdiği için bazı antivirüsler (örn. Bitdefender) betiği sezgisel olarak zararlı sayabilir. Betiğin bulunduğu klasörü antivirüs istisnalarına ekleyin.
+
+Parça toplama bilgisayarlarda BIOS seri numarası yerine "System Serial Number" gibi bir yer tutucu bulunur. Betik bu durumda anakart seri numarasını, o da yoksa sistem UUID'sini kullanır; sunucu yer tutucu seri numaralarını reddeder.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.

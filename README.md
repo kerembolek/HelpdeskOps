@@ -105,7 +105,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 ### Phase 2: Differentiators
 - [x] QR labels: scanning a device's sticker opens a ticket for it with the category picked from the device type (employee) or its device card (IT); printable A4 sheets of 21 labels for all devices or a single one
 - [ ] Sign-in with Active Directory / Microsoft Entra ID and user sync
-- [ ] Automatic inventory: a small PowerShell agent reports serial number, RAM, disk, and Windows version
+- [x] Automatic inventory: a PowerShell agent (`scripts/Send-Inventory.ps1`) reports serial number, model, processor, RAM, disk, Windows version, and IP address to a key-protected endpoint; known computers are updated by serial number, new ones are added, and firmware placeholder serials are rejected
 - [ ] Onboarding and offboarding checklists that tie accounts, devices, and signed returns together
 - [ ] Business-hours SLA with Turkish public holidays
 - [ ] Software license and consumables (toner, cartridges) tracking
