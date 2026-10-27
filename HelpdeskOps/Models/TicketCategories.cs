@@ -40,4 +40,12 @@ public static class TicketCategories
 
     public static bool Belongs(TicketCategory category, TicketSubcategory subcategory) =>
         SubcategoriesOf(category).Contains(subcategory);
+
+    // The category a ticket for this kind of device most likely belongs to, used when a device sticker is scanned
+    public static TicketCategory For(DeviceType deviceType) => deviceType switch
+    {
+        DeviceType.Printer => TicketCategory.Printer,
+        DeviceType.Switch or DeviceType.Router => TicketCategory.Network,
+        _ => TicketCategory.Hardware
+    };
 }

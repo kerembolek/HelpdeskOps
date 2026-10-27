@@ -30,4 +30,15 @@ public class TicketCategoriesTests
     {
         Assert.Empty(TicketCategories.SubcategoriesOf((TicketCategory)999));
     }
+
+    [Theory]
+    [InlineData(DeviceType.Printer, TicketCategory.Printer)]
+    [InlineData(DeviceType.Switch, TicketCategory.Network)]
+    [InlineData(DeviceType.Router, TicketCategory.Network)]
+    [InlineData(DeviceType.Laptop, TicketCategory.Hardware)]
+    [InlineData(DeviceType.Monitor, TicketCategory.Hardware)]
+    public void For_PicksTheLikelyCategoryOfAScannedDevice(DeviceType deviceType, TicketCategory expected)
+    {
+        Assert.Equal(expected, TicketCategories.For(deviceType));
+    }
 }

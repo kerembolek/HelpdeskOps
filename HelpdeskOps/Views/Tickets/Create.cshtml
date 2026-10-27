@@ -15,6 +15,12 @@
         <strong>@triedSolution</strong> çözümünü denediğiniz talep formuna eklendi. Sorunu birkaç cümleyle anlatmanız yeterli.
     </div>
 }
+@if (ViewBag.ScannedDevice is string scannedDevice)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-qr-code me-1"></i><strong>@scannedDevice</strong> cihazının etiketini okuttunuz. Sorunu birkaç cümleyle anlatmanız yeterli.
+    </div>
+}
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create" enctype="multipart/form-data">
