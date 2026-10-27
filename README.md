@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, the audit log, and the KVKK export, anonymization, and retention rules
+- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, the audit log, and the KVKK export, anonymization, and retention rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -99,7 +99,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] Account security: 15-minute lockout after 5 wrong passwords (IT can unlock from the user list), two-factor sign-in with an authenticator app (QR code and recovery codes), passwords of at least 10 characters, and a Turkish "Hesabım" page
 - [x] Audit log: every change to devices, tickets, zimmet forms, articles, attachments, users, and roles is recorded automatically with who, when, IP address, and old and new values (password hashes never stored), on a filterable, paged IT page
 - [x] KVKK: a Turkish privacy notice (aydınlatma metni) with recorded reading, a personal data download in "Hesabım" and for IT, anonymization of former employees that keeps tickets and zimmet forms, and daily retention periods for notifications, attachments, audit log entries and IP addresses, and zimmet form signatures
-- [ ] Paging and faster lists for thousands of devices and tickets
+- [x] Paging and faster lists: devices, tickets, and users show 25 rows per page (the audit log 50), load only the page being viewed, and keep search and filters in every page link
 - [x] Self-hosted install guide (Docker Compose and IIS) with HTTPS, a first IT staff member from settings, and tested backup and restore scripts for both
 
 ### Phase 2: Differentiators
