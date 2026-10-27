@@ -4,13 +4,7 @@ namespace HelpdeskOps.Models;
 
 public class AuditListViewModel
 {
-    public List<AuditLog> Logs { get; set; } = new();
-
-    public int Total { get; set; }
-
-    public int Page { get; set; }
-
-    public int PageCount { get; set; }
+    public required PagedList<AuditLog> Logs { get; init; }
 
     public string? EntityType { get; set; }
 

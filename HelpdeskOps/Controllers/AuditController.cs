@@ -59,17 +59,10 @@ public class AuditController : Controller
             logs = logs.Where(a => a.CreatedAt < toUtc);
         }
 
-        var total = await logs.CountAsync();
-        var pageCount = Math.Max(1, (int)Math.Ceiling(total / (double)PageSize));
-        page = Math.Clamp(page, 1, pageCount);
-
         var model = new AuditListViewModel
         {
-            Logs = await logs.OrderByDescending(a => a.CreatedAt).ThenByDescending(a => a.Id)
-                .Skip((page - 1) * PageSize).Take(PageSize).ToListAsync(),
-            Total = total,
-            Page = page,
-            PageCount = pageCount,
+            Logs = await PagedList<AuditLog>.CreateAsync(
+                logs.OrderByDescending(a => a.CreatedAt).ThenByDescending(a => a.Id), page, PageSize),
             EntityType = entityType,
             EntityId = entityId,
             Query = q,
