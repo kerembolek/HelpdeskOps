@@ -105,7 +105,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 ### 2. Aşama: Farklılaştıran özellikler
 - [x] QR etiketler: cihazdaki etiketi okutmak, kategorisi cihaz türüne göre seçilmiş bir talep (çalışan) ya da cihaz kartını (BT) açar; tüm cihazlar ya da tek cihaz için A4 21'li yazdırılabilir etiket sayfaları
 - [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
-- [ ] Otomatik envanter: küçük bir PowerShell aracı seri no, RAM, disk ve Windows sürümünü bildirir
+- [x] Otomatik envanter: bir PowerShell aracı (`scripts/Send-Inventory.ps1`) seri no, model, işlemci, RAM, disk, Windows sürümü ve IP adresini anahtarla korunan bir adrese bildirir; kayıtlı bilgisayarlar seri numarasıyla güncellenir, yeniler eklenir, yer tutucu seri numaraları reddedilir
 - [ ] Hesapları, cihazları ve imzalı iadeleri birbirine bağlayan işe giriş ve çıkış kontrol listeleri
 - [ ] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA
 - [ ] Yazılım lisansı ve sarf malzemesi (toner, kartuş) takibi
