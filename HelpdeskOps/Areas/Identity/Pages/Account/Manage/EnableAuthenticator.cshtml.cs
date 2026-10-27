@@ -159,9 +159,7 @@ public class EnableAuthenticatorModel : PageModel
 
         var email = await _userManager.GetEmailAsync(user);
         AuthenticatorUri = GenerateQrCodeUri(email!, unformattedKey!);
-        using var qrData = new QRCoder.QRCodeGenerator().CreateQrCode(AuthenticatorUri, QRCoder.QRCodeGenerator.ECCLevel.Q);
-        QrCodeSvg = new QRCoder.SvgQRCode(qrData).GetGraphic(5, "#000000", "#ffffff", drawQuietZones: true,
-            sizingMode: QRCoder.SvgQRCode.SizingMode.ViewBoxAttribute);
+        QrCodeSvg = HelpdeskOps.Services.QrCode.Svg(AuthenticatorUri);
     }
 
     private string FormatKey(string unformattedKey)
