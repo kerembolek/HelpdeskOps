@@ -103,7 +103,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] Self-hosted install guide (Docker Compose and IIS) with HTTPS, a first IT staff member from settings, and tested backup and restore scripts for both
 
 ### Phase 2: Differentiators
-- [ ] QR labels: scanning a device's sticker opens a ticket for it (employee) or its device card (IT); printable label sheets
+- [x] QR labels: scanning a device's sticker opens a ticket for it with the category picked from the device type (employee) or its device card (IT); printable A4 sheets of 21 labels for all devices or a single one
 - [ ] Sign-in with Active Directory / Microsoft Entra ID and user sync
 - [ ] Automatic inventory: a small PowerShell agent reports serial number, RAM, disk, and Windows version
 - [ ] Onboarding and offboarding checklists that tie accounts, devices, and signed returns together
