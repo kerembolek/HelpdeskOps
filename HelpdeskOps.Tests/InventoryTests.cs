@@ -96,4 +96,16 @@ public class InventoryTests : IDisposable
     {
         Assert.Equal(expected, InventoryKeyAttribute.IsValidKey(sent, "gizli-anahtar"));
     }
+
+    [Theory]
+    [InlineData("System Serial Number", true)]
+    [InlineData("To be filled by O.E.M.", true)]
+    [InlineData("  default string ", true)]
+    [InlineData("", true)]
+    [InlineData("PF3ABC12", false)]
+    [InlineData("230723639700464", false)]
+    public void IsPlaceholderSerial_SpotsFirmwareDefaults(string serial, bool expected)
+    {
+        Assert.Equal(expected, InventoryReport.IsPlaceholderSerial(serial));
+    }
 }
