@@ -103,7 +103,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Kendi sunucusuna kurulum rehberi (Docker Compose ve IIS): HTTPS, ayarlardan ilk BT yöneticisi ve ikisi için de denenmiş yedekleme ve geri yükleme betikleri
 
 ### 2. Aşama: Farklılaştıran özellikler
-- [ ] QR etiketler: cihazdaki etiketi okutmak o cihaz için talep (çalışan) ya da cihaz kartını (BT) açar; yazdırılabilir etiket sayfaları
+- [x] QR etiketler: cihazdaki etiketi okutmak, kategorisi cihaz türüne göre seçilmiş bir talep (çalışan) ya da cihaz kartını (BT) açar; tüm cihazlar ya da tek cihaz için A4 21'li yazdırılabilir etiket sayfaları
 - [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
 - [ ] Otomatik envanter: küçük bir PowerShell aracı seri no, RAM, disk ve Windows sürümünü bildirir
 - [ ] Hesapları, cihazları ve imzalı iadeleri birbirine bağlayan işe giriş ve çıkış kontrol listeleri
