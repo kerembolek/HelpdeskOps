@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 [Authorize(Roles = "ITAdmin")]
 public class UsersController : Controller
 {
+    private const int PageSize = 25;
+
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PersonalDataExporter _exporter;
@@ -26,8 +28,8 @@ public class UsersController : Controller
         _anonymizer = anonymizer;
     }
 
-    // GET: Users?q=&role=
-    public async Task<IActionResult> Index(string? q, string? role)
+    // GET: Users?q=&role=&page=2
+    public async Task<IActionResult> Index(string? q, string? role, int page = 1)
     {
         var users = _context.Users.AsNoTracking();
 
@@ -67,14 +69,14 @@ public class UsersController : Controller
         var model = rows
             .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount,
                 u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow && u.AnonymizedAt == null, u.AnonymizedAt != null))
-            .Where(u => string.IsNullOrEmpty(role) || u.Role == role)
-            .ToList();
+            .Where(u => string.IsNullOrEmpty(role) || u.Role == role);
 
         ViewBag.Query = q;
         ViewBag.Role = AppRoles.All.Contains(role) ? role : null;
         ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || ViewBag.Role != null;
         ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return View(model);
+        // Roles are matched after loading, so this list is paged in memory; it stays small for a single company
+        return View(PagedList<UserListRow>.Create(model, page, PageSize));
     }
 
     // POST: Users/Unlock/abc
