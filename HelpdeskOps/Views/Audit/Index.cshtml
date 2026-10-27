@@ -4,8 +4,6 @@
 
 @{
     ViewData["Title"] = "Denetim Kaydı";
-    var pageUrl = (int p) => Url.Action("Index", new { entityType = Model.EntityType, entityId = Model.EntityId, q = Model.Query,
-        from = Model.From?.ToString("yyyy-MM-dd"), to = Model.To?.ToString("yyyy-MM-dd"), page = p });
 }
 
 <h1><i class="bi bi-journal-text text-primary me-2"></i>Denetim Kaydı</h1>
@@ -56,7 +54,7 @@
 }
 else
 {
-    <p class="small text-muted mb-2">@Model.Total kayıt · sayfa @Model.Page / @Model.PageCount</p>
+    <p class="small text-muted mb-2">@Model.Logs.Total kayıt · sayfa @Model.Logs.Page / @Model.Logs.PageCount</p>
     <table class="table table-hover align-top">
         <thead>
             <tr>
@@ -118,17 +116,5 @@ else
         </tbody>
     </table>
 
-    @if (Model.PageCount > 1)
-    {
-        <nav aria-label="Sayfalar">
-            <ul class="pagination">
-                <li class="page-item @(Model.Page == 1 ? "disabled" : "")"><a class="page-link" href="@pageUrl(Model.Page - 1)">Önceki</a></li>
-                @for (var p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.PageCount, Model.Page + 2); p++)
-                {
-                    <li class="page-item @(p == Model.Page ? "active" : "")"><a class="page-link" href="@pageUrl(p)">@p</a></li>
-                }
-                <li class="page-item @(Model.Page == Model.PageCount ? "disabled" : "")"><a class="page-link" href="@pageUrl(Model.Page + 1)">Sonraki</a></li>
-            </ul>
-        </nav>
-    }
+    <partial name="_Pager" model="Model.Logs" />
 }
