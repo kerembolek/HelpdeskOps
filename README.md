@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, the audit log, and the KVKK export, anonymization, and retention rules
+- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, and the KVKK export, anonymization, and retention rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface

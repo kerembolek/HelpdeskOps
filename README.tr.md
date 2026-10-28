@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
+- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz

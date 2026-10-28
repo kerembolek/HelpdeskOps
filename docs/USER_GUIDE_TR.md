@@ -141,6 +141,8 @@ Etiket telefonla okutulduğunda giriş yapılması istenir, ardından:
 - Kayıtlı olmayan bir bilgisayar **Aktif** durumda yeni cihaz olarak eklenir.
 - Cihaz ayrıntılarındaki **Donanım** satırı işlemciyi, RAM'i, diski, Windows sürümünü ve betiğin son rapor zamanını gösterir.
 - Donanım ya da adres değiştiğinde değişiklik denetim kaydına yazılır; aynı bilgilerle gelen günlük raporlar kayıt oluşturmaz.
+- 14 günden uzun süredir rapor göndermeyen cihazların ayrıntılarında sarı bir uyarı görünür.
+- Cihazlar sayfasındaki **Envanter** filtresi, raporu kesilen cihazları ve betiğin henüz çalışmadığı (hiç rapor göndermeyen) bilgisayarları listeler.
 
 ## 4. Kendin Çöz
 
