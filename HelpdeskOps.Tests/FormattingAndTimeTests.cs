@@ -85,4 +85,20 @@ public class DeviceTests
     {
         Assert.Equal(expected, NewDevice(type).SupportsRemoteDesktop());
     }
+
+    [Fact]
+    public void InventoryIsStaleOnlyAfterTwoQuietWeeks()
+    {
+        var now = new DateTime(2026, 10, 28, 12, 0, 0, DateTimeKind.Utc);
+        var device = NewDevice();
+
+        // No report at all is a different message ("no report yet"), not a stale one
+        Assert.False(device.IsInventoryStale(now));
+
+        device.LastInventoryAt = now.AddDays(-Device.InventoryStaleDays).AddMinutes(1);
+        Assert.False(device.IsInventoryStale(now));
+
+        device.LastInventoryAt = now.AddDays(-Device.InventoryStaleDays).AddMinutes(-1);
+        Assert.True(device.IsInventoryStale(now));
+    }
 }

@@ -45,6 +45,10 @@
             <div>@(Model.Processor ?? "İşlemci bilinmiyor") · @(Model.RamGb?.ToString() ?? "?") GB RAM · @(Model.DiskGb?.ToString() ?? "?") GB disk</div>
             <div>@Model.OsVersion</div>
             <div class="small text-muted">Envanter ajanının son raporu: @inventoryAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</div>
+            @if (Model.IsInventoryStale(DateTime.UtcNow))
+            {
+                <span class="badge text-bg-warning">@HelpdeskOps.Models.Device.InventoryStaleDays günden uzun süredir rapor yok</span>
+            }
         }
         else
         {

@@ -105,6 +105,13 @@ namespace HelpdeskOps.Models
         [Display(Name = "Son Envanter")]
         public DateTime? LastInventoryAt { get; set; }
 
+        // The agent reports at every sign-in and daily; a computer silent for two weeks may be off the network,
+        // in a drawer, or no longer running the agent
+        public const int InventoryStaleDays = 14;
+
+        public bool IsInventoryStale(DateTime utcNow) =>
+            LastInventoryAt is DateTime last && last < utcNow.AddDays(-InventoryStaleDays);
+
         // Remote Desktop only makes sense for computers
         public bool SupportsRemoteDesktop() => DeviceType is DeviceType.Laptop or DeviceType.Desktop;
 
