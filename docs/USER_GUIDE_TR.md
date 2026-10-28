@@ -133,6 +133,15 @@ Etiket telefonla okutulduğunda giriş yapılması istenir, ardından:
 - **Çalışan**, o cihaz için yeni talep formuna gelir. Kategori cihaz türüne göre seçilir (yazıcıda Yazıcı, switch ve router'da Ağ, diğerlerinde Donanım). Cihaz kendisine zimmetliyse formda seçili gelir; ortak yazıcı gibi başka bir cihazsa cihaz adı ve seri numarası açıklamaya yazılır.
 - **BT personeli** doğrudan cihaz ayrıntılarına gider.
 
+### 3.7 Otomatik Envanter
+
+Şirket bilgisayarlarında çalışan envanter betiği (`scripts/Send-Inventory.ps1`) seri numarası, marka/model, işlemci, RAM, disk, Windows sürümü ve IP adresini HelpdeskOps'a gönderir. Kurulumu BT yapar (bkz. [Kurulum Rehberi, bölüm 4.4](INSTALL_TR.md#44-otomatik-envanter)).
+
+- Kayıtlı bir bilgisayar seri numarasıyla bulunur; cihaz adı, IP adresi ve donanım bilgileri güncellenir. Elle girilen marka ve model değiştirilmez.
+- Kayıtlı olmayan bir bilgisayar **Aktif** durumda yeni cihaz olarak eklenir.
+- Cihaz ayrıntılarındaki **Donanım** satırı işlemciyi, RAM'i, diski, Windows sürümünü ve betiğin son rapor zamanını gösterir.
+- Donanım ya da adres değiştiğinde değişiklik denetim kaydına yazılır; aynı bilgilerle gelen günlük raporlar kayıt oluşturmaz.
+
 ## 4. Kendin Çöz
 
 Çalışanlar talep açmadan önce **Kendin Çöz** sayfasında sık karşılaşılan sorunların çözümlerini dener. Konu kartlarından biri seçildiğinde o konudaki çözümler adım adım listelenir.
