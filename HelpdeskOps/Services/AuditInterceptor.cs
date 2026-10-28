@@ -30,6 +30,9 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["Retention"] = "Saklama Süresi"
     };
 
+    // Requests without a signed-in user (such as the inventory agent) can name themselves for the audit log here
+    public const string ActorNameItem = "AuditActorName";
+
     // Housekeeping values that change on their own or mean nothing to a reader
     private static readonly HashSet<string> IgnoredProperties = new()
     {
@@ -176,7 +179,7 @@ public class AuditInterceptor : SaveChangesInterceptor
 
         var http = _httpContextAccessor.HttpContext;
         var userId = http?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var userName = http?.User.Identity?.Name;
+        var userName = http?.User.Identity?.Name ?? http?.Items[ActorNameItem] as string;
         var ip = http?.Connection.RemoteIpAddress?.ToString();
 
         // Names for every user and role the changes point at, in two queries

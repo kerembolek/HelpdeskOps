@@ -25,6 +25,8 @@ public class InventoryController : ControllerBase
     [HttpPost("/api/inventory")]
     public async Task<IActionResult> Report(InventoryReport report)
     {
+        // The audit log shows who made the change; without this it would only say "Sistem"
+        HttpContext.Items[HelpdeskOps.Services.AuditInterceptor.ActorNameItem] = "Envanter ajanı";
         var (device, created) = await _importer.ApplyAsync(report);
         return Ok(new { deviceId = device.Id, created });
     }

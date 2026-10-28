@@ -129,6 +129,21 @@ public class AuditInterceptorTests : IDisposable
     }
 
     [Fact]
+    public async Task RequestsWithoutAUser_CanNameThemselves()
+    {
+        var context = new DefaultHttpContext();
+        context.Items[AuditInterceptor.ActorNameItem] = "Envanter ajanı";
+        _http.HttpContext = context;
+
+        _context.Devices.Add(NewDevice());
+        await _context.SaveChangesAsync();
+
+        var log = Assert.Single(_context.AuditLogs);
+        Assert.Equal("Envanter ajanı", log.UserName);
+        Assert.Null(log.UserId);
+    }
+
+    [Fact]
     public async Task UnchangedInventoryReports_AreSkipped()
     {
         var device = NewDevice();
