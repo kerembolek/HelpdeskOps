@@ -129,6 +129,21 @@ public class AuditInterceptorTests : IDisposable
     }
 
     [Fact]
+    public async Task UnchangedInventoryReports_AreSkipped()
+    {
+        var device = NewDevice();
+        _context.Devices.Add(device);
+        await _context.SaveChangesAsync();
+
+        // A daily agent report that finds the same hardware only moves the report time
+        SignIn();
+        device.LastInventoryAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        Assert.Empty(_context.AuditLogs);
+    }
+
+    [Fact]
     public async Task DeletingADevice_KeepsItsLabel()
     {
         var device = NewDevice();

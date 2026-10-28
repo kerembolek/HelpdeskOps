@@ -34,7 +34,9 @@ public class AuditInterceptor : SaveChangesInterceptor
     private static readonly HashSet<string> IgnoredProperties = new()
     {
         "Id", "UpdatedAt", "LastUpdated", "ConcurrencyStamp", "SecurityStamp", "NormalizedEmail", "NormalizedUserName",
-        "AccessFailedCount", "StoredName", "SolvedCount", "EscalatedCount"
+        "AccessFailedCount", "StoredName", "SolvedCount", "EscalatedCount",
+        // The inventory agent reports every day; only real hardware or address changes are worth a record
+        "LastInventoryAt"
     };
 
     // Recorded as "changed" without any value (security)
