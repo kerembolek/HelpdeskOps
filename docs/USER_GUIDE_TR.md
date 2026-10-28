@@ -63,6 +63,7 @@ Cihaz yönetimi yalnızca **BT Personeli** rolüne açıktır.
 - IP adresinin solundaki nokta cihazın ağ durumunu gösterir: yeşil nokta cihazın ping'e yanıt verdiğini, kırmızı nokta yanıt vermediğini belirtir. **Ağ Durumunu Yenile** düğmesi kontrolü tekrarlar.
 - Garanti sütunundaki rozetler garantinin durumunu gösterir: **Garantide**, **Yakında Bitiyor** (30 gün içinde) ve **Garanti Bitti**. Üstteki **Garanti** filtresiyle yalnızca garantisi yakında bitecek ya da bitmiş cihazlar listelenebilir.
 - Dizüstü ve masaüstü bilgisayarların satırındaki **RDP** bağlantısı, Uzak Masaüstü Bağlantısı ile açılan bir `.rdp` dosyası indirir.
+- Liste sayfa başına 25 cihaz gösterir; sayfa düğmeleri seçili filtreyi korur.
 - Çalışanların iade talebi gönderdiği cihazlar listenin üstündeki sarı kutuda sıralanır; cihaz adına tıklamak teslim alma ekranını açar (bkz. [3.5 Geri Gelen Cihazı Teslim Alma](#35-geri-gelen-cihazı-teslim-alma)).
 
 ### 3.2 Yeni Cihaz Ekleme
