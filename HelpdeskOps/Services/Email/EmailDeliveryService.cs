@@ -53,12 +53,18 @@ public class EmailDeliveryService : BackgroundService
 
         if (_options.Mode == EmailMode.Smtp)
         {
+            // A missing host is a settings mistake; say so instead of failing deep inside MailKit
+            if (string.IsNullOrWhiteSpace(_options.Host))
+            {
+                throw new InvalidOperationException("Email:Mode is Smtp but Email:Host is not set.");
+            }
+
             using var client = new SmtpClient();
             await client.ConnectAsync(_options.Host, _options.Port,
                 _options.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto, cancellationToken);
             if (!string.IsNullOrEmpty(_options.UserName))
             {
-                await client.AuthenticateAsync(_options.UserName, _options.Password, cancellationToken);
+                await client.AuthenticateAsync(_options.UserName, _options.Password ?? "", cancellationToken);
             }
             await client.SendAsync(mime, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
