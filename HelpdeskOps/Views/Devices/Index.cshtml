@@ -4,6 +4,8 @@
 @{
     ViewData["Title"] = "Cihazlar";
     var warranty = ViewBag.Warranty as string;
+    var inventory = ViewBag.Inventory as string;
+    var isFiltered = warranty != null || inventory != null;
 }
 
 <h1><i class="bi bi-pc-display text-primary me-2"></i>Cihazlar</h1>
@@ -45,9 +47,17 @@
             <option value="expired" selected="@(warranty == "expired")">Garantisi bitmiş</option>
         </select>
     </div>
+    <div class="col-md-4">
+        <label for="inventory" class="form-label small text-muted mb-1">Envanter</label>
+        <select id="inventory" name="inventory" class="form-select">
+            <option value="">Tüm cihazlar</option>
+            <option value="stale" selected="@(inventory == "stale")">@HelpdeskOps.Models.Device.InventoryStaleDays günden uzun süredir rapor yok</option>
+            <option value="missing" selected="@(inventory == "missing")">Hiç rapor göndermeyen bilgisayarlar</option>
+        </select>
+    </div>
     <div class="col-md-2 d-flex gap-2">
         <button type="submit" class="btn btn-primary">Filtrele</button>
-        @if (warranty != null)
+        @if (isFiltered)
         {
             <a asp-action="Index" class="btn btn-outline-secondary">Temizle</a>
         }
@@ -63,7 +73,7 @@
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        @(warranty != null ? "Filtreye uyan cihaz bulunamadı." : "Henüz kayıtlı cihaz bulunmuyor.")
+        @(isFiltered ? "Filtreye uyan cihaz bulunamadı." : "Henüz kayıtlı cihaz bulunmuyor.")
     </div>
 }
 else

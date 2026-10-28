@@ -205,9 +205,10 @@ public class DevicesController : Controller
             .ToList();
     }
 
-    // GET: DEVICES/Index?warranty=&page=2
+    // GET: DEVICES/Index?warranty=&inventory=&page=2
+    // inventory: "stale" (reported before, silent for two weeks) or "missing" (computers in use that never reported)
     // warranty: "expiring" (ends within WarrantyExpiringSoonDays) or "expired"; retired devices are left out of both
-    public async Task<IActionResult> Index(string? warranty, int page = 1)
+    public async Task<IActionResult> Index(string? warranty, string? inventory, int page = 1)
     {
         var devices = _context.Devices.AsNoTracking().Include(d => d.AssignedUser).AsQueryable();
         var today = TurkeyTime.Today;
@@ -230,7 +231,23 @@ public class DevicesController : Controller
                 break;
         }
 
+        var staleBefore = DateTime.UtcNow.AddDays(-Device.InventoryStaleDays);
+        switch (inventory)
+        {
+            case "stale":
+                devices = devices.Where(d => d.LastInventoryAt < staleBefore);
+                break;
+            case "missing":
+                devices = devices.Where(d => d.LastInventoryAt == null && d.Status != DeviceStatus.Retired
+                    && (d.DeviceType == DeviceType.Laptop || d.DeviceType == DeviceType.Desktop));
+                break;
+            default:
+                inventory = null;
+                break;
+        }
+
         ViewBag.Warranty = warranty;
+        ViewBag.Inventory = inventory;
         ViewBag.PendingReturns = await _context.AssignmentForms
             .AsNoTracking()
             .Where(f => f.ReturnRequestedAt != null && f.ReturnedAt == null)
