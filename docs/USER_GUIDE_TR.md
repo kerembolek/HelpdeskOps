@@ -124,6 +124,15 @@ Tek seferde en fazla 500 cihaz eklenebilir. Zimmetli olarak içe aktarılan ciha
 
 Zimmet formu kapanır, cihaz çalışanın üzerinden düşer, cihaz geçmişine iade ve kontrol sonucu yazılır ve çalışana bildirim gider. Çalışan iade talebi göndermeden cihazı elden getirdiyse (örneğin işten ayrılışta) teslim alma yine aynı ekrandan yapılabilir.
 
+### 3.6 QR Etiketleri
+
+Her cihaz için QR kodlu bir etiket basılabilir. Cihazlar sayfasındaki **QR Etiketleri Yazdır** düğmesi kullanımdaki tüm cihazların, cihaz ayrıntılarındaki **QR Etiketi** düğmesi yalnızca o cihazın etiketini açar. Sayfa A4 boyutunda 21'li (63,5 x 38,1 mm) etiket kâğıdına göre hazırlanmıştır; yazdırırken ölçeklendirmeyi kapatın (%100).
+
+Etiket telefonla okutulduğunda giriş yapılması istenir, ardından:
+
+- **Çalışan**, o cihaz için yeni talep formuna gelir. Kategori cihaz türüne göre seçilir (yazıcıda Yazıcı, switch ve router'da Ağ, diğerlerinde Donanım). Cihaz kendisine zimmetliyse formda seçili gelir; ortak yazıcı gibi başka bir cihazsa cihaz adı ve seri numarası açıklamaya yazılır.
+- **BT personeli** doğrudan cihaz ayrıntılarına gider.
+
 ## 4. Kendin Çöz
 
 Çalışanlar talep açmadan önce **Kendin Çöz** sayfasında sık karşılaşılan sorunların çözümlerini dener. Konu kartlarından biri seçildiğinde o konudaki çözümler adım adım listelenir.
