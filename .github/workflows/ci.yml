@@ -33,8 +33,9 @@ jobs:
       - name: Restore
         run: dotnet restore HelpdeskOps.slnx
 
+      # Warnings fail the build, so new nullable or obsolete-API warnings are fixed before merging
       - name: Build
-        run: dotnet build HelpdeskOps.slnx --configuration Release --no-restore
+        run: dotnet build HelpdeskOps.slnx --configuration Release --no-restore -warnaserror
 
       - name: Test
         run: dotnet test HelpdeskOps.slnx --configuration Release --no-build --verbosity normal --logger trx --results-directory TestResults
