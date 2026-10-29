@@ -1,0 +1,29 @@
+@model Consumable
+
+@{
+    ViewData["Title"] = "Yeni Sarf Malzemesi";
+}
+
+<h1><i class="bi bi-printer text-primary me-2"></i>@ViewData["Title"]</h1>
+
+<div class="card mt-3" style="max-width: 40rem;">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            <partial name="_ConsumableFields" model="Model" />
+            <div class="mb-3">
+                <label for="initialStock" class="form-label">Başlangıç Stoğu</label>
+                <input id="initialStock" name="initialStock" type="number" min="0" max="@ConsumableStock.MaxQuantity" value="@(ViewBag.InitialStock ?? 0)" class="form-control" style="max-width: 10rem;" />
+                @Html.ValidationMessage("initialStock", new { @class = "text-danger" })
+                <div class="form-text">Sonraki girişler ve kullanımlar malzemenin sayfasından kaydedilir.</div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -29,7 +29,9 @@ public class Consumable
     [Display(Name = "Uyumlu Modeller")]
     public string? CompatibleModels { get; set; }
 
-    // Server-owned: changed only by recording a movement
+    // Server-owned: changed only by recording a movement. Checked on save, so two people taking the last toner
+    // at the same moment cannot both succeed.
+    [ConcurrencyCheck]
     [Display(Name = "Stok")]
     public int Stock { get; set; }
 

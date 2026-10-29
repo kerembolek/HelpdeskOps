@@ -1,0 +1,138 @@
+@using HelpdeskOps.Models.Enums
+@model Consumable
+
+@{
+    ViewData["Title"] = Model.Name;
+    var movements = (List<ConsumableMovement>)ViewBag.Movements;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1><i class="bi bi-printer text-primary me-2"></i>@Model.Name</h1>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+</div>
+
+@if (TempData["ConsumableMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (TempData["ConsumableError"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Tür</dt>
+    <dd class="col-sm-9">@Model.Kind.GetDisplayName()</dd>
+
+    <dt class="col-sm-3">Stok</dt>
+    <dd class="col-sm-9">
+        <span class="fs-5 fw-semibold">@Model.Stock</span> adet
+        @if (Model.IsLow)
+        {
+            <span class="badge @(Model.Stock == 0 ? "text-bg-danger" : "text-bg-warning") ms-1">Sipariş zamanı (en az @Model.MinimumStock)</span>
+        }
+        else
+        {
+            <span class="text-muted small ms-1">(en az @Model.MinimumStock)</span>
+        }
+    </dd>
+
+    <dt class="col-sm-3">Uyumlu Modeller</dt>
+    <dd class="col-sm-9">@(Model.CompatibleModels ?? "-")</dd>
+
+    <dt class="col-sm-3">Bulunduğu Yer</dt>
+    <dd class="col-sm-9">@(Model.Location ?? "-")</dd>
+</dl>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-box-arrow-in-down me-1"></i>Stok Girişi</div>
+            <div class="card-body">
+                <form asp-action="Move" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" name="direction" value="in" />
+                    <div class="mb-2">
+                        <label for="in-quantity" class="form-label">Miktar</label>
+                        <input id="in-quantity" name="quantity" type="number" min="1" max="@ConsumableStock.MaxQuantity" value="1" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="in-note" class="form-label">Not</label>
+                        <input id="in-note" name="note" maxlength="200" class="form-control" placeholder="Örn. fatura no, tedarikçi" />
+                    </div>
+                    <button type="submit" class="btn btn-success">Stoğa Ekle</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-box-arrow-up me-1"></i>Kullanım</div>
+            <div class="card-body">
+                <form asp-action="Move" asp-route-id="@Model.Id" method="post">
+                    <input type="hidden" name="direction" value="out" />
+                    <div class="row g-2 mb-2">
+                        <div class="col-4">
+                            <label for="out-quantity" class="form-label">Miktar</label>
+                            <input id="out-quantity" name="quantity" type="number" min="1" max="@Math.Max(1, Model.Stock)" value="1" class="form-control" required />
+                        </div>
+                        <div class="col-8">
+                            <label for="out-device" class="form-label">Yazıcı</label>
+                            <select id="out-device" name="deviceId" asp-items="ViewBag.Printers" class="form-select">
+                                <option value="">Seçilmedi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="out-note" class="form-label">Not</label>
+                        <input id="out-note" name="note" maxlength="200" class="form-control" placeholder="Örn. muhasebe katı" />
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled="@(Model.Stock == 0)">Stoktan Düş</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mt-4">Hareketler</h2>
+@if (!movements.Any())
+{
+    <div class="alert alert-info">Henüz stok hareketi yok.</div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>Tarih</th><th class="text-end">Miktar</th><th>Yazıcı</th><th>Not</th><th>Kaydeden</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var movement in movements)
+            {
+                <tr>
+                    <td>@movement.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td class="text-end fw-semibold @(movement.Quantity > 0 ? "text-success" : "text-danger")">@(movement.Quantity > 0 ? "+" : "")@movement.Quantity</td>
+                    <td>
+                        @if (movement.Device is { } device)
+                        {
+                            <a asp-controller="Devices" asp-action="Details" asp-route-id="@device.Id">@device.Hostname</a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>@(movement.Note ?? "-")</td>
+                    <td>@(movement.CreatedBy is { } by ? $"{by.FirstName} {by.LastName}" : "-")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<div class="d-flex flex-wrap gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary">Sarf Malzemelerine Dön</a>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="ms-auto"
+          onsubmit="return confirm('Sarf malzemesi ve tüm stok hareketleri silinsin mi?');">
+        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Sil</button>
+    </form>
+</div>

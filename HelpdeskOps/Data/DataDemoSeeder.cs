@@ -243,6 +243,61 @@ public static class DemoDataSeeder
         await SeedSolutionsAsync(services);
         await SeedChecklistsAsync(services, userManager);
         await SeedLicensesAsync(services, userManager);
+        await SeedConsumablesAsync(services, userManager);
+    }
+
+    // Matched by name. The toner for the demo printer has been used twice and is at its minimum, so the
+    // "order now" filter has something to show.
+    private static readonly (string Name, ConsumableKind Kind, string Models, int Received, int Used, int Minimum, string Location)[] DemoConsumables =
+    {
+        ("HP 59A Siyah Toner", ConsumableKind.Toner, "LaserJet Pro M404dn, M428fdw", 4, 2, 2, "BT deposu, 2. raf"),
+        ("A4 Fotokopi Kağıdı (koli)", ConsumableKind.Paper, "Tüm yazıcılar", 10, 3, 3, "Arşiv odası"),
+        ("Brother TN-2420 Toner", ConsumableKind.Toner, "Brother HL-L2350DW", 0, 0, 1, "BT deposu, 2. raf")
+    };
+
+    private static async Task SeedConsumablesAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var itAdmin = await userManager.FindByEmailAsync("it@helpdeskops.com");
+        var printer = await context.Devices.FirstOrDefaultAsync(d => d.SerialNumber == "DEMO-PR-001");
+
+        foreach (var demo in DemoConsumables)
+        {
+            if (await context.Consumables.AnyAsync(c => c.Name == demo.Name))
+                continue;
+
+            var consumable = new Consumable
+            {
+                Name = demo.Name,
+                Kind = demo.Kind,
+                CompatibleModels = demo.Models,
+                MinimumStock = demo.Minimum,
+                Location = demo.Location,
+                Stock = demo.Received - demo.Used,
+                CreatedAt = DateTime.UtcNow.AddDays(-45)
+            };
+            if (demo.Received > 0)
+            {
+                consumable.Movements.Add(new ConsumableMovement
+                {
+                    Quantity = demo.Received, Note = "Başlangıç stoğu", CreatedAt = DateTime.UtcNow.AddDays(-45), CreatedById = itAdmin?.Id
+                });
+            }
+            for (var i = 0; i < demo.Used; i++)
+            {
+                consumable.Movements.Add(new ConsumableMovement
+                {
+                    Quantity = -1,
+                    DeviceId = demo.Kind == ConsumableKind.Toner ? printer?.Id : null,
+                    Note = demo.Kind == ConsumableKind.Toner ? "Toner bitti uyarısı" : "Muhasebe katı",
+                    CreatedAt = DateTime.UtcNow.AddDays(-30 + i * 12),
+                    CreatedById = itAdmin?.Id
+                });
+            }
+            context.Consumables.Add(consumable);
+        }
+
+        await context.SaveChangesAsync();
     }
 
     // Matched by name. One license is full, one renews soon, one is perpetual; the sales employee's seat keeps the

@@ -1,0 +1,30 @@
+@model Consumable
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" placeholder="Örn. HP 59A Siyah Toner" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-6">
+        <label asp-for="Kind" class="form-label"></label>
+        <select asp-for="Kind" class="form-select" asp-items="Html.GetEnumSelectList<ConsumableKind>()"></select>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="MinimumStock" class="form-label"></label>
+        <input asp-for="MinimumStock" class="form-control" min="0" />
+        <div class="form-text">Stok bu sayıya inince listede uyarı çıkar.</div>
+        <span asp-validation-for="MinimumStock" class="text-danger"></span>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="CompatibleModels" class="form-label"></label>
+    <input asp-for="CompatibleModels" class="form-control" placeholder="Örn. LaserJet Pro M404dn, M428fdw" />
+    <span asp-validation-for="CompatibleModels" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Location" class="form-label"></label>
+    <input asp-for="Location" class="form-control" placeholder="Örn. BT deposu, 2. raf" />
+    <span asp-validation-for="Location" class="text-danger"></span>
+</div>
