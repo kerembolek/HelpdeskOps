@@ -1,0 +1,118 @@
+@using HelpdeskOps.Models.Enums
+@model PagedList<StaffChecklistRow>
+
+@{
+    ViewData["Title"] = "İşe Giriş / İşten Çıkış";
+    var status = (string)ViewBag.Status;
+    var type = ViewBag.Type as ChecklistType?;
+    var today = TurkeyTime.Today;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1><i class="bi bi-person-check text-primary me-2"></i>@ViewData["Title"]</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" asp-route-type="@ChecklistType.Onboarding" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>İşe Giriş</a>
+        <a asp-action="Create" asp-route-type="@ChecklistType.Offboarding" class="btn btn-outline-danger"><i class="bi bi-person-dash me-1"></i>İşten Çıkış</a>
+    </div>
+</div>
+
+<p class="text-muted">Yeni gelen ve ayrılan çalışanlar için yapılacaklar. Hesap, zimmet ve talep adımlarını sistem kendisi kontrol eder.</p>
+
+@if (TempData["ChecklistMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<form asp-action="Index" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-3">
+        <label for="status" class="form-label small text-muted mb-1">Durum</label>
+        <select id="status" name="status" class="form-select">
+            <option value="open" selected="@(status == "open")">Açık</option>
+            <option value="done" selected="@(status == "done")">Tamamlanan</option>
+            <option value="all" selected="@(status == "all")">Tümü</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="type" class="form-label small text-muted mb-1">Süreç</label>
+        <select id="type" name="type" class="form-select">
+            <option value="">Tümü</option>
+            @foreach (var t in Enum.GetValues<ChecklistType>())
+            {
+                <option value="@t" selected="@(t == type)">@t.GetDisplayName()</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-auto">
+        <button type="submit" class="btn btn-primary">Filtrele</button>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        @(status == "open" ? "Açık işe giriş veya işten çıkış listesi yok." : "Filtreye uyan liste bulunamadı.")
+    </div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Kişi</th>
+                <th>Süreç</th>
+                <th>Hedef Tarih</th>
+                <th>Adımlar</th>
+                <th>Durum</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>
+                        @row.UserName
+                        <div class="small text-muted">@(row.Department ?? "-")</div>
+                    </td>
+                    <td>
+                        @if (row.Type == ChecklistType.Onboarding)
+                        {
+                            <span class="badge text-bg-primary"><i class="bi bi-person-plus"></i> İşe Giriş</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-danger"><i class="bi bi-person-dash"></i> İşten Çıkış</span>
+                        }
+                    </td>
+                    <td>@row.TargetDate.ToString("dd.MM.yyyy")</td>
+                    <td style="min-width: 8rem;">
+                        @{ var percent = row.TotalItems == 0 ? 100 : row.DoneItems * 100 / row.TotalItems; }
+                        <div class="progress" style="height: .5rem;" role="progressbar" aria-label="Tamamlanan adımlar" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar" style="width: @percent%"></div>
+                        </div>
+                        <div class="small text-muted">@row.DoneItems / @row.TotalItems adım</div>
+                    </td>
+                    <td>
+                        @if (row.CompletedAt is DateTime completedAt)
+                        {
+                            <span class="badge text-bg-success">Tamamlandı</span>
+                            <div class="small text-muted">@completedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")</div>
+                        }
+                        else if (row.TargetDate < today)
+                        {
+                            <span class="badge text-bg-warning">Tarihi geçti</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Açık</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@row.Id" class="btn btn-sm btn-outline-primary">Aç</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_Pager" model="(IPagedList)Model" />
+}

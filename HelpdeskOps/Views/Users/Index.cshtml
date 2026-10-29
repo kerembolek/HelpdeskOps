@@ -1,4 +1,4 @@
-@using HelpdeskOps.Models
+﻿@using HelpdeskOps.Models
 @model IEnumerable<HelpdeskOps.Models.UserListRow>
 
 @{
@@ -7,7 +7,10 @@
     var isFiltered = (bool)ViewBag.IsFiltered;
 }
 
-<h1><i class="bi bi-people text-primary me-2"></i>Kullanıcılar</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1><i class="bi bi-people text-primary me-2"></i>Kullanıcılar</h1>
+    <a asp-controller="Checklists" asp-action="Index" class="btn btn-outline-primary"><i class="bi bi-person-check me-1"></i>İşe Giriş / İşten Çıkış</a>
+</div>
 
 <p class="text-muted">Sisteme kayıtlı kullanıcılar, rolleri, zimmetli cihaz sayıları ve üzerlerindeki aktif talepler.</p>
 
@@ -61,7 +64,7 @@ else
                 <th>Rol</th>
                 <th class="text-end">Zimmetli Cihaz</th>
                 <th class="text-end">Üzerindeki Aktif Talep</th>
-                <th class="text-end">KVKK</th>
+                <th class="text-end">İşlemler</th>
             </tr>
         </thead>
         <tbody>
@@ -80,10 +83,17 @@ else
                         }
                         @if (user.IsLockedOut)
                         {
-                            <span class="badge text-bg-danger ms-1"><i class="bi bi-lock"></i> Kilitli</span>
+                            @if (user.IsClosed)
+                            {
+                                <span class="badge text-bg-dark ms-1" title="İşten çıkış listesi tamamlandı"><i class="bi bi-door-closed"></i> Hesap kapalı</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-danger ms-1"><i class="bi bi-lock"></i> Kilitli</span>
+                            }
                             <form asp-action="Unlock" asp-route-id="@user.Id" method="post" class="d-inline">
                                 <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
-                                <button type="submit" class="btn btn-sm btn-link p-0 ms-1">Kilidi aç</button>
+                                <button type="submit" class="btn btn-sm btn-link p-0 ms-1">@(user.IsClosed ? "Yeniden aç" : "Kilidi aç")</button>
                             </form>
                         }
                     </td>
@@ -119,6 +129,20 @@ else
                     <td class="text-end">@user.DeviceCount</td>
                     <td class="text-end">@user.ActiveTicketCount</td>
                     <td class="text-end text-nowrap">
+                        @if (!user.IsAnonymized)
+                        {
+                            <a asp-controller="Checklists" asp-action="Create" asp-route-userId="@user.Id" asp-route-type="@ChecklistType.Onboarding"
+                               class="btn btn-sm btn-outline-primary" title="İşe giriş listesi aç" aria-label="@user.Name için işe giriş listesi aç">
+                                <i class="bi bi-person-plus"></i>
+                            </a>
+                            @if (user.Id != (string?)ViewBag.CurrentUserId)
+                            {
+                                <a asp-controller="Checklists" asp-action="Create" asp-route-userId="@user.Id" asp-route-type="@ChecklistType.Offboarding"
+                                   class="btn btn-sm btn-outline-danger" title="İşten çıkış listesi aç" aria-label="@user.Name için işten çıkış listesi aç">
+                                    <i class="bi bi-person-dash"></i>
+                                </a>
+                            }
+                        }
                         <form asp-action="ExportData" asp-route-id="@user.Id" method="post" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-secondary" title="Kişisel verilerini indir (JSON)" aria-label="@user.Name kişisel verilerini indir">
                                 <i class="bi bi-download"></i>

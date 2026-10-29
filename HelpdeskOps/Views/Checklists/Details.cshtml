@@ -1,0 +1,222 @@
+@using HelpdeskOps.Models.Enums
+@model StaffChecklistDetailsViewModel
+
+@{
+    var checklist = Model.Checklist;
+    var user = checklist.User!;
+    var isOffboarding = checklist.Type == ChecklistType.Offboarding;
+    var isOpen = checklist.CompletedAt == null;
+    ViewData["Title"] = $"{checklist.Type.GetDisplayName()}: {user.FirstName} {user.LastName}";
+}
+
+<h1><i class="bi @(isOffboarding ? "bi-person-dash text-danger" : "bi-person-plus text-primary") me-2"></i>@ViewData["Title"]</h1>
+<p class="text-muted">
+    @(user.Department ?? "Departman yok") · @user.Email ·
+    @(isOffboarding ? "Son çalışma günü" : "İşe başlama") @checklist.TargetDate.ToString("dd.MM.yyyy")
+    @if (checklist.IsOverdue(TurkeyTime.Today))
+    {
+        <span class="badge text-bg-warning ms-1">Tarihi geçti</span>
+    }
+</p>
+
+@if (TempData["ChecklistMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (TempData["ChecklistError"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+@if (checklist.CompletedAt is DateTime completedAt)
+{
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle me-1"></i>
+        @completedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") tarihinde @(checklist.CompletedBy is { } by ? $"{by.FirstName} {by.LastName}" : "BT") tarafından tamamlandı.
+        @if (isOffboarding)
+        {
+            <text>Hesap kapatıldı; kişi artık giriş yapamaz.</text>
+        }
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(checklist.Note))
+{
+    <p><strong>Not:</strong> @checklist.Note</p>
+}
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-cpu me-1"></i>Sistem kontrolleri</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var check in Model.Checks)
+                {
+                    <li class="list-group-item d-flex gap-2">
+                        @if (check.Passed)
+                        {
+                            <i class="bi bi-check-circle-fill text-success" aria-label="Geçti"></i>
+                        }
+                        else if (check.Required)
+                        {
+                            <i class="bi bi-x-circle-fill text-danger" aria-label="Geçmedi"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-exclamation-triangle-fill text-warning" aria-label="Uyarı"></i>
+                        }
+                        <div>
+                            <div>@check.Title</div>
+                            <div class="small text-muted">@check.Detail</div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="bi bi-list-check me-1"></i>Yapılacaklar</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var item in checklist.Items)
+                {
+                    <li class="list-group-item d-flex gap-2 align-items-start">
+                        <form asp-action="ToggleItem" asp-route-id="@checklist.Id" asp-route-itemId="@item.Id" method="post">
+                            <button type="submit" class="btn btn-link p-0 fs-5 lh-1" disabled="@(!isOpen)"
+                                    aria-label="@(item.DoneAt == null ? "Yapıldı olarak işaretle" : "İşareti kaldır"): @item.Title">
+                                <i class="bi @(item.DoneAt == null ? "bi-square" : "bi-check-square-fill text-success")"></i>
+                            </button>
+                        </form>
+                        <div>
+                            <div class="@(item.DoneAt != null ? "text-decoration-line-through text-muted" : "")">@item.Title</div>
+                            @if (item.DoneAt is DateTime doneAt)
+                            {
+                                <div class="small text-muted">@doneAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") · @(item.DoneBy is { } doneBy ? $"{doneBy.FirstName} {doneBy.LastName}" : "")</div>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+            @if (isOpen)
+            {
+                <div class="card-body">
+                    <form asp-action="AddItem" asp-route-id="@checklist.Id" method="post" class="d-flex gap-2">
+                        <input name="title" class="form-control form-control-sm" maxlength="200" required placeholder="Kişiye özel adım ekle" aria-label="Yeni adım" />
+                        <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">Ekle</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mt-4">Zimmetli cihazlar</h2>
+@if (!Model.Devices.Any())
+{
+    <div class="alert alert-info">
+        @(isOffboarding ? "Üzerinde zimmetli cihaz kalmadı." : "Henüz cihaz zimmetlenmedi. Cihazı düzenleyip bu kişiyi seçtiğinizde zimmet formu açılır.")
+    </div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>Cihaz Adı</th><th>Tür</th><th>Seri No</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var device in Model.Devices)
+            {
+                <tr>
+                    <td>@device.Hostname</td>
+                    <td>@device.DeviceType.GetDisplayName()</td>
+                    <td>@device.SerialNumber</td>
+                    <td class="text-end">
+                        <a asp-controller="Devices" asp-action="Details" asp-route-id="@device.Id" class="btn btn-sm btn-outline-secondary">Cihaz Kartı</a>
+                        @if (isOffboarding)
+                        {
+                            <a asp-controller="Devices" asp-action="Edit" asp-route-id="@device.Id" class="btn btn-sm btn-outline-danger">Geri Al</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2 class="h5 mt-4">Zimmet formları</h2>
+<p class="small text-muted">Açık formlar ve bu liste açıldıktan sonra kapananlar.</p>
+@if (!Model.Forms.Any())
+{
+    <div class="alert alert-info">Gösterilecek zimmet formu yok.</div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>Form No</th><th>Cihaz</th><th>Durum</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var form in Model.Forms)
+            {
+                <tr>
+                    <td>@form.FormNumber</td>
+                    <td>@form.Hostname <span class="small text-muted">@form.DeviceTypeName</span></td>
+                    <td>
+                        <partial name="_AssignmentFormStatus" model="form" />
+                        @if (form.ReturnedAt != null && form.ReceiverSignature == null)
+                        {
+                            <span class="badge text-bg-warning ms-1">BT imzası yok</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        @if (isOffboarding && form.ReturnedAt == null)
+                        {
+                            <a asp-controller="AssignmentForms" asp-action="CheckIn" asp-route-id="@form.Id" class="btn btn-sm @(form.ReturnRequestedAt != null ? "btn-success" : "btn-outline-secondary") me-2">Teslim Al</a>
+                        }
+                        <a asp-controller="AssignmentForms" asp-action="Pdf" asp-route-id="@form.Id">PDF İndir</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (Model.ActiveAssignedTickets > 0)
+{
+    <p>
+        <i class="bi bi-ticket-detailed me-1"></i>Üzerinde @Model.ActiveAssignedTickets aktif talep var.
+        <a asp-controller="Tickets" asp-action="Index">Talepler sayfasından</a> başka birine atayın.
+    </p>
+}
+
+<hr />
+<div class="d-flex flex-wrap gap-2 align-items-center">
+    @if (isOpen)
+    {
+        <form asp-action="Complete" asp-route-id="@checklist.Id" method="post"
+              onsubmit="@(isOffboarding ? "return confirm('Liste tamamlanınca kişinin hesabı kapanır ve giriş yapamaz. Devam edilsin mi?');" : null)">
+            <button type="submit" class="btn @(isOffboarding ? "btn-danger" : "btn-success")" disabled="@(Model.CompletionBlocker != null)">
+                <i class="bi bi-check2-all me-1"></i>@(isOffboarding ? "Tamamla ve Hesabı Kapat" : "Tamamla")
+            </button>
+        </form>
+        @if (Model.CompletionBlocker != null)
+        {
+            <span class="small text-muted">@Model.CompletionBlocker</span>
+        }
+        <form asp-action="Delete" asp-route-id="@checklist.Id" method="post" class="ms-auto" onsubmit="return confirm('Liste silinsin mi?');">
+            <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash me-1"></i>Listeyi Sil</button>
+        </form>
+    }
+    else if (isOffboarding && user.AnonymizedAt == null)
+    {
+        <a asp-controller="Users" asp-action="Anonymize" asp-route-id="@user.Id" class="btn btn-outline-danger">
+            <i class="bi bi-person-slash me-1"></i>KVKK: Kişiyi Anonimleştir
+        </a>
+    }
+    <a asp-action="Index" class="btn btn-outline-secondary">Listelere Dön</a>
+</div>
+
+<p class="small text-muted mt-3">
+    @checklist.CreatedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm") tarihinde @(checklist.CreatedBy is { } createdBy ? $"{createdBy.FirstName} {createdBy.LastName}" : "BT") açtı.
+</p>
