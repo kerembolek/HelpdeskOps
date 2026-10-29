@@ -55,6 +55,10 @@ public class Ticket
     [Display(Name = "Çözülme Tarihi")]
     public DateTime? ResolvedAt { get; set; }
 
+    // When the ticket should be resolved by; set on save from the priority and working hours (TicketSla)
+    [Display(Name = "SLA Hedefi")]
+    public DateTime? SlaDueAt { get; set; }
+
     [Display(Name = "Cihaz")]
     public int? DeviceId { get; set; }
 

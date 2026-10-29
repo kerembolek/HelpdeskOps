@@ -42,6 +42,8 @@ services:
       Kvkk__ControllerAddress: ${KVKK_CONTROLLER_ADDRESS:-}
       Kvkk__ContactEmail: ${KVKK_CONTACT_EMAIL:-}
       Inventory__ApiKey: ${INVENTORY_API_KEY:-}
+      Sla__WorkdayStart: ${SLA_WORKDAY_START:-09:00:00}
+      Sla__WorkdayEnd: ${SLA_WORKDAY_END:-18:00:00}
       Email__Mode: ${EMAIL_MODE:-None}
       Email__Host: ${SMTP_HOST:-}
       Email__Port: ${SMTP_PORT:-587}

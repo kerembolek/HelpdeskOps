@@ -12,7 +12,9 @@ public enum SlaState
     Missed
 }
 
-// Target resolution times per priority, counted in calendar hours from ticket creation
+// Target resolution times per priority. Critical tickets count around the clock, because a stopped office does
+// not wait for the morning; the others count working hours only (BusinessCalendar). The target moment is worked
+// out when the ticket is saved (SlaDueInterceptor) and stored in Ticket.SlaDueAt, so lists can filter on it in SQL.
 public static class TicketSla
 {
     public static int TargetHours(TicketPriority priority) => priority switch
@@ -23,10 +25,23 @@ public static class TicketSla
         _ => 72
     };
 
+    public static bool CountsWorkingHours(TicketPriority priority) => priority != TicketPriority.Critical;
+
+    // "4 saat (7/24)" or "8 mesai saati"
+    public static string TargetText(TicketPriority priority) =>
+        CountsWorkingHours(priority) ? $"{TargetHours(priority)} mesai saati" : $"{TargetHours(priority)} saat (7/24)";
+
     // An active ticket is "due soon" once less than a quarter of its target time is left
     private const double DueSoonShare = 0.25;
 
-    public static DateTime DueAt(Ticket ticket) => ticket.CreatedAt.AddHours(TargetHours(ticket.Priority));
+    public static DateTime CalculateDueAt(DateTime createdAt, TicketPriority priority, BusinessCalendar calendar) =>
+        CountsWorkingHours(priority)
+            ? calendar.AddWorkingHours(createdAt, TargetHours(priority))
+            : createdAt.AddHours(TargetHours(priority));
+
+    // Stored tickets always have SlaDueAt; the fallback covers one that has not been saved yet
+    public static DateTime DueAt(Ticket ticket) =>
+        ticket.SlaDueAt ?? CalculateDueAt(ticket.CreatedAt, ticket.Priority, BusinessCalendar.Default);
 
     public static SlaState StateOf(Ticket ticket, DateTime utcNow)
     {
@@ -35,31 +50,17 @@ public static class TicketSla
             return resolvedAt <= dueAt ? SlaState.Met : SlaState.Missed;
         if (utcNow > dueAt)
             return SlaState.Overdue;
-        return dueAt - utcNow < TimeSpan.FromHours(TargetHours(ticket.Priority) * DueSoonShare)
+        // Measured on the clock: a weekend in between makes the whole span longer, so the warning comes in proportion
+        return dueAt - utcNow < (dueAt - ticket.CreatedAt) * DueSoonShare
             ? SlaState.DueSoon
             : SlaState.OnTrack;
     }
 
     // Active tickets past their target, as a filter EF Core can translate to SQL
-    public static Expression<Func<Ticket, bool>> IsOverdue(DateTime utcNow)
-    {
-        var critical = utcNow.AddHours(-TargetHours(TicketPriority.Critical));
-        var high = utcNow.AddHours(-TargetHours(TicketPriority.High));
-        var medium = utcNow.AddHours(-TargetHours(TicketPriority.Medium));
-        var low = utcNow.AddHours(-TargetHours(TicketPriority.Low));
-
-        return t => (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)
-            && ((t.Priority == TicketPriority.Critical && t.CreatedAt < critical)
-                || (t.Priority == TicketPriority.High && t.CreatedAt < high)
-                || (t.Priority == TicketPriority.Medium && t.CreatedAt < medium)
-                || (t.Priority == TicketPriority.Low && t.CreatedAt < low));
-    }
+    public static Expression<Func<Ticket, bool>> IsOverdue(DateTime utcNow) =>
+        t => (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress) && t.SlaDueAt < utcNow;
 
     // Resolved tickets that were resolved within their target, for the compliance rate
     public static Expression<Func<Ticket, bool>> MetTarget() =>
-        t => t.ResolvedAt != null
-            && ((t.Priority == TicketPriority.Critical && t.ResolvedAt <= t.CreatedAt.AddHours(TargetHours(TicketPriority.Critical)))
-                || (t.Priority == TicketPriority.High && t.ResolvedAt <= t.CreatedAt.AddHours(TargetHours(TicketPriority.High)))
-                || (t.Priority == TicketPriority.Medium && t.ResolvedAt <= t.CreatedAt.AddHours(TargetHours(TicketPriority.Medium)))
-                || (t.Priority == TicketPriority.Low && t.ResolvedAt <= t.CreatedAt.AddHours(TargetHours(TicketPriority.Low))));
+        t => t.ResolvedAt != null && t.ResolvedAt <= t.SlaDueAt;
 }
