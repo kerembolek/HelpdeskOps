@@ -241,6 +241,54 @@ public static class DemoDataSeeder
         await SeedNotificationsAsync(services, userManager);
         await SeedDeviceEventsAsync(services, userManager);
         await SeedSolutionsAsync(services);
+        await SeedChecklistsAsync(services, userManager);
+    }
+
+    // One onboarding half done and one offboarding still waiting for a laptop, so both kinds show their checks.
+    // Matched on person and type; the offboarding is never completed here, so no demo account gets closed.
+    private static readonly (string Email, ChecklistType Type, int TargetInDays, int DoneSteps, string Note)[] DemoChecklists =
+    {
+        ("ik@helpdeskops.com", ChecklistType.Onboarding, -2, 3, "İK uzmanı olarak başladı; bordro programı da kurulacak."),
+        ("satis@helpdeskops.com", ChecklistType.Offboarding, 5, 2, "Son günü cuma. E-postaları satış müdürüne yönlendirilecek.")
+    };
+
+    private static async Task SeedChecklistsAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var itAdmin = await userManager.FindByEmailAsync("it@helpdeskops.com");
+
+        foreach (var demo in DemoChecklists)
+        {
+            var user = await userManager.FindByEmailAsync(demo.Email);
+            if (user == null || await context.StaffChecklists.AnyAsync(c => c.UserId == user.Id && c.Type == demo.Type))
+                continue;
+
+            var createdAt = DateTime.UtcNow.AddDays(-4);
+            var checklist = new StaffChecklist
+            {
+                Type = demo.Type,
+                UserId = user.Id,
+                TargetDate = TurkeyTime.Today.AddDays(demo.TargetInDays),
+                Note = demo.Note,
+                CreatedAt = createdAt,
+                CreatedById = itAdmin?.Id
+            };
+            var steps = StaffChecklistRules.DefaultItems(demo.Type);
+            for (var i = 0; i < steps.Count; i++)
+            {
+                var done = i < demo.DoneSteps;
+                checklist.Items.Add(new ChecklistItem
+                {
+                    Title = steps[i],
+                    SortOrder = i,
+                    DoneAt = done ? createdAt.AddDays(1).AddHours(i) : null,
+                    DoneById = done ? itAdmin?.Id : null
+                });
+            }
+            context.StaffChecklists.Add(checklist);
+        }
+
+        await context.SaveChangesAsync();
     }
 
     // A few unread notifications so the navbar count shows up; only for demo users who have none yet

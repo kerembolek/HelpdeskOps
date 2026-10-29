@@ -26,6 +26,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["TicketAttachment"] = "Talep Eki",
         ["ApplicationUser"] = "Kullanıcı",
         ["UserRole"] = "Kullanıcı Rolü",
+        ["StaffChecklist"] = "Giriş / Çıkış Listesi",
+        ["ChecklistItem"] = "Liste Adımı",
         // Not a record type: the summary RetentionCleaner writes after deleting expired personal data
         ["Retention"] = "Saklama Süresi"
     };
@@ -37,7 +39,7 @@ public class AuditInterceptor : SaveChangesInterceptor
     private static readonly HashSet<string> IgnoredProperties = new()
     {
         "Id", "UpdatedAt", "LastUpdated", "ConcurrencyStamp", "SecurityStamp", "NormalizedEmail", "NormalizedUserName",
-        "AccessFailedCount", "StoredName", "SolvedCount", "EscalatedCount",
+        "AccessFailedCount", "StoredName", "SolvedCount", "EscalatedCount", "SortOrder",
         // The inventory agent reports every day; only real hardware or address changes are worth a record
         "LastInventoryAt"
     };
@@ -54,7 +56,10 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["IssuedById"] = "Teslim Eden",
         ["ReceivedById"] = "Teslim Alan (BT)",
         ["UserId"] = "Kullanıcı",
-        ["UploadedById"] = "Yükleyen"
+        ["UploadedById"] = "Yükleyen",
+        ["CreatedById"] = "Açan",
+        ["CompletedById"] = "Tamamlayan",
+        ["DoneById"] = "İşaretleyen"
     };
 
     private sealed record PendingAudit(EntityEntry Entry, object Entity, AuditAction Action, string EntityType,
@@ -267,6 +272,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         SolutionArticle a => a.Title,
         TicketAttachment a => a.FileName,
         ApplicationUser u => u.Email,
+        StaffChecklist c => $"{c.Type.GetDisplayName()} #{c.Id}",
+        ChecklistItem i => i.Title,
         _ => null
     };
 

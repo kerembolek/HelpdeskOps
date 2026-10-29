@@ -52,6 +52,7 @@ public class ChecklistItem
 {
     public int Id { get; set; }
 
+    [Display(Name = "Liste No")]
     public int StaffChecklistId { get; set; }
     public StaffChecklist? Checklist { get; set; }
 
