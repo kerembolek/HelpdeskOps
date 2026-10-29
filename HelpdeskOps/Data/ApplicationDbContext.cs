@@ -27,6 +27,8 @@ namespace HelpdeskOps.Data
         public DbSet<ChecklistItem> ChecklistItems { get; set; }
         public DbSet<SoftwareLicense> SoftwareLicenses { get; set; }
         public DbSet<LicenseAssignment> LicenseAssignments { get; set; }
+        public DbSet<Consumable> Consumables { get; set; }
+        public DbSet<ConsumableMovement> ConsumableMovements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -206,6 +208,25 @@ namespace HelpdeskOps.Data
             builder.Entity<LicenseAssignment>()
                 .HasIndex(a => new { a.SoftwareLicenseId, a.UserId })
                 .IsUnique();
+
+            // Stock history goes away with the consumable; a deleted printer keeps its old movements without the link
+            builder.Entity<ConsumableMovement>()
+                .HasOne(m => m.Consumable)
+                .WithMany(c => c.Movements)
+                .HasForeignKey(m => m.ConsumableId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ConsumableMovement>()
+                .HasOne(m => m.Device)
+                .WithMany()
+                .HasForeignKey(m => m.DeviceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<ConsumableMovement>()
+                .HasOne(m => m.CreatedBy)
+                .WithMany()
+                .HasForeignKey(m => m.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ChecklistItem>()
                 .HasOne(i => i.DoneBy)

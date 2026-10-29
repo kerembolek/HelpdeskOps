@@ -291,6 +291,82 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("ChecklistItems");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.Consumable", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CompatibleModels")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("MinimumStock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Consumables");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.ConsumableMovement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConsumableId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsumableId");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("DeviceId");
+
+                    b.ToTable("ConsumableMovements");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -996,6 +1072,31 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("DoneBy");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.ConsumableMovement", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.Consumable", "Consumable")
+                        .WithMany("Movements")
+                        .HasForeignKey("ConsumableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpdeskOps.Models.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Consumable");
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
                 {
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "AssignedUser")
@@ -1230,6 +1331,11 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("AssignedTickets");
 
                     b.Navigation("RequestedTickets");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.Consumable", b =>
+                {
+                    b.Navigation("Movements");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
