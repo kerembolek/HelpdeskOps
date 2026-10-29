@@ -1,0 +1,76 @@
+@using HelpdeskOps.Models.Enums
+@model PagedList<Consumable>
+
+@{
+    ViewData["Title"] = "Sarf Malzemeleri";
+    var low = (bool)ViewBag.Low;
+    var lowCount = (int)ViewBag.LowCount;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1><i class="bi bi-printer text-primary me-2"></i>@ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Yeni Sarf Malzemesi</a>
+</div>
+
+<p class="text-muted">Toner, kartuş ve kağıt stoğu. Stok, girişler ve yazıcılara verilen kullanımlarla değişir.</p>
+
+@if (TempData["ConsumableMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a asp-action="Index" class="btn btn-sm @(!low ? "btn-secondary" : "btn-outline-secondary")">Tümü</a>
+    <a asp-action="Index" asp-route-low="true" class="btn btn-sm @(low ? "btn-warning" : "btn-outline-warning")">
+        Sipariş zamanı gelenler <span class="badge text-bg-light ms-1">@lowCount</span>
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        @(low ? "Stoğu azalan sarf malzemesi yok." : "Henüz sarf malzemesi eklenmedi. Yazıcılarınızın tonerlerini ekleyerek başlayın.")
+    </div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Ad</th>
+                <th>Tür</th>
+                <th>Uyumlu Modeller</th>
+                <th class="text-end">Stok</th>
+                <th class="text-end">En Az</th>
+                <th>Yer</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Kind.GetDisplayName()</td>
+                    <td class="small">@(item.CompatibleModels ?? "-")</td>
+                    <td class="text-end">
+                        @if (item.IsLow)
+                        {
+                            <span class="badge @(item.Stock == 0 ? "text-bg-danger" : "text-bg-warning")" title="En az stok seviyesinde">@item.Stock</span>
+                        }
+                        else
+                        {
+                            @item.Stock
+                        }
+                    </td>
+                    <td class="text-end text-muted">@item.MinimumStock</td>
+                    <td class="small">@(item.Location ?? "-")</td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Aç</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <partial name="_Pager" model="(IPagedList)Model" />
+}

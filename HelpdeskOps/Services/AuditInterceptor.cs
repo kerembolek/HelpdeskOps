@@ -30,6 +30,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["ChecklistItem"] = "Liste Adımı",
         ["SoftwareLicense"] = "Yazılım Lisansı",
         ["LicenseAssignment"] = "Lisans Ataması",
+        ["Consumable"] = "Sarf Malzemesi",
+        ["ConsumableMovement"] = "Stok Hareketi",
         // Not a record type: the summary RetentionCleaner writes after deleting expired personal data
         ["Retention"] = "Saklama Süresi"
     };
@@ -279,6 +281,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ChecklistItem i => i.Title,
         SoftwareLicense l => l.Name,
         LicenseAssignment a => $"Lisans #{a.SoftwareLicenseId}",
+        Consumable c => c.Name,
+        ConsumableMovement m => $"Sarf #{m.ConsumableId}",
         _ => null
     };
 
