@@ -68,7 +68,9 @@ public class UsersController : Controller
 
         var model = rows
             .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount,
-                u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow && u.AnonymizedAt == null, u.AnonymizedAt != null))
+                u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow && u.AnonymizedAt == null, u.AnonymizedAt != null,
+                // A completed offboarding locks the account with no end date
+                u.LockoutEnd == DateTimeOffset.MaxValue && u.AnonymizedAt == null))
             .Where(u => string.IsNullOrEmpty(role) || u.Role == role);
 
         ViewBag.Query = q;
@@ -80,7 +82,8 @@ public class UsersController : Controller
     }
 
     // POST: Users/Unlock/abc
-    // Lifts a lockout from too many wrong passwords, for someone who called the helpdesk
+    // Lifts a lockout from too many wrong passwords, for someone who called the helpdesk.
+    // It also reopens an account closed by an offboarding, for someone who comes back.
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Unlock(string id, string? returnUrl)

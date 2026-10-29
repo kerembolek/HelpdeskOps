@@ -1,0 +1,59 @@
+@model StaffChecklistCreateViewModel
+
+@{
+    var isOffboarding = Model.Type == ChecklistType.Offboarding;
+    ViewData["Title"] = isOffboarding ? "İşten Çıkış Listesi" : "İşe Giriş Listesi";
+}
+
+<h1><i class="bi @(isOffboarding ? "bi-person-dash text-danger" : "bi-person-plus text-primary") me-2"></i>@ViewData["Title"]</h1>
+<p class="text-muted">
+    @if (isOffboarding)
+    {
+        <text>Ayrılan çalışanın cihazları, zimmet formları ve talepleri sistemce kontrol edilir. Liste tamamlanınca hesabı kapanır.</text>
+    }
+    else
+    {
+        <text>Yeni çalışanın hesabı önce kayıt sayfasından veya BT tarafından açılmış olmalıdır. Rol, aydınlatma metni ve zimmet adımlarını sistem kontrol eder.</text>
+    }
+</p>
+
+<div class="card" style="max-width: 40rem;">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Type" />
+            <div class="mb-3">
+                <label asp-for="UserId" class="form-label"></label>
+                <select asp-for="UserId" asp-items="ViewBag.Users" class="form-select">
+                    <option value="">Seçin</option>
+                </select>
+                <span asp-validation-for="UserId" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TargetDate" class="form-label">@(isOffboarding ? "Son Çalışma Günü" : "İşe Başlama Tarihi")</label>
+                <input asp-for="TargetDate" class="form-control" style="max-width: 14rem;" />
+                <span asp-validation-for="TargetDate" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label"></label>
+                <textarea asp-for="Note" class="form-control" rows="3" placeholder="@(isOffboarding ? "Örn. e-postalar yöneticisine yönlendirilecek" : "Örn. ikinci monitör ve muhasebe programı gerekli")"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+            </div>
+            <p class="small text-muted">Liste şu adımlarla açılır; sonradan kişiye özel adım ekleyebilirsiniz:</p>
+            <ul class="small text-muted">
+                @foreach (var item in StaffChecklistRules.DefaultItems(Model.Type))
+                {
+                    <li>@item</li>
+                }
+            </ul>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn @(isOffboarding ? "btn-danger" : "btn-primary")">Listeyi Aç</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

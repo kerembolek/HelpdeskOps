@@ -20,4 +20,4 @@ public static class AppRoles
 }
 
 public record UserListRow(string Id, string Name, string? Email, string? Department, string? Role, int DeviceCount, int ActiveTicketCount,
-    bool TwoFactorEnabled = false, bool IsLockedOut = false, bool IsAnonymized = false);
+    bool TwoFactorEnabled = false, bool IsLockedOut = false, bool IsAnonymized = false, bool IsClosed = false);

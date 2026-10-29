@@ -54,7 +54,7 @@
                             <a class="nav-link@(Active("Devices"))" asp-controller="Devices" asp-action="Index"><i class="bi bi-pc-display"></i> Cihazlar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link@(Active("Users"))" asp-controller="Users" asp-action="Index"><i class="bi bi-people"></i> Kullanıcılar</a>
+                            <a class="nav-link@(Active("Users") + Active("Checklists") != "" ? " active" : "")" asp-controller="Users" asp-action="Index"><i class="bi bi-people"></i> Kullanıcılar</a>
                         </li>
                         }
 
