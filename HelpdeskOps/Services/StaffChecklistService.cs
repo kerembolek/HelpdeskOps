@@ -34,7 +34,8 @@ public class StaffChecklistService
                 && (t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)),
             // Only returns made while this checklist was open belong to this offboarding
             ReturnsWithoutSignature: await _context.AssignmentForms.CountAsync(f => f.UserId == userId
-                && f.ReturnedAt >= checklist.CreatedAt && f.ReceiverSignature == null));
+                && f.ReturnedAt >= checklist.CreatedAt && f.ReceiverSignature == null),
+            AssignedLicenses: await _context.LicenseAssignments.CountAsync(a => a.UserId == userId));
     }
 
     public async Task<IReadOnlyList<ChecklistCheck>> ChecksAsync(StaffChecklist checklist) =>
