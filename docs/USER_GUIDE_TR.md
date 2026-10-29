@@ -166,7 +166,7 @@ BT personeli **Kendin Çöz → Çözümleri Yönet** ekranından çözüm makal
 - Öncelik (Kritik kırmızıdan Düşük griye) ve durum (Açık, İşlemde, Çözüldü, Kapatıldı) renkli rozetlerle gösterilir.
 - Üstteki filtrelerle başlık veya açıklamada arama yapılabilir; kategori, durum ve önceliğe göre süzülebilir.
 - **Görünüm** listesi aktif talepleri, çözülen/kapatılan talepleri, hedef süresi geçenleri, BT personeline atananları ve atanmamış talepleri ayırır.
-- **Hedef Süre** sütunu önceliğe göre belirlenen çözüm hedefine (Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat) göre talebin durumunu gösterir: **Zamanında**, **Süre doluyor**, **Gecikti**, **Hedefte çözüldü**, **Geç çözüldü**.
+- **Hedef Süre** sütunu önceliğe göre belirlenen çözüm hedefine göre talebin durumunu gösterir: **Zamanında**, **Süre doluyor**, **Gecikti**, **Hedefte çözüldü**, **Geç çözüldü**. Kritik talepler 4 saati 7/24 sayar; yüksek (8), orta (24) ve düşük (72) öncelikli talepler yalnızca mesai saatini sayar, hafta sonları, resmî tatiller ve bayramlar atlanır. Mesai dışında açılan talebin süresi ilk mesai saatinde başlar. Rozetin üzerine gelince hedef tarih ve saat görünür.
 - BT personeli atanmamış aktif talepleri **Üzerime Al** düğmesiyle tek tıkla üstlenir; açık talep bu sırada **İşlemde** durumuna geçer.
 
 ### 5.2 Yeni Talep Oluşturma
