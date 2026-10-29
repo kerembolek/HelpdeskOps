@@ -600,6 +600,9 @@ namespace HelpdeskOps.Migrations
                     b.Property<int?>("SatisfactionRating")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SlaDueAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 

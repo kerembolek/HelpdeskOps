@@ -1,4 +1,4 @@
-using HelpdeskOps.Data;
+﻿using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
@@ -21,12 +21,16 @@ builder.Services.AddHostedService<EmailDeliveryService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<NotificationEmailInterceptor>();
 builder.Services.AddSingleton<HelpdeskOps.Services.AuditInterceptor>();
+// SLA targets count working hours; the "Sla" settings section sets the working day and extra days off
+builder.Services.Configure<SlaOptions>(builder.Configuration.GetSection(SlaOptions.SectionName));
+builder.Services.AddSingleton<HelpdeskOps.Services.SlaDueInterceptor>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>((services, options) =>
     options.UseSqlServer(connectionString)
         .AddInterceptors(
+            services.GetRequiredService<HelpdeskOps.Services.SlaDueInterceptor>(),
             services.GetRequiredService<HelpdeskOps.Services.AuditInterceptor>(),
             services.GetRequiredService<NotificationEmailInterceptor>()));
 
@@ -76,6 +80,8 @@ using (var scope = app.Services.CreateScope())
 {
     // Apply pending migrations on startup, since the hosted database is not reachable from development tools
     await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+    await scope.ServiceProvider.GetRequiredService<HelpdeskOps.Services.SlaDueInterceptor>()
+        .BackfillAsync(scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     foreach (var role in new[] { "Employee", "ITAdmin", "Manager" })

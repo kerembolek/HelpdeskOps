@@ -28,7 +28,7 @@
 		<dt class="col-sm-2">Hedef Çözüm</dt>
 		<dd class="col-sm-10">
 			@HelpdeskOps.Models.TicketSla.DueAt(Model).ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")
-			<span class="text-muted small">(@Html.DisplayFor(model => model.Priority) öncelik: @HelpdeskOps.Models.TicketSla.TargetHours(Model.Priority) saat)</span>
+			<span class="text-muted small">(@Html.DisplayFor(model => model.Priority) öncelik: @HelpdeskOps.Models.TicketSla.TargetText(Model.Priority))</span>
 			<partial name="_SlaBadge" model="Model" />
 		</dd>
 

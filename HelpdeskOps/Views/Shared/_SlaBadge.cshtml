@@ -3,7 +3,7 @@
 
 @{
     var dueAt = TicketSla.DueAt(Model);
-    var title = $"Hedef: {dueAt.ToTurkeyTime():dd.MM.yyyy HH:mm} ({TicketSla.TargetHours(Model.Priority)} saat)";
+    var title = $"Hedef: {dueAt.ToTurkeyTime():dd.MM.yyyy HH:mm} ({TicketSla.TargetText(Model.Priority)})";
 }
 
 @switch (TicketSla.StateOf(Model, DateTime.UtcNow))
