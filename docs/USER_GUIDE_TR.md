@@ -277,9 +277,26 @@ Bir kullanıcının rolü, satırındaki listeden yeni rol seçilip **Kaydet** d
 - BT personeli rolünden çıkarılan kişinin aktif talepleri atanmamış taleplere alınır ve her talebin geçmişine kaydedilir.
 - Rol değişikliği, kullanıcının açık oturumunda en geç bir dakika içinde geçerli olur.
 
-**KVKK** sütunundaki düğmeler kişinin verilerini indirir ve ayrılan çalışanı anonimleştirir (bkz. [13. KVKK ve Kişisel Veriler](#13-kvkk-ve-kişisel-veriler)).
+**İşlemler** sütunundaki düğmeler kişi için işe giriş veya işten çıkış listesi açar (bkz. [10.1 İşe Giriş ve İşten Çıkış](#101-işe-giriş-ve-işten-çıkış)), kişinin verilerini indirir ve ayrılan çalışanı anonimleştirir (bkz. [13. KVKK ve Kişisel Veriler](#13-kvkk-ve-kişisel-veriler)).
 
 Üst üste 5 kez hatalı şifre giren kullanıcının hesabı 15 dakikalığına kilitlenir ve listede **Kilitli** rozetiyle görünür. Telefonla arayan bir çalışan için **Kilidi aç** bağlantısı kilidi hemen kaldırır. İki adımlı doğrulamayı açmış kullanıcıların adının yanında **2FA** rozeti görünür.
+
+### 10.1 İşe Giriş ve İşten Çıkış
+
+Kullanıcılar sayfasındaki **İşe Giriş / İşten Çıkış** düğmesi, yeni gelen ve ayrılan çalışanlar için açılan kontrol listelerini gösterir. Liste varsayılan olarak açık süreçleri hedef tarihe göre sıralar; tamamlananlar ve süreç türü filtreden seçilir. Hedef tarihi geçen açık listelerde **Tarihi geçti** rozeti görünür.
+
+Liste, kullanıcı satırındaki kişi ekleme veya çıkarma simgesiyle ya da sayfanın üstündeki düğmelerle açılır. Kişi, hedef tarih (işe başlama veya son çalışma günü) ve isteğe bağlı bir not girilir. Liste, şirketlerde en sık yapılan adımlarla (Active Directory hesabı, e-posta, programlar, paylaşılan klasörler, kartlı geçiş) hazır gelir. Aynı kişi için aynı türde ikinci bir açık liste açılamaz, kimse kendisi için işten çıkış listesi açamaz.
+
+![İşe giriş listesi](images/25-checklist.png)
+
+Liste sayfasının iki bölümü vardır:
+
+- **Sistem kontrolleri**: HelpdeskOps'un kendisinin bildiği adımlar. İşe girişte kişinin rolü olup olmadığı, KVKK aydınlatma metnini onaylayıp onaylamadığı, en az bir cihaz zimmetlenip zimmetlenmediği ve zimmet formlarını imzalayıp imzalamadığı; işten çıkışta üzerinde cihaz, açık zimmet formu ve aktif talep kalıp kalmadığı kontrol edilir. Bu süreçte imzalı teslim alma olmadan geri alınan cihazlar sarı uyarıyla gösterilir ama listeyi tamamlamayı engellemez.
+- **Yapılacaklar**: BT'nin elle işaretlediği adımlar. Her adımın yanında kimin ne zaman işaretlediği görünür. Alttaki alandan kişiye özel adım eklenebilir (ör. "Bordro programı kuruldu").
+
+Altta kişinin zimmetli cihazları ve zimmet formları listelenir. İşten çıkışta **Geri Al** cihazın düzenleme sayfasını, **Teslim Al** imzalı teslim alma sayfasını açar.
+
+Tüm zorunlu kontroller geçip bütün adımlar işaretlenince **Tamamla** düğmesi açılır. İşten çıkış listesi tamamlanınca kişinin hesabı kapanır: giriş yapamaz, açık oturumları kapanır ve kullanıcı listesinde **Hesap kapalı** rozetiyle görünür. Geri dönen bir çalışan için **Yeniden aç** bağlantısı hesabı tekrar açar. Tamamlanan işten çıkış listesinden KVKK anonimleştirme sayfasına geçilebilir. Yanlışlıkla açılan listeler silinebilir; tamamlanan listeler kayıt olarak kalır ve tüm değişiklikler denetim kaydına yazılır.
 
 ## 11. Hesabım ve Güvenlik
 
