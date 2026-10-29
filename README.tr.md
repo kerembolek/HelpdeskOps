@@ -49,7 +49,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT personelinin çalışan adına talep açabilmesi (telefonla veya yüz yüze gelen talepler)
 - [x] Atanmamış aktif talepler için tek tıkla "Üzerime Al"
 - [x] Talep listesinde arama ve filtreler (durum, öncelik, aktif, çözülen/kapatılan, bana atananlar, atanmamış)
-- [x] Önceliğe göre hedef çözüm süreleri (SLA: Kritik 4, Yüksek 8, Orta 24, Düşük 72 saat); talep listesinde ve detayında zamanında / süre doluyor / gecikti / hedefte çözüldü / geç çözüldü rozetleri ve "hedef süresi geçenler" görünümü
+- [x] Önceliğe göre hedef çözüm süreleri (SLA: Kritik 7/24 4 saat; Yüksek 8, Orta 24, Düşük 72 mesai saati); talep listesinde ve detayında zamanında / süre doluyor / gecikti / hedefte çözüldü / geç çözüldü rozetleri ve "hedef süresi geçenler" görünümü
 - [x] Talep eden ile BT personeli arasında talep yorumları
 - [x] Talep ekleri: talep açarken veya sonradan ekran görüntüsü, PDF, metin/log, Word ve Excel dosyası (en fazla 5 dosya, her biri 5 MB); dosyalar web kökü dışında saklanır ve yalnızca talebi görebilenler indirebilir
 - [x] Memnuniyet puanı: talep eden, çözülen talebini bir kez 1-5 arası puanlar ve isterse yorum ekler; puan talepte ve hareket geçmişinde görünür
@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
+- [x] SLA kurallarını ve mesai takvimini, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -107,7 +107,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
 - [x] Otomatik envanter: bir PowerShell aracı (`scripts/Send-Inventory.ps1`) seri no, model, işlemci, RAM, disk, Windows sürümü ve IP adresini anahtarla korunan bir adrese bildirir; kayıtlı bilgisayarlar seri numarasıyla güncellenir, yeniler eklenir, yer tutucu seri numaraları reddedilir
 - [x] İşe giriş ve çıkış kontrol listeleri: BT'nin işaretlediği varsayılan ve kişiye özel adımlar; yanında rol, aydınlatma metni, zimmetli cihazlar, imzalı zimmet formları, açık iadeler ve aktif talepler için otomatik kontroller. İşten çıkış tamamlanınca hesap kapanır, BT gerekirse yeniden açar
-- [ ] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA
+- [x] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA: yüksek, orta ve düşük öncelikli talepler yalnızca mesai saatini (varsayılan 09:00-18:00) sayar; hafta sonları, ulusal bayramlar, Ramazan ve Kurban Bayramı atlanır, 28 Ekim ve bayram arifeleri yarım gündür; kritik talepler 7/24 sayılır; mesai saatleri ve ek tatil günleri ayarlardan değişir
 - [ ] Yazılım lisansı ve sarf malzemesi (toner, kartuş) takibi
 
 ### 3. Aşama: Ek değer

@@ -243,6 +243,15 @@ Antivirüs uyarısı: Sistem bilgisi toplayıp bir sunucuya gönderdiği için b
 
 Parça toplama bilgisayarlarda BIOS seri numarası yerine "System Serial Number" gibi bir yer tutucu bulunur. Betik bu durumda anakart seri numarasını, o da yoksa sistem UUID'sini kullanır; sunucu yer tutucu seri numaralarını reddeder.
 
+### 4.5 Mesai saatleri ve SLA
+
+Kritik talepler 4 saatlik hedefini 7/24 sayar; yüksek, orta ve düşük öncelikli talepler yalnızca mesai saatini sayar. Hafta sonları, resmî tatiller ve bayramlar sayılmaz; 28 Ekim ile bayram arifeleri saat 13:00'te biter. Mesai dışında açılan talebin süresi ilk mesai saatinde başlar.
+
+- Docker: `.env` içinde `SLA_WORKDAY_START=09:00:00` ve `SLA_WORKDAY_END=18:00:00`.
+- IIS: `appsettings.Production.json` içinde `"Sla": { "WorkdayStart": "08:30:00", "WorkdayEnd": "17:30:00" }`.
+
+Ramazan ve Kurban Bayramı tarihleri 2030'a kadar uygulamanın içindedir. Köprü izinleri, şirkete özel tatiller veya Diyanet takviminin değiştirdiği günler için `Sla:Holidays` listesine tarih ekleyin, örn. `"Holidays": [ "2026-12-31" ]` (Docker'da `Sla__Holidays__0=2026-12-31`). Hedef, talep açılırken ya da önceliği değişirken hesaplanır; ayarı değiştirmek eski taleplerin hedefini değiştirmez.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.

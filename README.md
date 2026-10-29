@@ -49,7 +49,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] IT staff can open tickets on behalf of an employee (phone and walk-in requests)
 - [x] One-click "Assign to me" for unassigned active tickets
 - [x] Ticket list search and filters (status, priority, active, resolved/closed, assigned to me, unassigned)
-- [x] SLA targets per priority (Critical 4, High 8, Medium 24, Low 72 hours) with on track / due soon / overdue / met / missed badges on the ticket list and details, and an "overdue" ticket view
+- [x] SLA targets per priority (Critical 4 hours around the clock; High 8, Medium 24, Low 72 working hours) with on track / due soon / overdue / met / missed badges on the ticket list and details, and an "overdue" ticket view
 - [x] Ticket comments between the requester and IT staff
 - [x] Ticket attachments: screenshots, PDF, text/log, Word, and Excel files (up to 5 files of 5 MB) when opening a ticket or later, stored outside the web root and downloadable only by people who can see the ticket
 - [x] Satisfaction ratings: the requester rates a resolved ticket from 1 to 5 with an optional comment, once; the rating appears on the ticket and in its history
@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, and the KVKK export, anonymization, and retention rules
+- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, and the KVKK export, anonymization, and retention rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -107,7 +107,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [ ] Sign-in with Active Directory / Microsoft Entra ID and user sync
 - [x] Automatic inventory: a PowerShell agent (`scripts/Send-Inventory.ps1`) reports serial number, model, processor, RAM, disk, Windows version, and IP address to a key-protected endpoint; known computers are updated by serial number, new ones are added, and firmware placeholder serials are rejected
 - [x] Onboarding and offboarding checklists: default and person-specific steps that IT ticks off, next to automatic checks for the role, the privacy notice, zimmetli devices, signed zimmet forms, open returns, and active tickets; completing an offboarding closes the account, and IT can reopen it
-- [ ] Business-hours SLA with Turkish public holidays
+- [x] Business-hours SLA with Turkish public holidays: High, Medium, and Low targets count only working hours (09:00-18:00 by default), skipping weekends, national holidays, and Ramazan and Kurban Bayramı, with half days on 28 October and holiday eves; Critical tickets count around the clock; the working day and extra days off are settings
 - [ ] Software license and consumables (toner, cartridges) tracking
 
 ### Phase 3: Extras
