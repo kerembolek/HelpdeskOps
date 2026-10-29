@@ -6,7 +6,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 
 1. [Giriş ve Roller](#1-giriş-ve-roller)
 2. [Ana Sayfa ve Menü](#2-ana-sayfa-ve-menü)
-3. [Cihaz Yönetimi](#3-cihaz-yönetimi) (lisanslar dahil)
+3. [Cihaz Yönetimi](#3-cihaz-yönetimi) (lisanslar ve sarf malzemeleri dahil)
 4. [Kendin Çöz](#4-kendin-çöz)
 5. [Destek Talebi Yönetimi](#5-destek-talebi-yönetimi)
 6. [Cihazlarım ve Zimmet Formları](#6-cihazlarım-ve-zimmet-formları)
@@ -153,6 +153,17 @@ Menüdeki **Lisanslar** sayfası (yalnızca BT) şirketin satın aldığı lisan
 - **Yeni Lisans** ile ad, üretici/tedarikçi, kullanıcı sayısı, yenileme tarihi (süresiz lisansta boş) ve not girilir. Lisans anahtarları güvenlik gereği HelpdeskOps'ta tutulmaz; şifre kasasında saklayın.
 - Lisansın sayfasında kişi seçilip **Lisans Ata** ile bir kullanıcı hakkı verilir, **Geri Al** ile alınır. Boş hak kalmayınca atama alanı gizlenir. Kullanıcı sayısı, lisansı kullanan kişi sayısının altına düşürülemez.
 - İşten çıkış listesinde **Lisanslar geri alındı** otomatik bir kontroldür: kişiye atanmış lisans kaldıkça liste tamamlanamaz. Listedeki bağlantı, yalnızca o kişinin lisanslarını gösterir.
+
+### 3.9 Sarf Malzemeleri
+
+Menüdeki **Sarf** sayfası (yalnızca BT) toner, kartuş, tambur ve kağıt stoğunu listeler. Stoğu **En Az Stok** seviyesine inen malzemeler sarı, tükenenler kırmızı rozetle görünür; **Sipariş zamanı gelenler** düğmesi yalnızca bunları gösterir.
+
+![Sarf malzemesi](images/27-consumables.png)
+
+- **Yeni Sarf Malzemesi** ile ad, tür, uyumlu yazıcı modelleri, en az stok, yer ve başlangıç stoğu girilir.
+- Stok elle yazılmaz; yalnızca malzemenin sayfasındaki iki formla değişir. **Stok Girişi** gelen kutuları (fatura notuyla), **Kullanım** ise stoktan düşülenleri kaydeder; kullanımda yazıcı seçilirse hareket o yazıcıya bağlanır.
+- Stok hiçbir zaman eksiye düşmez. İki kişi aynı anda son toneri düşmeye çalışırsa biri "tekrar deneyin" uyarısı alır.
+- **Hareketler** tablosu son 50 giriş ve kullanımı tarih, yazıcı, not ve kaydeden kişiyle gösterir. Yazıcı silinse bile geçmiş kalır.
 
 ## 4. Kendin Çöz
 
