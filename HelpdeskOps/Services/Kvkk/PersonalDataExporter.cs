@@ -74,6 +74,12 @@ public class PersonalDataExporter
             .OrderBy(f => f.IssuedAt)
             .ToListAsync();
 
+        var licenses = await _context.LicenseAssignments.AsNoTracking()
+            .Where(a => a.UserId == userId)
+            .OrderBy(a => a.AssignedAt)
+            .Select(a => new { a.License!.Name, a.AssignedAt })
+            .ToListAsync();
+
         var checklists = await _context.StaffChecklists.AsNoTracking()
             .Where(c => c.UserId == userId)
             .OrderBy(c => c.CreatedAt)
@@ -162,6 +168,11 @@ public class PersonalDataExporter
                 ["İade Açıklaması"] = f.ReturnNote,
                 ["İade İmzası"] = f.ReturnSignature != null ? "Var (PDF'te görünür)" : null,
                 ["İade"] = Time(f.ReturnedAt)
+            }).ToList(),
+            ["Yazılım Lisanslarınız"] = licenses.Select(l => new Dictionary<string, object?>
+            {
+                ["Lisans"] = l.Name,
+                ["Atanma"] = Time(l.AssignedAt)
             }).ToList(),
             ["İşe Giriş / İşten Çıkış"] = checklists.Select(c => new Dictionary<string, object?>
             {

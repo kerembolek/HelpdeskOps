@@ -242,6 +242,49 @@ public static class DemoDataSeeder
         await SeedDeviceEventsAsync(services, userManager);
         await SeedSolutionsAsync(services);
         await SeedChecklistsAsync(services, userManager);
+        await SeedLicensesAsync(services, userManager);
+    }
+
+    // Matched by name. One license is full, one renews soon, one is perpetual; the sales employee's seat keeps the
+    // offboarding's license check open.
+    private static readonly (string Name, string Vendor, int Seats, int? RenewInDays, string Note, string[] Emails)[] DemoLicenses =
+    {
+        ("Microsoft 365 Business Standard", "Microsoft", 5, 140, "Yıllık abonelik, CSP bayi üzerinden.",
+            new[] { "test@helpdeskops.com", "it@helpdeskops.com", "ik@helpdeskops.com", "satis@helpdeskops.com", "mudur@helpdeskops.com" }),
+        ("Logo Tiger 3 (Muhasebe)", "Logo Yazılım", 2, 21, "Bakım sözleşmesi Kasım'da yenilenir.", new[] { "test@helpdeskops.com" }),
+        ("Adobe Acrobat Pro 2020", "Adobe", 3, null, "Süresiz lisans.", new[] { "ik@helpdeskops.com" })
+    };
+
+    private static async Task SeedLicensesAsync(IServiceProvider services, UserManager<ApplicationUser> userManager)
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var itAdmin = await userManager.FindByEmailAsync("it@helpdeskops.com");
+
+        foreach (var demo in DemoLicenses)
+        {
+            if (await context.SoftwareLicenses.AnyAsync(l => l.Name == demo.Name))
+                continue;
+
+            var license = new SoftwareLicense
+            {
+                Name = demo.Name,
+                Vendor = demo.Vendor,
+                Seats = demo.Seats,
+                RenewalDate = demo.RenewInDays is int days ? TurkeyTime.Today.AddDays(days) : null,
+                Notes = demo.Note,
+                CreatedAt = DateTime.UtcNow.AddDays(-60)
+            };
+            foreach (var email in demo.Emails)
+            {
+                if (await userManager.FindByEmailAsync(email) is { } user)
+                {
+                    license.Assignments.Add(new LicenseAssignment { UserId = user.Id, AssignedAt = DateTime.UtcNow.AddDays(-60), AssignedById = itAdmin?.Id });
+                }
+            }
+            context.SoftwareLicenses.Add(license);
+        }
+
+        await context.SaveChangesAsync();
     }
 
     // One onboarding half done and one offboarding still waiting for a laptop, so both kinds show their checks.
