@@ -58,6 +58,7 @@ builder.Services.Configure<HelpdeskOps.Services.Kvkk.KvkkOptions>(builder.Config
 builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.PersonalDataExporter>();
 builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.PersonalDataAnonymizer>();
 builder.Services.AddScoped<HelpdeskOps.Services.Kvkk.RetentionCleaner>();
+builder.Services.AddScoped<HelpdeskOps.Services.StaffChecklistService>();
 builder.Services.AddHostedService<HelpdeskOps.Services.Kvkk.RetentionService>();
 
 // Keep data protection keys on disk so sign-in cookies survive app pool recycles on shared hosting

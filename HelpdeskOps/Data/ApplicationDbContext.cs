@@ -23,6 +23,8 @@ namespace HelpdeskOps.Data
         public DbSet<TicketAttachment> TicketAttachments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<StaffChecklist> StaffChecklists { get; set; }
+        public DbSet<ChecklistItem> ChecklistItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -150,6 +152,40 @@ namespace HelpdeskOps.Data
                 .HasOne(f => f.ReceivedBy)
                 .WithMany()
                 .HasForeignKey(f => f.ReceivedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Onboarding and offboarding checklists; their manual steps go away with them
+            builder.Entity<StaffChecklist>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StaffChecklist>()
+                .HasOne(c => c.CreatedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StaffChecklist>()
+                .HasOne(c => c.CompletedBy)
+                .WithMany()
+                .HasForeignKey(c => c.CompletedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<StaffChecklist>()
+                .HasIndex(c => new { c.CompletedAt, c.TargetDate });
+
+            builder.Entity<ChecklistItem>()
+                .HasOne(i => i.Checklist)
+                .WithMany(c => c.Items)
+                .HasForeignKey(i => i.StaffChecklistId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ChecklistItem>()
+                .HasOne(i => i.DoneBy)
+                .WithMany()
+                .HasForeignKey(i => i.DoneById)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

@@ -257,6 +257,40 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("AuditLogs");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.ChecklistItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DoneAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DoneById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffChecklistId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoneById");
+
+                    b.HasIndex("StaffChecklistId");
+
+                    b.ToTable("ChecklistItems");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -469,6 +503,53 @@ namespace HelpdeskOps.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("SolutionArticles");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.StaffChecklist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CompletedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("TargetDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompletedById");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CompletedAt", "TargetDate");
+
+                    b.ToTable("StaffChecklists");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>
@@ -826,6 +907,24 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.ChecklistItem", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "DoneBy")
+                        .WithMany()
+                        .HasForeignKey("DoneById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpdeskOps.Models.StaffChecklist", "Checklist")
+                        .WithMany("Items")
+                        .HasForeignKey("StaffChecklistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Checklist");
+
+                    b.Navigation("DoneBy");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Device", b =>
                 {
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "AssignedUser")
@@ -868,6 +967,31 @@ namespace HelpdeskOps.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.StaffChecklist", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "CompletedBy")
+                        .WithMany()
+                        .HasForeignKey("CompletedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CompletedBy");
+
+                    b.Navigation("CreatedBy");
 
                     b.Navigation("User");
                 });
@@ -1016,6 +1140,11 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("ConnectedDevices");
 
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.StaffChecklist", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.Ticket", b =>
