@@ -25,6 +25,8 @@ namespace HelpdeskOps.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<StaffChecklist> StaffChecklists { get; set; }
         public DbSet<ChecklistItem> ChecklistItems { get; set; }
+        public DbSet<SoftwareLicense> SoftwareLicenses { get; set; }
+        public DbSet<LicenseAssignment> LicenseAssignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -181,6 +183,29 @@ namespace HelpdeskOps.Data
                 .WithMany(c => c.Items)
                 .HasForeignKey(i => i.StaffChecklistId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // A license's seats go away with it; a person can hold one seat of each license
+            builder.Entity<LicenseAssignment>()
+                .HasOne(a => a.License)
+                .WithMany(l => l.Assignments)
+                .HasForeignKey(a => a.SoftwareLicenseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<LicenseAssignment>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LicenseAssignment>()
+                .HasOne(a => a.AssignedBy)
+                .WithMany()
+                .HasForeignKey(a => a.AssignedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LicenseAssignment>()
+                .HasIndex(a => new { a.SoftwareLicenseId, a.UserId })
+                .IsUnique();
 
             builder.Entity<ChecklistItem>()
                 .HasOne(i => i.DoneBy)

@@ -425,6 +425,39 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("DeviceEvents");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.LicenseAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AssignedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("SoftwareLicenseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedById");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("SoftwareLicenseId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("LicenseAssignments");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Notification", b =>
                 {
                     b.Property<int>("Id")
@@ -458,6 +491,41 @@ namespace HelpdeskOps.Migrations
                     b.HasIndex("UserId", "ReadAt");
 
                     b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.SoftwareLicense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("RenewalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Seats")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Vendor")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SoftwareLicenses");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.SolutionArticle", b =>
@@ -963,6 +1031,32 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("PerformedBy");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.LicenseAssignment", b =>
+                {
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "AssignedBy")
+                        .WithMany()
+                        .HasForeignKey("AssignedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpdeskOps.Models.SoftwareLicense", "License")
+                        .WithMany("Assignments")
+                        .HasForeignKey("SoftwareLicenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HelpdeskOps.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedBy");
+
+                    b.Navigation("License");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.Notification", b =>
                 {
                     b.HasOne("HelpdeskOps.Models.ApplicationUser", "User")
@@ -1143,6 +1237,11 @@ namespace HelpdeskOps.Migrations
                     b.Navigation("ConnectedDevices");
 
                     b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("HelpdeskOps.Models.SoftwareLicense", b =>
+                {
+                    b.Navigation("Assignments");
                 });
 
             modelBuilder.Entity("HelpdeskOps.Models.StaffChecklist", b =>

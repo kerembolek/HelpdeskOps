@@ -8,7 +8,8 @@ public record ChecklistFacts(
     int UnsignedForms,
     int OpenForms,
     int ActiveAssignedTickets,
-    int ReturnsWithoutSignature);
+    int ReturnsWithoutSignature,
+    int AssignedLicenses = 0);
 
 // One automatic check. A required check has to pass before the checklist can be completed; the others only warn.
 public record ChecklistCheck(string Title, bool Passed, string Detail, bool Required = true);
@@ -31,7 +32,6 @@ public static class StaffChecklistRules
         {
             "Windows / Active Directory hesabı kapatıldı",
             "E-posta yönlendirmesi veya otomatik yanıt ayarlandı",
-            "Lisanslar geri alındı",
             "VPN, uzak erişim ve paylaşılan klasör yetkileri kaldırıldı",
             "Kartlı geçiş kartı teslim alındı"
         }
@@ -59,6 +59,8 @@ public static class StaffChecklistRules
                 facts.OpenForms == 0 ? "Açık zimmet formu yok." : $"{facts.OpenForms} form iade edilmedi."),
             new ChecklistCheck("Üzerinde aktif talep yok", facts.ActiveAssignedTickets == 0,
                 facts.ActiveAssignedTickets == 0 ? "Atanmış açık talebi yok." : $"{facts.ActiveAssignedTickets} aktif talebi başka birine atayın."),
+            new ChecklistCheck("Lisanslar geri alındı", facts.AssignedLicenses == 0,
+                facts.AssignedLicenses == 0 ? "Atanmış yazılım lisansı yok." : $"{facts.AssignedLicenses} lisans hâlâ bu kişiye atanmış (Lisanslar)."),
             // A device taken back without a signed check-in still counts as returned, so this only warns
             new ChecklistCheck("İadeler imzayla teslim alındı", facts.ReturnsWithoutSignature == 0,
                 facts.ReturnsWithoutSignature == 0 ? "Bu süreçteki iadelerin hepsi BT imzalı."
