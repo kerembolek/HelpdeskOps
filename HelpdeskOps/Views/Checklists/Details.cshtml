@@ -182,6 +182,14 @@ else
     </table>
 }
 
+@if (isOffboarding && Model.Checks.Any(c => c.Title == "Lisanslar geri alındı" && !c.Passed))
+{
+    <p>
+        <i class="bi bi-key me-1"></i>Bu kişiye atanmış lisanslar var.
+        <a asp-controller="Licenses" asp-action="Index" asp-route-userId="@user.Id">Lisanslarını gör ve geri al</a>.
+    </p>
+}
+
 @if (Model.ActiveAssignedTickets > 0)
 {
     <p>

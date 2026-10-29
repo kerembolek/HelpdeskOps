@@ -1,0 +1,23 @@
+@model SoftwareLicense
+
+@{
+    ViewData["Title"] = "Yeni Lisans";
+}
+
+<h1><i class="bi bi-key text-primary me-2"></i>@ViewData["Title"]</h1>
+
+<div class="card mt-3" style="max-width: 40rem;">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            <partial name="_LicenseFields" model="Model" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

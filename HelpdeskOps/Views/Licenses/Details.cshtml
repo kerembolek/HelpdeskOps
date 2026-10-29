@@ -1,0 +1,90 @@
+@model SoftwareLicense
+
+@{
+    ViewData["Title"] = Model.Name;
+    var used = Model.Assignments.Count;
+    var free = Model.Seats - used;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1><i class="bi bi-key text-primary me-2"></i>@Model.Name</h1>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Düzenle</a>
+</div>
+
+@if (TempData["LicenseMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (TempData["LicenseError"] is string error)
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<dl class="row mt-3">
+    <dt class="col-sm-3">Üretici / Tedarikçi</dt>
+    <dd class="col-sm-9">@(Model.Vendor ?? "-")</dd>
+
+    <dt class="col-sm-3">Kullanım</dt>
+    <dd class="col-sm-9">@used / @Model.Seats kullanıcı · <span class="@(free == 0 ? "text-warning-emphasis fw-semibold" : "")">@free boş hak</span></dd>
+
+    <dt class="col-sm-3">Yenileme / Bitiş</dt>
+    <dd class="col-sm-9"><partial name="_RenewalBadge" model="Model.RenewalDate" /></dd>
+
+    <dt class="col-sm-3">Not</dt>
+    <dd class="col-sm-9">@(Model.Notes ?? "-")</dd>
+</dl>
+
+<h2 class="h5 mt-4">Kullananlar</h2>
+
+@if (free > 0)
+{
+    <form asp-action="Assign" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2 mb-3" style="max-width: 36rem;">
+        <select name="userId" asp-items="ViewBag.Users" class="form-select" aria-label="Lisans atanacak kişi" required>
+            <option value="">Kişi seçin</option>
+        </select>
+        <button type="submit" class="btn btn-primary text-nowrap">Lisans Ata</button>
+    </form>
+}
+
+@if (!Model.Assignments.Any())
+{
+    <div class="alert alert-info">Bu lisans henüz kimseye atanmadı.</div>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr><th>Ad Soyad</th><th>Departman</th><th>Atanma</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var assignment in Model.Assignments)
+            {
+                <tr>
+                    <td>@assignment.User!.FirstName @assignment.User.LastName</td>
+                    <td>@(assignment.User.Department ?? "-")</td>
+                    <td>
+                        @assignment.AssignedAt.ToTurkeyTime().ToString("dd.MM.yyyy HH:mm")
+                        @if (assignment.AssignedBy is { } by)
+                        {
+                            <span class="small text-muted">· @by.FirstName @by.LastName</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <form asp-action="Unassign" asp-route-id="@Model.Id" asp-route-assignmentId="@assignment.Id" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Geri Al</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<div class="d-flex flex-wrap gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary">Lisanslara Dön</a>
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="ms-auto"
+          onsubmit="return confirm('Lisans ve @used atama kaydı silinsin mi?');">
+        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Lisansı Sil</button>
+    </form>
+</div>

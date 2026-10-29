@@ -28,6 +28,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["UserRole"] = "Kullanıcı Rolü",
         ["StaffChecklist"] = "Giriş / Çıkış Listesi",
         ["ChecklistItem"] = "Liste Adımı",
+        ["SoftwareLicense"] = "Yazılım Lisansı",
+        ["LicenseAssignment"] = "Lisans Ataması",
         // Not a record type: the summary RetentionCleaner writes after deleting expired personal data
         ["Retention"] = "Saklama Süresi"
     };
@@ -59,7 +61,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["UploadedById"] = "Yükleyen",
         ["CreatedById"] = "Açan",
         ["CompletedById"] = "Tamamlayan",
-        ["DoneById"] = "İşaretleyen"
+        ["DoneById"] = "İşaretleyen",
+        ["AssignedById"] = "Atayan"
     };
 
     private sealed record PendingAudit(EntityEntry Entry, object Entity, AuditAction Action, string EntityType,
@@ -274,6 +277,8 @@ public class AuditInterceptor : SaveChangesInterceptor
         ApplicationUser u => u.Email,
         StaffChecklist c => $"{c.Type.GetDisplayName()} #{c.Id}",
         ChecklistItem i => i.Title,
+        SoftwareLicense l => l.Name,
+        LicenseAssignment a => $"Lisans #{a.SoftwareLicenseId}",
         _ => null
     };
 

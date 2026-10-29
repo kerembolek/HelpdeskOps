@@ -1,0 +1,32 @@
+@model SoftwareLicense
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" placeholder="Örn. Microsoft 365 Business Standard" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Vendor" class="form-label"></label>
+    <input asp-for="Vendor" class="form-control" placeholder="Örn. Microsoft / bayi adı" />
+    <span asp-validation-for="Vendor" class="text-danger"></span>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-6">
+        <label asp-for="Seats" class="form-label"></label>
+        <input asp-for="Seats" class="form-control" min="1" />
+        <span asp-validation-for="Seats" class="text-danger"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="RenewalDate" class="form-label"></label>
+        <input asp-for="RenewalDate" class="form-control" />
+        <div class="form-text">Süresiz lisansta boş bırakın.</div>
+        <span asp-validation-for="RenewalDate" class="text-danger"></span>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Notes" class="form-label"></label>
+    <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Örn. sözleşme no, fatura ayı"></textarea>
+    <span asp-validation-for="Notes" class="text-danger"></span>
+    <div class="form-text"><i class="bi bi-shield-lock"></i> Lisans anahtarlarını buraya yazmayın; şifre kasasında saklayın.</div>
+</div>

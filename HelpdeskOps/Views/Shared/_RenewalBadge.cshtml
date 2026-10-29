@@ -1,0 +1,24 @@
+@using HelpdeskOps.Models.Enums
+@model DateTime?
+
+@{
+    // Same rules as SoftwareLicense.GetRenewalState
+    var state = new HelpdeskOps.Models.SoftwareLicense { Name = "", RenewalDate = Model }.GetRenewalState(TurkeyTime.Today);
+    var (badgeClass, text) = state switch
+    {
+        WarrantyState.Active => ("text-bg-success", "Geçerli"),
+        WarrantyState.ExpiringSoon => ("text-bg-warning", "Yakında yenilenmeli"),
+        WarrantyState.Expired => ("text-bg-danger", "Süresi doldu"),
+        _ => ((string?)null, "Süresiz")
+    };
+}
+
+@if (badgeClass == null)
+{
+    <span class="text-muted">@text</span>
+}
+else
+{
+    <span class="text-nowrap">@Model!.Value.ToString("dd.MM.yyyy")</span>
+    <span class="badge @badgeClass ms-1">@text</span>
+}
