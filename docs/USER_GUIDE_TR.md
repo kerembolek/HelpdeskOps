@@ -6,7 +6,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 
 1. [Giriş ve Roller](#1-giriş-ve-roller)
 2. [Ana Sayfa ve Menü](#2-ana-sayfa-ve-menü)
-3. [Cihaz Yönetimi](#3-cihaz-yönetimi)
+3. [Cihaz Yönetimi](#3-cihaz-yönetimi) (lisanslar dahil)
 4. [Kendin Çöz](#4-kendin-çöz)
 5. [Destek Talebi Yönetimi](#5-destek-talebi-yönetimi)
 6. [Cihazlarım ve Zimmet Formları](#6-cihazlarım-ve-zimmet-formları)
@@ -143,6 +143,16 @@ Etiket telefonla okutulduğunda giriş yapılması istenir, ardından:
 - Donanım ya da adres değiştiğinde değişiklik denetim kaydına yazılır; aynı bilgilerle gelen günlük raporlar kayıt oluşturmaz.
 - 14 günden uzun süredir rapor göndermeyen cihazların ayrıntılarında sarı bir uyarı görünür.
 - Cihazlar sayfasındaki **Envanter** filtresi, raporu kesilen cihazları ve betiğin henüz çalışmadığı (hiç rapor göndermeyen) bilgisayarları listeler.
+
+### 3.8 Yazılım Lisansları
+
+Menüdeki **Lisanslar** sayfası (yalnızca BT) şirketin satın aldığı lisansları, kaç kişinin kullandığını ve yenileme tarihlerini listeler. Yenilemesi 30 gün içinde olan lisanslar sarı, süresi dolanlar kırmızı rozetle görünür; üstteki düğmeler bu ikisini süzer.
+
+![Yazılım lisansları](images/26-licenses.png)
+
+- **Yeni Lisans** ile ad, üretici/tedarikçi, kullanıcı sayısı, yenileme tarihi (süresiz lisansta boş) ve not girilir. Lisans anahtarları güvenlik gereği HelpdeskOps'ta tutulmaz; şifre kasasında saklayın.
+- Lisansın sayfasında kişi seçilip **Lisans Ata** ile bir kullanıcı hakkı verilir, **Geri Al** ile alınır. Boş hak kalmayınca atama alanı gizlenir. Kullanıcı sayısı, lisansı kullanan kişi sayısının altına düşürülemez.
+- İşten çıkış listesinde **Lisanslar geri alındı** otomatik bir kontroldür: kişiye atanmış lisans kaldıkça liste tamamlanamaz. Listedeki bağlantı, yalnızca o kişinin lisanslarını gösterir.
 
 ## 4. Kendin Çöz
 
@@ -291,7 +301,7 @@ Liste, kullanıcı satırındaki kişi ekleme veya çıkarma simgesiyle ya da sa
 
 Liste sayfasının iki bölümü vardır:
 
-- **Sistem kontrolleri**: HelpdeskOps'un kendisinin bildiği adımlar. İşe girişte kişinin rolü olup olmadığı, KVKK aydınlatma metnini onaylayıp onaylamadığı, en az bir cihaz zimmetlenip zimmetlenmediği ve zimmet formlarını imzalayıp imzalamadığı; işten çıkışta üzerinde cihaz, açık zimmet formu ve aktif talep kalıp kalmadığı kontrol edilir. Bu süreçte imzalı teslim alma olmadan geri alınan cihazlar sarı uyarıyla gösterilir ama listeyi tamamlamayı engellemez.
+- **Sistem kontrolleri**: HelpdeskOps'un kendisinin bildiği adımlar. İşe girişte kişinin rolü olup olmadığı, KVKK aydınlatma metnini onaylayıp onaylamadığı, en az bir cihaz zimmetlenip zimmetlenmediği ve zimmet formlarını imzalayıp imzalamadığı; işten çıkışta üzerinde cihaz, açık zimmet formu, aktif talep ve yazılım lisansı kalıp kalmadığı kontrol edilir. Bu süreçte imzalı teslim alma olmadan geri alınan cihazlar sarı uyarıyla gösterilir ama listeyi tamamlamayı engellemez.
 - **Yapılacaklar**: BT'nin elle işaretlediği adımlar. Her adımın yanında kimin ne zaman işaretlediği görünür. Alttaki alandan kişiye özel adım eklenebilir (ör. "Bordro programı kuruldu").
 
 Altta kişinin zimmetli cihazları ve zimmet formları listelenir. İşten çıkışta **Geri Al** cihazın düzenleme sayfasını, **Teslim Al** imzalı teslim alma sayfasını açar.
