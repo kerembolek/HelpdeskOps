@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, and the KVKK export, anonymization, and retention rules
+- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, and the KVKK export, anonymization, and retention rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -108,7 +108,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] Automatic inventory: a PowerShell agent (`scripts/Send-Inventory.ps1`) reports serial number, model, processor, RAM, disk, Windows version, and IP address to a key-protected endpoint; known computers are updated by serial number, new ones are added, and firmware placeholder serials are rejected
 - [x] Onboarding and offboarding checklists: default and person-specific steps that IT ticks off, next to automatic checks for the role, the privacy notice, zimmetli devices, signed zimmet forms, open returns, and active tickets; completing an offboarding closes the account, and IT can reopen it
 - [x] Business-hours SLA with Turkish public holidays: High, Medium, and Low targets count only working hours (09:00-18:00 by default), skipping weekends, national holidays, and Ramazan and Kurban Bayramı, with half days on 28 October and holiday eves; Critical tickets count around the clock; the working day and extra days off are settings
-- [ ] Software license and consumables (toner, cartridges) tracking
+- [ ] Software license and consumables (toner, cartridges) tracking: software licenses are done (seats per person, renewal dates with 30-day and expired filters, no keys stored, and an automatic offboarding check for licenses still held); consumables come next
 
 ### Phase 3: Extras
 - [ ] Open tickets by e-mail
@@ -119,7 +119,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, and tickets before a person starts or leaves. For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day.
+Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, licenses, and tickets before a person starts or leaves. They also track software licenses: who holds a seat and when each license renews. For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day.
 
 ---
 
