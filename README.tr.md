@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
+- [x] SLA kurallarını, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini ve KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -106,7 +106,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] QR etiketler: cihazdaki etiketi okutmak, kategorisi cihaz türüne göre seçilmiş bir talep (çalışan) ya da cihaz kartını (BT) açar; tüm cihazlar ya da tek cihaz için A4 21'li yazdırılabilir etiket sayfaları
 - [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
 - [x] Otomatik envanter: bir PowerShell aracı (`scripts/Send-Inventory.ps1`) seri no, model, işlemci, RAM, disk, Windows sürümü ve IP adresini anahtarla korunan bir adrese bildirir; kayıtlı bilgisayarlar seri numarasıyla güncellenir, yeniler eklenir, yer tutucu seri numaraları reddedilir
-- [ ] Hesapları, cihazları ve imzalı iadeleri birbirine bağlayan işe giriş ve çıkış kontrol listeleri
+- [x] İşe giriş ve çıkış kontrol listeleri: BT'nin işaretlediği varsayılan ve kişiye özel adımlar; yanında rol, aydınlatma metni, zimmetli cihazlar, imzalı zimmet formları, açık iadeler ve aktif talepler için otomatik kontroller. İşten çıkış tamamlanınca hesap kapanır, BT gerekirse yeniden açar
 - [ ] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA
 - [ ] Yazılım lisansı ve sarf malzemesi (toner, kartuş) takibi
 
@@ -119,7 +119,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor; işe giriş ve çıkışlarda hesabı, cihazları, imzalı formları ve talepleri kontrol eden listeler yürütüyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor.
 
 ---
 
