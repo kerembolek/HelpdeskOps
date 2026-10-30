@@ -23,6 +23,8 @@ public class DirectoryClientTests
                    "value":[
                      {"id":"1","userPrincipalName":"a@x.com","givenName":"Ada","surname":"Kaya","department":"Satış","accountEnabled":true,"userType":"Member"},
                      {"id":"3","mail":"misafir@y.com","accountEnabled":true,"userType":"Guest"},
+                     {"id":"5","userPrincipalName":"sahip_hotmail.com#EXT#@x.onmicrosoft.com","accountEnabled":true,"userType":"Member"},
+                     {"id":"6","mail":"sahip@hotmail.com","userPrincipalName":"sahip_hotmail.com#EXT#@x.onmicrosoft.com","accountEnabled":true,"userType":"Member"},
                      {"id":"4","accountEnabled":true}]}
                   """;
             return Task.FromResult(new HttpResponseMessage(Status) { Content = new StringContent(body, Encoding.UTF8, "application/json") });
@@ -35,7 +37,7 @@ public class DirectoryClientTests
     }));
 
     [Fact]
-    public async Task GraphClientFollowsPagesAndSkipsGuestsAndAddresslessEntries()
+    public async Task GraphClientFollowsPagesAndSkipsOutsideAndAddresslessEntries()
     {
         var people = await Client(new FakeGraph()).GetUsersAsync(CancellationToken.None);
 

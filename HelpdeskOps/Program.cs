@@ -87,6 +87,9 @@ if (directoryOptions.Provider == DirectoryProvider.Entra)
         options.CallbackPath = "/signin-entra";
         // Keep the token's own claim names, such as "oid"
         options.MapInboundClaims = false;
+        // Signing out here leaves the Microsoft session open, so on a shared computer the next person must be able to
+        // pick their own account instead of landing in the previous one
+        options.Prompt = "select_account";
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         // A refused consent or a rejected token ends on the sign-in page with a message, not on an error page
         options.Events.OnRemoteFailure = context =>
