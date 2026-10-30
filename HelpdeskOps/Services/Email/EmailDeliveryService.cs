@@ -77,6 +77,8 @@ public class EmailDeliveryService : BackgroundService
         mime.From.Add(new MailboxAddress(options.FromName, options.FromAddress));
         mime.To.Add(MailboxAddress.Parse(message.To));
         mime.Subject = message.Subject;
+        // Tells out-of-office replies and other robots not to answer, which is how mail loops are avoided
+        mime.Headers.Add(HeaderId.AutoSubmitted, "auto-generated");
         mime.Body = new BodyBuilder { HtmlBody = message.HtmlBody }.ToMessageBody();
         return mime;
     }
