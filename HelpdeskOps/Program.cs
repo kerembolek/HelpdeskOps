@@ -2,6 +2,7 @@
 using HelpdeskOps.Models;
 using HelpdeskOps.Services.CompanyDirectory;
 using HelpdeskOps.Services.Email;
+using HelpdeskOps.Services.Teams;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -28,6 +29,17 @@ builder.Services.AddSingleton<HelpdeskOps.Services.AuditInterceptor>();
 // SLA targets count working hours; the "Sla" settings section sets the working day and extra days off
 builder.Services.Configure<SlaOptions>(builder.Configuration.GetSection(SlaOptions.SectionName));
 builder.Services.AddSingleton<HelpdeskOps.Services.SlaDueInterceptor>();
+// Teams: new tickets go to the IT channel through a Workflows webhook; off until "Teams:WebhookUrl" is set
+var teamsOptions = builder.Configuration.GetSection(TeamsOptions.SectionName).Get<TeamsOptions>() ?? new TeamsOptions();
+if (teamsOptions.Validate(builder.Environment.IsDevelopment()) is string teamsError)
+{
+    throw new InvalidOperationException(teamsError);
+}
+builder.Services.Configure<TeamsOptions>(builder.Configuration.GetSection(TeamsOptions.SectionName));
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<TeamsQueue>();
+builder.Services.AddHostedService<TeamsDeliveryService>();
+builder.Services.AddSingleton<TicketTeamsInterceptor>();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -36,7 +48,8 @@ builder.Services.AddDbContext<ApplicationDbContext>((services, options) =>
         .AddInterceptors(
             services.GetRequiredService<HelpdeskOps.Services.SlaDueInterceptor>(),
             services.GetRequiredService<HelpdeskOps.Services.AuditInterceptor>(),
-            services.GetRequiredService<NotificationEmailInterceptor>()));
+            services.GetRequiredService<NotificationEmailInterceptor>(),
+            services.GetRequiredService<TicketTeamsInterceptor>()));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
