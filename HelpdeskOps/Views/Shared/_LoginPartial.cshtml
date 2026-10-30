@@ -2,6 +2,7 @@
 @using HelpdeskOps.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IConfiguration Configuration
+@inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.CompanyDirectory.DirectoryOptions> DirectoryOptions
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
@@ -43,8 +44,8 @@
 }
 else
 {
-    @* The read-only demo has no registration *@
-    @if (!HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration))
+    @* The read-only demo has no registration, and with a company directory accounts come from the directory *@
+    @if (!HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(Configuration) && !DirectoryOptions.Value.IsEnabled)
     {
         <li class="nav-item">
             <a class="nav-link" asp-area="Identity" asp-page="/Account/Register"><i class="bi bi-person-plus"></i> Kayıt Ol</a>

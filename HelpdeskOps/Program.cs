@@ -1,5 +1,6 @@
 ﻿using HelpdeskOps.Data;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.CompanyDirectory;
 using HelpdeskOps.Services.Email;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -50,7 +51,51 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     })
     .AddRoles<IdentityRole>()
     .AddErrorDescriber<HelpdeskOps.Services.TurkishIdentityErrorDescriber>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddUserManager<DirectoryUserManager>();
+
+// Company directory: the "Directory" settings section picks Entra ID, Active Directory, or neither
+var directoryOptions = builder.Configuration.GetSection(DirectoryOptions.SectionName).Get<DirectoryOptions>() ?? new DirectoryOptions();
+if (directoryOptions.Validate(builder.Environment.IsDevelopment()) is string directoryError)
+{
+    throw new InvalidOperationException(directoryError);
+}
+builder.Services.Configure<DirectoryOptions>(builder.Configuration.GetSection(DirectoryOptions.SectionName));
+builder.Services.AddSingleton<LdapDirectoryClient>();
+builder.Services.AddSingleton<IDirectoryPasswordChecker>(services => services.GetRequiredService<LdapDirectoryClient>());
+builder.Services.AddHttpClient<GraphDirectoryClient>();
+builder.Services.AddScoped<IDirectoryClient>(services => directoryOptions.Provider == DirectoryProvider.Entra
+    ? services.GetRequiredService<GraphDirectoryClient>()
+    : services.GetRequiredService<LdapDirectoryClient>());
+builder.Services.AddScoped<DirectorySync>();
+builder.Services.AddHostedService<DirectorySyncService>();
+
+if (directoryOptions.Provider == DirectoryProvider.Entra)
+{
+    // Microsoft checks the password and any MFA, then this app receives a signed token. The handler verifies the
+    // signature, the issuer (this tenant only), and the audience (this app only).
+    builder.Services.AddAuthentication().AddOpenIdConnect(EntraSignIn.Scheme, "Microsoft", options =>
+    {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+        options.Authority = directoryOptions.Entra.Authority;
+        options.ClientId = directoryOptions.Entra.ClientId;
+        options.ClientSecret = directoryOptions.Entra.ClientSecret;
+        options.ResponseType = "code";
+        options.CallbackPath = "/signin-entra";
+        // Keep the token's own claim names, such as "oid"
+        options.MapInboundClaims = false;
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        // A refused consent or a rejected token ends on the sign-in page with a message, not on an error page
+        options.Events.OnRemoteFailure = context =>
+        {
+            context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>()
+                .LogWarning(context.Failure, "Microsoft sign-in failed.");
+            context.Response.Redirect("/Identity/Account/ExternalLogin?handler=Callback&remoteError=failed");
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
+    });
+}
 
 // Re-check sign-in cookies against the security stamp every minute, so a role change takes effect quickly
 builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.FromMinutes(1));

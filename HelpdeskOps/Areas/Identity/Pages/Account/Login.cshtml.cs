@@ -118,7 +118,18 @@ public class LoginModel : PageModel
             // Failed passwords count toward lockout, except on the read-only demo, where anyone could lock the shared
             // demo accounts by typing wrong passwords on purpose (security)
             var lockoutOnFailure = !HelpdeskOps.Services.DemoReadOnlyMiddleware.IsEnabled(_configuration);
-            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure);
+            Microsoft.AspNetCore.Identity.SignInResult result;
+            try
+            {
+                result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure);
+            }
+            catch (HelpdeskOps.Services.CompanyDirectory.DirectoryUnavailableException ex)
+            {
+                // Not a wrong password, so it does not count toward a lockout
+                _logger.LogError(ex, "Directory sign-in failed.");
+                ModelState.AddModelError(string.Empty, "Şirket dizinine şu anda ulaşılamıyor. Biraz sonra tekrar deneyin.");
+                return Page();
+            }
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
