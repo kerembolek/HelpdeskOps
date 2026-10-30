@@ -18,7 +18,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 - **Çatı:** ASP.NET Core MVC (.NET 10)
 - **Veritabanı:** Entity Framework Core (Code-First)
-- **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`)
+- **Kimlik doğrulama:** ASP.NET Core Identity ve role dayalı yetkilendirme (`Employee`, `ITAdmin`), isteğe bağlı Microsoft Entra ID (OpenID Connect) ya da Active Directory (LDAP) ile giriş
 - **Arayüz:** Razor Views, Bootstrap, Bootstrap Icons
 - **Test:** xUnit birim testleri; her push ve pull request'te GitHub Actions ile çalışır
 - **Kurulum:** SQL Server 2022 Express ile Docker Compose ya da Windows Server'da IIS
@@ -104,7 +104,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### 2. Aşama: Farklılaştıran özellikler
 - [x] QR etiketler: cihazdaki etiketi okutmak, kategorisi cihaz türüne göre seçilmiş bir talep (çalışan) ya da cihaz kartını (BT) açar; tüm cihazlar ya da tek cihaz için A4 21'li yazdırılabilir etiket sayfaları
-- [ ] Active Directory / Microsoft Entra ID ile giriş ve kullanıcı eşitleme
+- [x] Şirket dizini: Microsoft Entra ID (Microsoft üzerinden, kendi MFA'sıyla) ya da şirket içi Active Directory (LDAPS) ile giriş ve hesap açan, ad ile departmanı güncelleyen, dizinde kapatılan hesabı kapatan, yanlış filtreye karşı güvenlik durağı olan günlük kullanıcı eşitlemesi
 - [x] Otomatik envanter: bir PowerShell aracı (`scripts/Send-Inventory.ps1`) seri no, model, işlemci, RAM, disk, Windows sürümü ve IP adresini anahtarla korunan bir adrese bildirir; kayıtlı bilgisayarlar seri numarasıyla güncellenir, yeniler eklenir, yer tutucu seri numaraları reddedilir
 - [x] İşe giriş ve çıkış kontrol listeleri: BT'nin işaretlediği varsayılan ve kişiye özel adımlar; yanında rol, aydınlatma metni, zimmetli cihazlar, imzalı zimmet formları, açık iadeler ve aktif talepler için otomatik kontroller. İşten çıkış tamamlanınca hesap kapanır, BT gerekirse yeniden açar
 - [x] Mesai saatine ve Türkiye'deki resmî tatillere göre SLA: yüksek, orta ve düşük öncelikli talepler yalnızca mesai saatini (varsayılan 09:00-18:00) sayar; hafta sonları, ulusal bayramlar, Ramazan ve Kurban Bayramı atlanır, 28 Ekim ve bayram arifeleri yarım gündür; kritik talepler 7/24 sayılır; mesai saatleri ve ek tatil günleri ayarlardan değişir
@@ -119,7 +119,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor; işe giriş ve çıkışlarda hesabı, cihazları, imzalı formları, lisansları ve talepleri kontrol eden listeler yürütüyor. Yazılım lisanslarında kimin kullanıcı hakkı olduğunu ve her lisansın ne zaman yenileneceğini, sarf malzemelerinde stoğu, neyin sipariş edilmesi gerektiğini ve hangi yazıcının ne kullandığını da takip ediyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor; işe giriş ve çıkışlarda hesabı, cihazları, imzalı formları, lisansları ve talepleri kontrol eden listeler yürütüyor. Yazılım lisanslarında kimin kullanıcı hakkı olduğunu ve her lisansın ne zaman yenileneceğini, sarf malzemelerinde stoğu, neyin sipariş edilmesi gerektiğini ve hangi yazıcının ne kullandığını da takip ediyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor. Şirketler Microsoft Entra ID ya da Active Directory bağlayabiliyor; çalışanlar şirket hesabıyla giriyor, günlük eşitleme de hesapları dizinle uyumlu tutuyor.
 
 ---
 
@@ -196,6 +196,37 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
 
 E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan bir e-posta sunucusu sayfaları yavaşlatmaz. Uygulama içi her bildirim alıcısına e-postayla da gider. `Smtp` modunda yeni hesapların giriş yapmadan önce e-posta adresini doğrulaması gerekir ve giriş sayfasında şifre sıfırlama bağlantısı görünür.
 
+### Şirket Dizini
+
+`Directory` ayar bölümü HelpdeskOps'u şirket dizinine bağlar. `Provider` değeri `None` (varsayılan), `Entra` ya da `ActiveDirectory` olabilir. Gizli değerleri git'in yok saydığı `appsettings.Production.json` dosyasında ya da ortam değişkenlerinde tutun:
+
+```json
+{
+  "Directory": {
+    "Provider": "Entra",
+    "Entra": { "TenantId": "...", "ClientId": "...", "ClientSecret": "..." }
+  }
+}
+```
+
+```json
+{
+  "Directory": {
+    "Provider": "ActiveDirectory",
+    "Ldap": {
+      "Host": "dc01.sirket.local",
+      "Port": 636,
+      "UseSsl": true,
+      "BindDn": "CN=helpdesk-sync,OU=Service,DC=sirket,DC=local",
+      "BindPassword": "...",
+      "BaseDn": "OU=Staff,DC=sirket,DC=local"
+    }
+  }
+}
+```
+
+Sağlayıcı seçiliyken eşitleme açılıştan bir dakika sonra ve sonra her gün çalışır, BT de kullanıcı listesinden başlatabilir. Kişiler yerel şifresiz `Employee` hesabı alır; ad, adres ve departman dizini izler, orada kapatılan ya da silinen hesap burada da kapanır. Zaten kapalı bir hesap kapalı kalır, çünkü birini yeniden açmak BT'nin kararıdır. Dizin kimseyi döndürmezse ya da eşitleme bağlı hesapların yarısından fazlasını kapatacaksa hiçbir şey değiştirmeden durur. Roller HelpdeskOps'ta kalır. Kendi kendine kayıt kapanır, bağlı hesaplara ayrı şifre verilemez. `Provider` yeniden `None` yapılırsa yerel şifreler geri gelir; dizine ulaşılamaz hâle gelirse giriş yolu budur. Kurulum adımları [docs/INSTALL_TR.md](docs/INSTALL_TR.md#46-şirket-dizini-active-directory--microsoft-entra-id) içindedir.
+
 ### KVKK
 
 `Kvkk` ayar bölümü, aydınlatma metninde görünen veri sorumlusu bilgilerini ve gün cinsinden saklama sürelerini tutar (0 kuralı kapatır). Metin her değiştiğinde `NoticeVersion` değerini yükseltin; böylece tüm kullanıcılardan metni yeniden onaylamaları istenir:
@@ -203,7 +234,7 @@ E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan
 ```json
 {
   "Kvkk": {
-    "NoticeVersion": "2026-10",
+    "NoticeVersion": "2026-11",
     "ControllerName": "Örnek Teknoloji A.Ş.",
     "ControllerAddress": "...",
     "ContactEmail": "kvkk@example.com",
@@ -234,7 +265,7 @@ Demo cihazlar uydurma `10.10.x.x` adresleri kullanır; ağınızda bu adreslerde
 
 Panoda departmanların karşılaştırılabilmesi için iki çalışan hesabı daha oluşturulur (`ik@helpdeskops.com`, `satis@helpdeskops.com`, parola aynı).
 
-Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir.
+Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir. Şirket dizini bağlıyken kayıt sayfası kapanır.
 
 ---
 

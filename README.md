@@ -18,7 +18,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 - **Framework:** ASP.NET Core MVC (.NET 10)
 - **Database:** Entity Framework Core (Code-First)
-- **Authentication:** ASP.NET Core Identity with role-based authorization (`Employee`, `ITAdmin`)
+- **Authentication:** ASP.NET Core Identity with role-based authorization (`Employee`, `ITAdmin`), optional Microsoft Entra ID (OpenID Connect) or Active Directory (LDAP) sign-in
 - **Frontend:** Razor Views, Bootstrap, Bootstrap Icons
 - **Testing:** xUnit unit tests, run by GitHub Actions on every push and pull request
 - **Deployment:** Docker Compose with SQL Server 2022 Express, or IIS on Windows Server
@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, consumable stock rules, and the KVKK export, anonymization, and retention rules
+- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, consumable stock rules, the KVKK export, anonymization, and retention rules, and the directory sync and password rules
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -104,7 +104,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 
 ### Phase 2: Differentiators
 - [x] QR labels: scanning a device's sticker opens a ticket for it with the category picked from the device type (employee) or its device card (IT); printable A4 sheets of 21 labels for all devices or a single one
-- [ ] Sign-in with Active Directory / Microsoft Entra ID and user sync
+- [x] Company directory: sign-in with Microsoft Entra ID (through Microsoft, with its MFA) or on-premises Active Directory (LDAPS), and a daily user sync that creates accounts, updates names and departments, and closes accounts disabled in the directory, with a safety stop against a wrong filter
 - [x] Automatic inventory: a PowerShell agent (`scripts/Send-Inventory.ps1`) reports serial number, model, processor, RAM, disk, Windows version, and IP address to a key-protected endpoint; known computers are updated by serial number, new ones are added, and firmware placeholder serials are rejected
 - [x] Onboarding and offboarding checklists: default and person-specific steps that IT ticks off, next to automatic checks for the role, the privacy notice, zimmetli devices, signed zimmet forms, open returns, and active tickets; completing an offboarding closes the account, and IT can reopen it
 - [x] Business-hours SLA with Turkish public holidays: High, Medium, and Low targets count only working hours (09:00-18:00 by default), skipping weekends, national holidays, and Ramazan and Kurban Bayramı, with half days on 28 October and holiday eves; Critical tickets count around the clock; the working day and extra days off are settings
@@ -119,7 +119,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, licenses, and tickets before a person starts or leaves. They also track software licenses (who holds a seat and when each license renews) and consumables (stock, what to order, and which printer used what). For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day.
+Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, licenses, and tickets before a person starts or leaves. They also track software licenses (who holds a seat and when each license renews) and consumables (stock, what to order, and which printer used what). For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day. Companies can connect Microsoft Entra ID or Active Directory, so staff sign in with their company account and a daily sync keeps accounts in step with the directory.
 
 ---
 
@@ -196,6 +196,37 @@ The `Email` settings section picks how mail goes out. `Mode` is `None` (default,
 
 Mail is queued and sent in the background, so a slow or failing mail server never slows down a page. Every in-app notification is also mailed to its recipient. With `Smtp`, new accounts must confirm their e-mail address before signing in, and the sign-in page offers password reset.
 
+### Company Directory
+
+The `Directory` settings section connects HelpdeskOps to the company directory. `Provider` is `None` (default), `Entra`, or `ActiveDirectory`. Keep the secrets in the git-ignored `appsettings.Production.json` or in environment variables:
+
+```json
+{
+  "Directory": {
+    "Provider": "Entra",
+    "Entra": { "TenantId": "...", "ClientId": "...", "ClientSecret": "..." }
+  }
+}
+```
+
+```json
+{
+  "Directory": {
+    "Provider": "ActiveDirectory",
+    "Ldap": {
+      "Host": "dc01.sirket.local",
+      "Port": 636,
+      "UseSsl": true,
+      "BindDn": "CN=helpdesk-sync,OU=Service,DC=sirket,DC=local",
+      "BindPassword": "...",
+      "BaseDn": "OU=Staff,DC=sirket,DC=local"
+    }
+  }
+}
+```
+
+With a provider set, a sync runs a minute after startup and then daily, and IT can start it from the user list. People get an `Employee` account without a local password, names, addresses, and departments follow the directory, and an account that is disabled or deleted there is closed here. An account that is already closed stays closed, because reopening someone is IT's decision. The sync stops without changing anything if the directory returns nobody or if it would close more than half of the linked accounts. Roles stay in HelpdeskOps. Self-registration closes, and linked accounts cannot have a separate password. Setting `Provider` back to `None` brings local passwords back, which is the way in if the directory is lost. [docs/INSTALL_TR.md](docs/INSTALL_TR.md#46-şirket-dizini-active-directory--microsoft-entra-id) has the setup steps.
+
 ### KVKK
 
 The `Kvkk` settings section holds the data controller details shown on the privacy notice and the retention periods in days (0 turns a rule off). Raise `NoticeVersion` whenever the notice text changes, so every user is asked to read it again:
@@ -203,7 +234,7 @@ The `Kvkk` settings section holds the data controller details shown on the priva
 ```json
 {
   "Kvkk": {
-    "NoticeVersion": "2026-10",
+    "NoticeVersion": "2026-11",
     "ControllerName": "Örnek Teknoloji A.Ş.",
     "ControllerAddress": "...",
     "ContactEmail": "kvkk@example.com",
@@ -234,7 +265,7 @@ The demo devices use made-up `10.10.x.x` addresses, so their network status dots
 
 Two more employee accounts (`ik@helpdeskops.com`, `satis@helpdeskops.com`, same password) are created so the dashboard can compare departments.
 
-New users who register through the sign-up page get the `Employee` role.
+New users who register through the sign-up page get the `Employee` role. The sign-up page closes when a company directory is connected.
 
 ---
 
