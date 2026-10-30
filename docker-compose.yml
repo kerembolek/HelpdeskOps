@@ -42,6 +42,15 @@ services:
       Kvkk__ControllerAddress: ${KVKK_CONTROLLER_ADDRESS:-}
       Kvkk__ContactEmail: ${KVKK_CONTACT_EMAIL:-}
       Inventory__ApiKey: ${INVENTORY_API_KEY:-}
+      Directory__Provider: ${DIRECTORY_PROVIDER:-None}
+      Directory__Entra__TenantId: ${ENTRA_TENANT_ID:-}
+      Directory__Entra__ClientId: ${ENTRA_CLIENT_ID:-}
+      Directory__Entra__ClientSecret: ${ENTRA_CLIENT_SECRET:-}
+      Directory__Ldap__Host: ${LDAP_HOST:-}
+      Directory__Ldap__Port: ${LDAP_PORT:-636}
+      Directory__Ldap__BindDn: ${LDAP_BIND_DN:-}
+      Directory__Ldap__BindPassword: ${LDAP_BIND_PASSWORD:-}
+      Directory__Ldap__BaseDn: ${LDAP_BASE_DN:-}
       Sla__WorkdayStart: ${SLA_WORKDAY_START:-09:00:00}
       Sla__WorkdayEnd: ${SLA_WORKDAY_END:-18:00:00}
       Email__Mode: ${EMAIL_MODE:-None}

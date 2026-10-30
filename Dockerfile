@@ -13,9 +13,11 @@ RUN dotnet publish HelpdeskOps/HelpdeskOps.csproj --configuration Release --no-r
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 
-# ping for the device status check, which the base image lacks; the zimmet form PDFs use QuestPDF's own fonts
+# ping for the device status check and the OpenLDAP library for Active Directory sign-in, which the base image lacks;
+# the zimmet form PDFs use QuestPDF's own fonts. The library's package name differs between distribution releases.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends iputils-ping \
+    && (apt-get install --yes --no-install-recommends libldap2 || apt-get install --yes --no-install-recommends libldap-2.5-0) \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

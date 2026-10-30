@@ -252,6 +252,38 @@ Kritik talepler 4 saatlik hedefini 7/24 sayar; yüksek, orta ve düşük önceli
 
 Ramazan ve Kurban Bayramı tarihleri 2030'a kadar uygulamanın içindedir. Köprü izinleri, şirkete özel tatiller veya Diyanet takviminin değiştirdiği günler için `Sla:Holidays` listesine tarih ekleyin, örn. `"Holidays": [ "2026-12-31" ]` (Docker'da `Sla__Holidays__0=2026-12-31`). Hedef, talep açılırken ya da önceliği değişirken hesaplanır; ayarı değiştirmek eski taleplerin hedefini değiştirmez.
 
+### 4.6 Şirket dizini (Active Directory / Microsoft Entra ID)
+
+İsteğe bağlıdır. Açıldığında çalışanlar şirket hesabıyla girer, ayrı bir HelpdeskOps şifresi tutulmaz. Bir kurulum tek dizine bağlanır. Hesaplar eşitlemeyle açıldığı için **Kayıt Ol** sayfası kapanır; roller yine **Kullanıcılar** sayfasından verilir.
+
+**Microsoft Entra ID**
+
+1. [Entra yönetim merkezi](https://entra.microsoft.com) → **App registrations → New registration**. Hesap türü: **Single tenant**. Redirect URI (Web): `https://helpdesk.sirket.com/signin-entra`.
+2. **Certificates & secrets** altında bir client secret oluşturun ve bitiş tarihini takvime yazın; süresi dolunca Microsoft girişi ve eşitleme durur.
+3. **API permissions → Add a permission → Microsoft Graph → Application permissions → User.Read.All** ekleyin ve **Grant admin consent** deyin. Bu, tüm kullanıcıları okuma iznidir ve yalnızca eşitleme kullanır.
+4. Ayarları yazın:
+   - Docker: `.env` içinde `DIRECTORY_PROVIDER=Entra`, `ENTRA_TENANT_ID`, `ENTRA_CLIENT_ID`, `ENTRA_CLIENT_SECRET`.
+   - IIS: `appsettings.Production.json` içinde `Directory` bölümü ([README.tr.md](../README.tr.md#şirket-dizini) içindeki örnek).
+
+`TenantId` şirketinizin kendi kiracısı olmalıdır; `common` gibi ortak değerler uygulama açılırken reddedilir. Girişi Microsoft yaptığı için çok adımlı doğrulama ve koşullu erişim kuralları Entra tarafında uygulanır. Uygulama HTTPS arkasında olmalıdır; Docker'da ters vekil kullanıyorsanız `BEHIND_PROXY=true` de gerekir, yoksa Microsoft geri dönüş adresini reddeder.
+
+**Active Directory**
+
+1. Yalnızca okuma yetkili bir hizmet hesabı açın (örn. `CN=helpdesk-sync,OU=Service,DC=sirket,DC=local`). Parolasının süresi dolmasın.
+2. Etki alanı denetleyicisinde LDAPS'in (636) çalıştığını ve sertifikasına HelpdeskOps sunucusunun güvendiğini doğrulayın. Düz LDAP'ta şifreler ağda açık gideceği için uygulama `Development` dışında bu ayarla açılmaz.
+3. `BaseDn` olarak gerçek çalışanların bulunduğu OU'yu seçin; kapsam dışındaki hesaplar eşitlenmez.
+4. Ayarları yazın:
+   - Docker: `.env` içinde `DIRECTORY_PROVIDER=ActiveDirectory` ve `LDAP_*` değerleri.
+   - IIS: `appsettings.Production.json` içinde `Directory` bölümü.
+
+Çalışanlar giriş formuna şirket e-postalarını ve Windows şifrelerini yazar, şifreyi Active Directory doğrular. Dizine ulaşılamazsa form bunu söyler ve deneme hatalı giriş sayılmaz.
+
+**İlk BT yöneticisi:** Hesaplar eşitlemeyle açıldığından [4.1](#41-i̇lk-bt-yöneticisi)'deki kayıt adımı yerine uygulamayı başlatıp bir dakika bekleyin, `InitialAdminEmail` ayarına dizindeki adresinizi yazın ve uygulamayı yeniden başlatın.
+
+**Eşitleme:** Açılıştan bir dakika sonra ve her gün çalışır; **Kullanıcılar** sayfasındaki **Dizinle Eşitle** düğmesi hemen başlatır. Ad, e-posta ve departman dizinden gelir. Dizinde kapatılan ya da silinen kişinin hesabı kapanır, açık oturumları en geç bir dakikada biter. Dizinde yeniden açılan hesap kendiliğinden açılmaz; BT **Yeniden aç** der. Dizin kimseyi döndürmezse ya da eşitleme bağlı hesapların yarısından fazlasını kapatacaksa hiçbir şey değiştirmeden durur. Var olan yerel hesaplar aynı e-posta adresiyle eşleşir, dizinde bulunmayan yerel hesaplara dokunulmaz.
+
+**Dizin kaybolursa:** `DIRECTORY_PROVIDER=None` yapıp uygulamayı yeniden başlatın. Bağlı hesaplar yerel şifrelerine döner; eşitlemeyle açılmış hesapların şifresi yoktur, **Şifremi unuttum** ile belirlerler.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.

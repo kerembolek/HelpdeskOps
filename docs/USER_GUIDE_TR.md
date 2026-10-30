@@ -302,6 +302,8 @@ Bir kullanıcının rolü, satırındaki listeden yeni rol seçilip **Kaydet** d
 
 Üst üste 5 kez hatalı şifre giren kullanıcının hesabı 15 dakikalığına kilitlenir ve listede **Kilitli** rozetiyle görünür. Telefonla arayan bir çalışan için **Kilidi aç** bağlantısı kilidi hemen kaldırır. İki adımlı doğrulamayı açmış kullanıcıların adının yanında **2FA** rozeti görünür.
 
+Şirket dizini bağlıysa dizinden gelen kullanıcılarda **Dizin** rozeti görünür ve sayfanın üstünde **Dizinle Eşitle** düğmesi çıkar. Eşitleme her gün kendiliğinden de çalışır: yeni kişiler Çalışan rolüyle eklenir, ad, e-posta ve departman güncellenir, dizinde kapatılan ya da silinen kişinin hesabı kapanır. Rolleri yine bu sayfadan siz verirsiniz. Dizinde yeniden açılan bir hesap burada kendiliğinden açılmaz; **Yeniden aç** bağlantısını kullanın.
+
 ### 10.1 İşe Giriş ve İşten Çıkış
 
 Kullanıcılar sayfasındaki **İşe Giriş / İşten Çıkış** düğmesi, yeni gelen ve ayrılan çalışanlar için açılan kontrol listelerini gösterir. Liste varsayılan olarak açık süreçleri hedef tarihe göre sıralar; tamamlananlar ve süreç türü filtreden seçilir. Hedef tarihi geçen açık listelerde **Tarihi geçti** rozeti görünür.
@@ -324,9 +326,11 @@ Tüm zorunlu kontroller geçip bütün adımlar işaretlenince **Tamamla** düğ
 Sağ üstteki kişi ikonundan **Hesabım** sayfası açılır (salt okunur demo sitesinde kapalıdır):
 
 - **Profil**: e-posta ve telefon bilgisi.
-- **Şifre**: mevcut şifreyle yeni şifre belirlenir. Şifre en az 10 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir.
+- **Şifre**: mevcut şifreyle yeni şifre belirlenir. Şifre en az 10 karakter olmalı; büyük harf, küçük harf, rakam ve özel karakter içermelidir. Şirket dizinine bağlı hesaplarda bu sayfa görünmez, şifre dizinde değiştirilir.
 - **İki Adımlı Doğrulama**: girişte şifrenin yanında telefondaki doğrulama uygulamasının ürettiği 6 haneli kod da istenir.
 - **Kişisel Verilerim**: sizinle ilgili tutulan verileri indirme (bkz. [13.2](#132-kişisel-verilerim)).
+
+Şirket Microsoft hesabı kullanıyorsa giriş sayfasındaki **Microsoft ile Giriş Yap** düğmesine basın. Active Directory kullanıyorsa e-postanızı ve Windows şifrenizi giriş formuna yazın.
 
 ![İki Adımlı Doğrulama Kurulumu](images/19-two-factor.png)
 
