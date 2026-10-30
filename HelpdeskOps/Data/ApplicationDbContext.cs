@@ -34,6 +34,10 @@ namespace HelpdeskOps.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<ApplicationUser>()
+                .HasIndex(u => u.DirectoryId)
+                .IsUnique();
+
             builder.Entity<Ticket>()
                 .HasOne(t => t.Requester)
                 .WithMany(u => u.RequestedTickets)
