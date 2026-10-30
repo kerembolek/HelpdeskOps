@@ -2,11 +2,13 @@ using System.Security.Claims;
 using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
+using HelpdeskOps.Services.CompanyDirectory;
 using HelpdeskOps.Services.Kvkk;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 // User list and role management for IT staff
 [Authorize(Roles = "ITAdmin")]
@@ -18,14 +20,18 @@ public class UsersController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly PersonalDataExporter _exporter;
     private readonly PersonalDataAnonymizer _anonymizer;
+    private readonly DirectorySync _directorySync;
+    private readonly DirectoryOptions _directory;
 
     public UsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, PersonalDataExporter exporter,
-        PersonalDataAnonymizer anonymizer)
+        PersonalDataAnonymizer anonymizer, DirectorySync directorySync, IOptions<DirectoryOptions> directory)
     {
         _context = context;
         _userManager = userManager;
         _exporter = exporter;
         _anonymizer = anonymizer;
+        _directorySync = directorySync;
+        _directory = directory.Value;
     }
 
     // GET: Users?q=&role=&page=2
@@ -52,6 +58,7 @@ public class UsersController : Controller
                 u.TwoFactorEnabled,
                 u.LockoutEnd,
                 u.AnonymizedAt,
+                u.DirectoryId,
                 DeviceCount = u.AssignedDevices.Count,
                 // Tickets assigned to this person that are still being worked on
                 ActiveTicketCount = u.AssignedTickets.Count(t => t.Status == TicketStatus.Open || t.Status == TicketStatus.InProgress)
@@ -70,15 +77,51 @@ public class UsersController : Controller
             .Select(u => new UserListRow(u.Id, u.Name, u.Email, u.Department, rolesByUser.GetValueOrDefault(u.Id), u.DeviceCount, u.ActiveTicketCount,
                 u.TwoFactorEnabled, u.LockoutEnd > DateTimeOffset.UtcNow && u.AnonymizedAt == null, u.AnonymizedAt != null,
                 // A completed offboarding locks the account with no end date
-                u.LockoutEnd == DateTimeOffset.MaxValue && u.AnonymizedAt == null))
+                u.LockoutEnd == DateTimeOffset.MaxValue && u.AnonymizedAt == null, u.DirectoryId != null))
             .Where(u => string.IsNullOrEmpty(role) || u.Role == role);
 
         ViewBag.Query = q;
         ViewBag.Role = AppRoles.All.Contains(role) ? role : null;
         ViewBag.IsFiltered = !string.IsNullOrWhiteSpace(q) || ViewBag.Role != null;
         ViewBag.CurrentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        ViewBag.DirectoryEnabled = _directory.IsEnabled;
         // Roles are matched after loading, so this list is paged in memory; it stays small for a single company
         return View(PagedList<UserListRow>.Create(model, page, PageSize));
+    }
+
+    // POST: Users/SyncDirectory
+    // Runs the daily directory sync now, for someone who just joined the company
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SyncDirectory()
+    {
+        if (!_directory.IsEnabled)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            var result = await _directorySync.RunAsync(HttpContext.RequestAborted);
+            if (result.AbortReason != null)
+            {
+                TempData["UserError"] = "Eşitleme durduruldu: " + result.AbortReason;
+            }
+            else
+            {
+                TempData["UserMessage"] = $"Dizin eşitlendi: {result.Created} yeni, {result.Updated} güncellenen, {result.Closed} kapatılan hesap.";
+                if (result.Errors.Count > 0)
+                {
+                    TempData["UserError"] = "Eşitlenemeyen hesaplar: " + string.Join("; ", result.Errors);
+                }
+            }
+        }
+        catch (DirectoryUnavailableException ex)
+        {
+            TempData["UserError"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 
     // POST: Users/Unlock/abc

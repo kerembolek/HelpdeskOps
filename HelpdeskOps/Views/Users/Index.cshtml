@@ -9,7 +9,15 @@
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
     <h1><i class="bi bi-people text-primary me-2"></i>Kullanıcılar</h1>
-    <a asp-controller="Checklists" asp-action="Index" class="btn btn-outline-primary"><i class="bi bi-person-check me-1"></i>İşe Giriş / İşten Çıkış</a>
+    <div class="d-flex flex-wrap gap-2">
+        @if ((bool)ViewBag.DirectoryEnabled)
+        {
+            <form asp-action="SyncDirectory" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-primary"><i class="bi bi-arrow-repeat me-1"></i>Dizinle Eşitle</button>
+            </form>
+        }
+        <a asp-controller="Checklists" asp-action="Index" class="btn btn-outline-primary"><i class="bi bi-person-check me-1"></i>İşe Giriş / İşten Çıkış</a>
+    </div>
 </div>
 
 <p class="text-muted">Sisteme kayıtlı kullanıcılar, rolleri, zimmetli cihaz sayıları ve üzerlerindeki aktif talepler.</p>
@@ -77,6 +85,10 @@ else
                         {
                             <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle ms-1" title="İki adımlı doğrulama açık"><i class="bi bi-shield-check"></i> 2FA</span>
                         }
+                        @if (user.IsDirectoryLinked)
+                        {
+                            <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle ms-1" title="Hesap şirket dizininden yönetiliyor"><i class="bi bi-diagram-3"></i> Dizin</span>
+                        }
                         @if (user.IsAnonymized)
                         {
                             <span class="badge text-bg-secondary ms-1" title="KVKK kapsamında kişisel verileri silindi"><i class="bi bi-person-slash"></i> Anonimleştirildi</span>
@@ -85,7 +97,7 @@ else
                         {
                             @if (user.IsClosed)
                             {
-                                <span class="badge text-bg-dark ms-1" title="İşten çıkış listesi tamamlandı"><i class="bi bi-door-closed"></i> Hesap kapalı</span>
+                                <span class="badge text-bg-dark ms-1" title="İşten çıkış listesiyle veya dizin eşitlemesiyle kapatıldı"><i class="bi bi-door-closed"></i> Hesap kapalı</span>
                             }
                             else
                             {
