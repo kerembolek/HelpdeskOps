@@ -267,6 +267,8 @@ Ramazan ve Kurban Bayramı tarihleri 2030'a kadar uygulamanın içindedir. Köpr
 
 `TenantId` şirketinizin kendi kiracısı olmalıdır; `common` gibi ortak değerler uygulama açılırken reddedilir. Girişi Microsoft yaptığı için çok adımlı doğrulama ve koşullu erişim kuralları Entra tarafında uygulanır. Uygulama HTTPS arkasında olmalıdır; Docker'da ters vekil kullanıyorsanız `BEHIND_PROXY=true` de gerekir, yoksa Microsoft geri dönüş adresini reddeder.
 
+Eşitleme yalnızca kiracının kendi kullanıcılarını alır. Konuklar ve kullanıcı adında `#EXT#` geçen dış hesaplar, örneğin kiracıyı kişisel Microsoft hesabıyla açan kişi, atlanır. BT yöneticisi olacak kişi kiracıda gerçek bir kullanıcı olmalıdır.
+
 **Active Directory**
 
 1. Yalnızca okuma yetkili bir hizmet hesabı açın (örn. `CN=helpdesk-sync,OU=Service,DC=sirket,DC=local`). Parolasının süresi dolmasın.

@@ -82,11 +82,15 @@ public class GraphDirectoryClient : IDirectoryClient
         }
     }
 
-    // Guests belong to another company and are not staff; entries with no address cannot sign in
+    // Guests belong to another company and are not staff, and neither are outside accounts marked #EXT#, such as a
+    // tenant created from a personal Microsoft account, even when Entra lists them as members. Entries with no address
+    // cannot sign in.
     private static DirectoryUser? ToPerson(JsonElement item)
     {
-        var email = Text(item, "mail") ?? Text(item, "userPrincipalName");
-        if (Text(item, "id") is not string id || email == null || Text(item, "userType") is "Guest")
+        var principalName = Text(item, "userPrincipalName");
+        var email = Text(item, "mail") ?? principalName;
+        if (Text(item, "id") is not string id || email == null || Text(item, "userType") is "Guest"
+            || principalName?.Contains("#EXT#", StringComparison.OrdinalIgnoreCase) == true)
         {
             return null;
         }

@@ -55,6 +55,10 @@ public class DirectorySyncService : BackgroundService
             }
             _logger.LogInformation("Directory sync finished: {Created} created, {Updated} updated, {Closed} closed, {Errors} errors",
                 result.Created, result.Updated, result.Closed, result.Errors.Count);
+            foreach (var error in result.Errors)
+            {
+                _logger.LogWarning("Directory sync could not apply: {Error}", error);
+            }
         }
         catch (OperationCanceledException)
         {
