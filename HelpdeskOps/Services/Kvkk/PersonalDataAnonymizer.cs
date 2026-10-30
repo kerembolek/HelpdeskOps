@@ -90,6 +90,7 @@ public class PersonalDataAnonymizer
         // Authenticator key and recovery codes
         _context.UserTokens.RemoveRange(_context.UserTokens.Where(t => t.UserId == user.Id));
         _context.Notifications.RemoveRange(_context.Notifications.Where(n => n.UserId == user.Id));
+        _context.InboundEmails.RemoveRange(_context.InboundEmails.Where(e => e.UserId == user.Id));
 
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
