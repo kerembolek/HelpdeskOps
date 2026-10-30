@@ -111,7 +111,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] Yazılım lisansı ve sarf malzemesi takibi: kişi başına kullanıcı hakkı, 30 gün ve süresi dolan filtreli yenileme tarihleri olan lisanslar (anahtar saklanmaz, işten çıkışta kişide kalan lisanslar için otomatik kontrol); en az stok ve "sipariş zamanı" filtresiyle toner, kartuş ve kağıt stoğu, yazıcı bazında kullanım ve giriş geçmişi, hiçbir zaman eksiye düşmeyen stok
 
 ### 3. Aşama: Ek değer
-- [ ] E-postayla talep açma
+- [x] E-postayla talep açma: destek posta kutusuna (IMAP) gelen e-posta ekleriyle talep olur ve numarası bildirilir, yanıtlar yorum olur; bilinmeyen gönderenler, otomatik postalar ve gönderen denetiminden kalanlar atlanır
 - [ ] Microsoft Teams bildirimleri
 - [ ] Kategori, öncelik ve uygun çözüm makalesi için yapay zekâ önerileri
 
@@ -195,6 +195,25 @@ Canlı demo MonsterASP.NET üzerinde çalışır ve Visual Studio'dan Web Deploy
 ```
 
 E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan bir e-posta sunucusu sayfaları yavaşlatmaz. Uygulama içi her bildirim alıcısına e-postayla da gider. `Smtp` modunda yeni hesapların giriş yapmadan önce e-posta adresini doğrulaması gerekir ve giriş sayfasında şifre sıfırlama bağlantısı görünür.
+
+Çalışanlar e-postayla da talep açabilir. `Email:Inbound` bölümü dakikada bir IMAP ile okunan destek posta kutusunu gösterir. Web isteği dışında gönderilen e-postalardaki bağlantılar için `Email:PublicUrl` da yazılmalıdır:
+
+```json
+{
+  "Email": {
+    "PublicUrl": "https://helpdesk.sirket.com",
+    "Inbound": {
+      "Host": "imap.sirket.com",
+      "Port": 993,
+      "UseSsl": true,
+      "UserName": "destek@sirket.com",
+      "Password": "..."
+    }
+  }
+}
+```
+
+Açık bir hesaptan gelen e-posta talep olur, izin verilen ekleri saklanır ve gönderene talep numarası bildirilir. Bu numarayı taşıyan yanıt, gönderen talep sahibi ya da BT personeliyse yorum olur. Bilinmeyen adreslerden, kapalı hesaplardan ve otomatik gönderenlerden (izin yanıtları, teslim edilemedi bildirimleri, e-posta listeleri) gelen postalar yanıtsız atlanır, DMARC ya da SPF denetiminden kalan posta reddedilir ve her kişi saatte en fazla 20 e-posta gönderebilir. Posta sunucusu denetlemiyorsa gönderen adresi taklit edilebilir; bu yüzden e-posta, gönderenin sitede yapabileceğinden fazlasını yapamaz ve yanıtlar her zaman hesabın kendi adresine gider.
 
 ### Şirket Dizini
 
