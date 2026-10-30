@@ -32,8 +32,9 @@ public class AuditInterceptor : SaveChangesInterceptor
         ["LicenseAssignment"] = "Lisans Ataması",
         ["Consumable"] = "Sarf Malzemesi",
         ["ConsumableMovement"] = "Stok Hareketi",
-        // Not a record type: the summary RetentionCleaner writes after deleting expired personal data
-        ["Retention"] = "Saklama Süresi"
+        // Not record types: the summaries RetentionCleaner and DirectorySync write after a run
+        ["Retention"] = "Saklama Süresi",
+        ["DirectorySync"] = "Dizin Eşitleme"
     };
 
     // Requests without a signed-in user (such as the inventory agent) can name themselves for the audit log here
