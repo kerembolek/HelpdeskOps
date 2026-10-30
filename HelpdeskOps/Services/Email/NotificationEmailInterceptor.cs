@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using HelpdeskOps.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -6,15 +7,16 @@ using Microsoft.Extensions.Options;
 namespace HelpdeskOps.Services.Email;
 
 // Mails every in-app notification once it is saved, so no controller has to remember to send one.
-// Notifications saved outside a web request (the demo data seeder at startup) are not mailed.
+// Outside a web request the links need the "PublicUrl" setting; without it (the demo data seeder at startup) nothing is mailed.
 public class NotificationEmailInterceptor : SaveChangesInterceptor
 {
     private readonly EmailQueue _queue;
     private readonly EmailOptions _options;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    // Notifications added in the current save, collected before EF Core marks them unchanged
-    private readonly AsyncLocal<List<Notification>?> _pending = new();
+    // Notifications added in the current save, collected before EF Core marks them unchanged. Kept per context: with
+    // several interceptors EF Core runs each step in its own async call, so an AsyncLocal is gone by the next step.
+    private readonly ConditionalWeakTable<DbContext, List<Notification>> _pending = new();
 
     public NotificationEmailInterceptor(EmailQueue queue, IOptions<EmailOptions> options, IHttpContextAccessor httpContextAccessor)
     {
@@ -26,30 +28,48 @@ public class NotificationEmailInterceptor : SaveChangesInterceptor
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData,
         InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
-        _pending.Value = _options.IsEnabled && eventData.Context != null
-            ? eventData.Context.ChangeTracker.Entries<Notification>()
+        if (_options.IsEnabled && eventData.Context != null)
+        {
+            var added = eventData.Context.ChangeTracker.Entries<Notification>()
                 .Where(e => e.State == EntityState.Added)
                 .Select(e => e.Entity)
-                .ToList()
-            : null;
+                .ToList();
+            // The audit log's own save runs in between and has nothing to add; it must not wipe this list
+            if (added.Count > 0)
+            {
+                _pending.AddOrUpdate(eventData.Context, added);
+            }
+        }
         return base.SavingChangesAsync(eventData, result, cancellationToken);
+    }
+
+    public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
+    {
+        if (eventData.Context != null)
+        {
+            _pending.Remove(eventData.Context);
+        }
+        return base.SaveChangesFailedAsync(eventData, cancellationToken);
     }
 
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result,
         CancellationToken cancellationToken = default)
     {
-        var notifications = _pending.Value;
-        _pending.Value = null;
+        List<Notification>? notifications = null;
+        if (eventData.Context != null && _pending.TryGetValue(eventData.Context, out notifications))
+        {
+            _pending.Remove(eventData.Context);
+        }
 
         var request = _httpContextAccessor.HttpContext?.Request;
-        if (notifications is { Count: > 0 } && request != null && eventData.Context != null)
+        var baseUrl = request != null ? $"{request.Scheme}://{request.Host}{request.PathBase}" : _options.PublicUrl?.TrimEnd('/');
+        if (notifications is { Count: > 0 } && !string.IsNullOrEmpty(baseUrl) && eventData.Context != null)
         {
             var userIds = notifications.Select(n => n.UserId).Distinct().ToList();
             var emails = await eventData.Context.Set<ApplicationUser>()
                 .Where(u => userIds.Contains(u.Id) && u.Email != null && u.AnonymizedAt == null)
                 .ToDictionaryAsync(u => u.Id, u => u.Email!, cancellationToken);
 
-            var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
             foreach (var notification in notifications)
             {
                 if (!emails.TryGetValue(notification.UserId, out var email))
