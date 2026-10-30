@@ -12,15 +12,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.CompanyDirectory;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
 public class ForgotPasswordModel : PageModel
 {
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly DirectoryUserManager _userManager;
     private readonly IEmailSender _emailSender;
 
-    public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+    public ForgotPasswordModel(DirectoryUserManager userManager, IEmailSender emailSender)
     {
         _userManager = userManager;
         _emailSender = emailSender;
@@ -54,9 +55,9 @@ public class ForgotPasswordModel : PageModel
         if (ModelState.IsValid)
         {
             var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)) || _userManager.IsManaged(user))
             {
-                // Don't reveal that the user does not exist or is not confirmed
+                // Don't reveal that the user does not exist, is not confirmed, or keeps their password in the company directory
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }
 

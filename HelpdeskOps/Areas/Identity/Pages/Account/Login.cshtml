@@ -3,6 +3,7 @@
 @inject IConfiguration Configuration
 @inject IWebHostEnvironment Environment
 @inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.Email.EmailOptions> EmailOptions
+@inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.CompanyDirectory.DirectoryOptions> DirectoryOptions
 
 @{
     ViewData["Title"] = "Giriş Yap";
@@ -21,6 +22,19 @@
                     <h1 class="h3 mb-1">Giriş Yap</h1>
                     <p class="text-muted small mb-0">HelpdeskOps hesabınızla oturum açın.</p>
                 </div>
+
+                @if (Model.ExternalLogins?.Count > 0)
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="mb-3">
+                        @foreach (var provider in Model.ExternalLogins)
+                        {
+                            <button type="submit" name="provider" value="@provider.Name" class="w-100 btn btn-lg btn-outline-primary">
+                                <i class="bi bi-microsoft me-1"></i> @provider.DisplayName ile Giriş Yap
+                            </button>
+                        }
+                    </form>
+                    <div class="text-center text-muted small mb-3">veya</div>
+                }
 
                 <form id="account" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger small" role="alert"></div>
@@ -51,8 +65,8 @@
                     </div>
                 }
 
-                @* The read-only demo has no registration *@
-                @if (!readOnlyDemo)
+                @* The read-only demo has no registration, and with a company directory accounts come from the directory *@
+                @if (!readOnlyDemo && !DirectoryOptions.Value.IsEnabled)
                 {
                     <p class="text-center small mt-3 mb-0">
                         Hesabınız yok mu? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Kayıt olun</a>

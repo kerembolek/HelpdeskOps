@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.CompanyDirectory;
 using HelpdeskOps.Services.Kvkk;
 using Microsoft.Extensions.Options;
 
@@ -31,6 +32,7 @@ public class RegisterModel : PageModel
     private readonly ILogger<RegisterModel> _logger;
     private readonly IEmailSender _emailSender;
     private readonly KvkkOptions _kvkk;
+    private readonly DirectoryOptions _directory;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
@@ -38,7 +40,8 @@ public class RegisterModel : PageModel
         SignInManager<ApplicationUser> signInManager,
         ILogger<RegisterModel> logger,
         IEmailSender emailSender,
-        IOptions<KvkkOptions> kvkk)
+        IOptions<KvkkOptions> kvkk,
+        IOptions<DirectoryOptions> directory)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -47,6 +50,16 @@ public class RegisterModel : PageModel
         _logger = logger;
         _emailSender = emailSender;
         _kvkk = kvkk.Value;
+        _directory = directory.Value;
+    }
+
+    // With a company directory, accounts come from the directory, so nobody can sign themselves up
+    public override void OnPageHandlerExecuting(Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context)
+    {
+        if (_directory.IsEnabled)
+        {
+            context.Result = RedirectToPage("./Login");
+        }
     }
 
     /// <summary>

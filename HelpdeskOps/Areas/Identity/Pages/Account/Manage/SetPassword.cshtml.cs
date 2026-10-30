@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using HelpdeskOps.Models;
+using HelpdeskOps.Services.CompanyDirectory;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account.Manage;
 
 public class SetPasswordModel : PageModel
 {
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly DirectoryUserManager _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
 
     public SetPasswordModel(
-        UserManager<ApplicationUser> userManager,
+        DirectoryUserManager userManager,
         SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
@@ -70,6 +71,12 @@ public class SetPasswordModel : PageModel
         if (user == null)
         {
             return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+        }
+
+        if (_userManager.IsManaged(user))
+        {
+            StatusMessage = "Şifreniz şirket dizininde yönetiliyor; değiştirmek için BT ekibine başvurun.";
+            return RedirectToPage("./Index");
         }
 
         var hasPassword = await _userManager.HasPasswordAsync(user);
