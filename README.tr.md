@@ -112,14 +112,14 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### 3. Aşama: Ek değer
 - [x] E-postayla talep açma: destek posta kutusuna (IMAP) gelen e-posta ekleriyle talep olur ve numarası bildirilir, yanıtlar yorum olur; bilinmeyen gönderenler, otomatik postalar ve gönderen denetiminden kalanlar atlanır
-- [ ] Microsoft Teams bildirimleri
+- [x] Microsoft Teams bildirimleri: siteden ya da destek posta kutusundan gelen her yeni talep, numarası, kategorisi, önceliği, SLA hedefi ve bağlantısıyla Workflows webhook'u üzerinden BT kanalına kart olarak düşer; başlık, açıklama ve isimler şirket sunucusunda kalır
 - [ ] Kategori, öncelik ve uygun çözüm makalesi için yapay zekâ önerileri
 
 ## Proje Durumu
 
 **Geliştirme sürüyor.** Çekirdek veri modelleri (`Device`, `Ticket`, `ApplicationUser`) ilişkileri ve doğrulamalarıyla tamamlandı; cihaz ve talep yönetim ekranları Türkçe arayüzle çalışıyor. Kullanıcılar ASP.NET Core Identity ile oturum açıyor. Çalışanlar önce self-servis çözüm bankasını deneyip ardından kendi taleplerini oluşturup takip ederken BT yöneticileri cihazları yönetip kullanıcılara zimmetliyor, her cihazın bakım geçmişini tutuyor, garanti ve servis bilgilerini takip ediyor, cihazların ping'e yanıt verip vermediğini görüyor, bilgisayarlara RDP ile bağlanıyor, cihazları Cisco switch portlarıyla eşliyor, çalışanlar adına talep açıyor, talepleri tek tıkla üstleniyor, atıyor, düzenliyor ve kapatıyor. Talepler kategori ve alt kategoriye (serbest metinli "Diğer" dahil) göre açılıyor; talep listesinde arama ve filtreleme yapılabiliyor. Talep eden ile BT personeli talep üzerinden yorumlarla yazışıyor; her talep durum, öncelik ve atanan kişi değişikliklerinin geçmişini tutuyor. BT yöneticileri ayrıca çözüm sürelerini, kronik sorunlu cihazları, departman iş yükünü ve garantisi biten cihazları gösteren bir panoya ve döneme göre talep rakamları, BT personeli performansı ve CSV dışa aktarma sunan bir raporlar sayfasına sahip. Yöneticiler tüm talepleri okuyabiliyor, panoyu ve raporları görebiliyor ama hiçbir şeyi değiştiremiyor.
 
-Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor; işe giriş ve çıkışlarda hesabı, cihazları, imzalı formları, lisansları ve talepleri kontrol eden listeler yürütüyor. Yazılım lisanslarında kimin kullanıcı hakkı olduğunu ve her lisansın ne zaman yenileneceğini, sarf malzemelerinde stoğu, neyin sipariş edilmesi gerektiğini ve hangi yazıcının ne kullandığını da takip ediyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor. Şirketler Microsoft Entra ID ya da Active Directory bağlayabiliyor; çalışanlar şirket hesabıyla giriyor, günlük eşitleme de hesapları dizinle uyumlu tutuyor.
+Bir cihaz zimmetlendiğinde çalışanın "Cihazlarım" sayfasından imzaladığı dijital bir zimmet formu açılıyor. Çalışanlar iade talebini imzayla gönderiyor; BT cihazı kontrol edip imzalayarak teslim alıyor. Her form imzalarıyla birlikte PDF olarak indirilebiliyor. BT yöneticileri kullanıcı rollerini kullanıcı listesinden yönetiyor; işe giriş ve çıkışlarda hesabı, cihazları, imzalı formları, lisansları ve talepleri kontrol eden listeler yürütüyor. Yazılım lisanslarında kimin kullanıcı hakkı olduğunu ve her lisansın ne zaman yenileneceğini, sarf malzemelerinde stoğu, neyin sipariş edilmesi gerektiğini ve hangi yazıcının ne kullandığını da takip ediyor. KVKK için herkes aydınlatma metnini okuyup kendi verilerini indirebiliyor, BT ayrılan çalışanları anonimleştirebiliyor ve süresi dolan kişisel veriler her gün siliniyor. Şirketler Microsoft Entra ID ya da Active Directory bağlayabiliyor; çalışanlar şirket hesabıyla giriyor, günlük eşitleme de hesapları dizinle uyumlu tutuyor. Yeni talepler Microsoft Teams'teki BT kanalına da kart olarak düşebiliyor.
 
 ---
 
@@ -214,6 +214,18 @@ E-postalar kuyruğa alınıp arka planda gönderilir; yavaş ya da çalışmayan
 ```
 
 Açık bir hesaptan gelen e-posta talep olur, izin verilen ekleri saklanır ve gönderene talep numarası bildirilir. Bu numarayı taşıyan yanıt, gönderen talep sahibi ya da BT personeliyse yorum olur. Bilinmeyen adreslerden, kapalı hesaplardan ve otomatik gönderenlerden (izin yanıtları, teslim edilemedi bildirimleri, e-posta listeleri) gelen postalar yanıtsız atlanır, DMARC ya da SPF denetiminden kalan posta reddedilir ve her kişi saatte en fazla 20 e-posta gönderebilir. Posta sunucusu denetlemiyorsa gönderen adresi taklit edilebilir; bu yüzden e-posta, gönderenin sitede yapabileceğinden fazlasını yapamaz ve yanıtlar her zaman hesabın kendi adresine gider.
+
+### Microsoft Teams
+
+Yeni talepler BT kanalına kart olarak düşebilir. Teams'te kanalın **Workflows** menüsünü açın, **Send webhook alerts to a channel** şablonunu seçin ve verilen adresi kopyalayın. Bu adres gizlidir, çünkü elinde olan herkes kanala yazabilir. Git'e girmeyen `appsettings.Production.json` dosyasında ya da ortam değişkeninde tutun; e-postayla gelen taleplerin bağlantısı çalışsın diye `Email:PublicUrl` ayarını da yazın:
+
+```json
+{
+  "Teams": { "WebhookUrl": "https://..." }
+}
+```
+
+Kartlar kuyruğa alınıp arka planda gönderilir, böylece yavaşlayan ya da hata veren Teams hiçbir sayfayı yavaşlatmaz; gönderilemeyen kart günlüğe yazılıp atlanır. Teams mesajlarını Microsoft'un sunucularında tuttuğu için kartta yalnızca talep numarası, kategori, öncelik, SLA hedefi ve bağlantı bulunur. Başlık, açıklama ve talep eden kişi oturum açmadan görülemez, böylece aydınlatma metni doğru kalır. Kişisel bildirimler (size atandı, yeni yorum) uygulamada ve e-postada kalır.
 
 ### Şirket Dizini
 

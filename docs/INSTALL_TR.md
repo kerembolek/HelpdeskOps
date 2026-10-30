@@ -302,6 +302,22 @@ Microsoft 365 uyarısı: Exchange Online temel kimlik doğrulamayı (kullanıcı
 
 Güvenlik: Posta sunucunuz gönderen adresini denetlemiyorsa dışarıdan biri çalışan adına e-posta gönderebilir. Etki alanınızda SPF ve DMARC'ı açın; uygulama sunucunun yazdığı denetim sonucunda DMARC ya da SPF başarısızsa e-postayı reddeder. E-postayla yalnızca talep açılır ve yorum eklenir, yetki gerektiren işlem yapılamaz.
 
+### 4.8 Microsoft Teams bildirimleri
+
+İsteğe bağlıdır. Her yeni talep, BT ekibinin Teams kanalına kart olarak düşer. Uygulama kaydı gerekmez; kanala erişen bir Teams hesabı yeterlidir.
+
+1. Teams'te BT kanalını açın, kanalın yanındaki **⋯** menüsünden **Workflows**'u seçin.
+2. **Send webhook alerts to a channel** şablonunu seçin, takımı ve kanalı doğrulayıp kaydedin.
+3. Verilen adresi kopyalayın. Bu adres bir şifre gibidir: elinde olan herkes kanala mesaj yazabilir, bu yüzden e-postayla ya da sohbette paylaşmayın.
+4. Ayarları yazın:
+   - Docker: `.env` içinde `TEAMS_WEBHOOK_URL` ve `APP_PUBLIC_URL=https://helpdesk.sirket.com`.
+   - IIS: `appsettings.Production.json` içinde `"Teams": { "WebhookUrl": "https://..." }` ve `Email:PublicUrl`.
+5. Uygulamayı yeniden başlatıp deneme talebi açın; kart birkaç saniye içinde kanala düşer. Adres `https://` ile başlamıyorsa uygulama açılmaz.
+
+Kartta yalnızca talep numarası, kategori, öncelik, SLA hedefi ve **HelpdeskOps'ta Görüntüle** bağlantısı bulunur. Teams mesajları Microsoft'un sunucularında durduğu için başlık, açıklama ve talep eden kişi karta konmaz; aydınlatma metnindeki "verileriniz yurt dışına aktarılmaz" ifadesi bu sayede doğru kalır.
+
+Kart gönderilemezse uygulama günlüğüne `Could not post ticket` kaydı düşer, talep ise normal şekilde açılır; kart yeniden gönderilmez. Sürekli hata görürseniz iş akışının açık olduğunu ve onu kuran hesabın hâlâ etkin olduğunu kontrol edin: iş akışı o kişinin hesabına bağlıdır. Adres sızarsa iş akışını silip yenisini kurun.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.
