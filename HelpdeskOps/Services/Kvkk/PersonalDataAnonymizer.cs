@@ -73,6 +73,7 @@ public class PersonalDataAnonymizer
         user.PhoneNumber = null;
         user.PhoneNumberConfirmed = false;
         user.Department = null;
+        user.DirectoryId = null;
 
         // No password, no second factor, locked for good, and every existing sign-in cookie stops working
         user.PasswordHash = null;

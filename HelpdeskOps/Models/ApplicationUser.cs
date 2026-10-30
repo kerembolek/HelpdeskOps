@@ -29,6 +29,12 @@ namespace HelpdeskOps.Models
         [Display(Name = "Anonimleştirilme Tarihi")]
         public DateTime? AnonymizedAt { get; set; }
 
+        // The person's permanent id in the company directory (Entra object id or AD objectGUID); null for local accounts.
+        // It is the link between the two: names and e-mail addresses can change or be reused, this never does.
+        [StringLength(64)]
+        [Display(Name = "Dizin Kimliği")]
+        public string? DirectoryId { get; set; }
+
         public ICollection<Device> AssignedDevices { get; set; } = new List<Device>();
         public ICollection<Ticket> RequestedTickets { get; set; } = new List<Ticket>();
         public ICollection<Ticket> AssignedTickets { get; set; } = new List<Ticket>();

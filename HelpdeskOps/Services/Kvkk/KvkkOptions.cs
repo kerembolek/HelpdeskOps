@@ -7,7 +7,7 @@ public class KvkkOptions
     public const string SectionName = "Kvkk";
 
     // Raise this when the notice text changes, so everyone is asked to read it again
-    public string NoticeVersion { get; set; } = "2026-10";
+    public string NoticeVersion { get; set; } = "2026-11";
 
     public string ControllerName { get; set; } = "Şirket Adı";
 

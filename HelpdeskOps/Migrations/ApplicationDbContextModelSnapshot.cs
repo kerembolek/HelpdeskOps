@@ -40,6 +40,10 @@ namespace HelpdeskOps.Migrations
                     b.Property<string>("Department")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DirectoryId")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -96,6 +100,10 @@ namespace HelpdeskOps.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DirectoryId")
+                        .IsUnique()
+                        .HasFilter("[DirectoryId] IS NOT NULL");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -322,6 +330,7 @@ namespace HelpdeskOps.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Stock")
+                        .IsConcurrencyToken()
                         .HasColumnType("int");
 
                     b.HasKey("Id");

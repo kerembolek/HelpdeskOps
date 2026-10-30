@@ -107,6 +107,7 @@ public class PersonalDataExporter
                 ["E-posta Onaylı"] = user.EmailConfirmed,
                 ["Telefon"] = user.PhoneNumber,
                 ["Departman"] = user.Department,
+                ["Dizin Kimliği"] = user.DirectoryId,
                 ["Roller"] = roles.Select(AppRoles.DisplayName).ToList(),
                 ["İki Adımlı Doğrulama"] = user.TwoFactorEnabled,
                 ["Aydınlatma Metni Sürümü"] = user.PrivacyNoticeVersion,
