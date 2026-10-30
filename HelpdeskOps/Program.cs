@@ -19,6 +19,9 @@ builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailO
 builder.Services.AddSingleton<EmailQueue>();
 builder.Services.AddSingleton<IEmailSender, QueuedEmailSender>();
 builder.Services.AddHostedService<EmailDeliveryService>();
+// Opening tickets by e-mail: the "Email:Inbound" settings point at the helpdesk mailbox
+builder.Services.AddScoped<InboundEmailProcessor>();
+builder.Services.AddHostedService<InboundEmailService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<NotificationEmailInterceptor>();
 builder.Services.AddSingleton<HelpdeskOps.Services.AuditInterceptor>();

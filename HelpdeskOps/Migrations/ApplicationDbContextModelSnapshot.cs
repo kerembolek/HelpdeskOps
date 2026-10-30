@@ -510,6 +510,45 @@ namespace HelpdeskOps.Migrations
                     b.ToTable("DeviceEvents");
                 });
 
+            modelBuilder.Entity("HelpdeskOps.Models.InboundEmail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("MessageHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("ReceivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Result")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SkipReason")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "ReceivedAt");
+
+                    b.ToTable("InboundEmails");
+                });
+
             modelBuilder.Entity("HelpdeskOps.Models.LicenseAssignment", b =>
                 {
                     b.Property<int>("Id")

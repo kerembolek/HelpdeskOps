@@ -29,6 +29,7 @@ namespace HelpdeskOps.Data
         public DbSet<LicenseAssignment> LicenseAssignments { get; set; }
         public DbSet<Consumable> Consumables { get; set; }
         public DbSet<ConsumableMovement> ConsumableMovements { get; set; }
+        public DbSet<InboundEmail> InboundEmails { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,6 +38,13 @@ namespace HelpdeskOps.Data
             builder.Entity<ApplicationUser>()
                 .HasIndex(u => u.DirectoryId)
                 .IsUnique();
+
+            builder.Entity<InboundEmail>()
+                .HasIndex(e => e.MessageHash)
+                .IsUnique();
+
+            builder.Entity<InboundEmail>()
+                .HasIndex(e => new { e.UserId, e.ReceivedAt });
 
             builder.Entity<Ticket>()
                 .HasOne(t => t.Requester)
