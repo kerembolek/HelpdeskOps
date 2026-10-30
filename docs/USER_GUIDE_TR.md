@@ -206,6 +206,8 @@ BT personeli **Kendin Çöz → Çözümleri Yönet** ekranından çözüm makal
 
 Talebin oluşturulma tarihi, durumu ve talep eden bilgisi sistem tarafından atanır.
 
+Şirketiniz destek posta kutusunu bağladıysa talebi e-postayla da açabilirsiniz: konu başlık, metin açıklama olur, izin verilen dosya türlerindeki ekler talebe eklenir. Size talep numarasını içeren bir onay gelir. Bu e-postayı ya da talep bildirimlerini yanıtladığınızda yazdıklarınız talebe yorum olarak eklenir. E-postayla açılan talepler "Diğer" kategorisinde ve orta öncelikle başlar, BT gerekirse değiştirir.
+
 ### 5.3 Talep Ayrıntıları
 
 Listedeki **Detaylar** bağlantısı talebin tüm bilgilerini, hedef çözüm zamanını ve atanan kişiyi gösterir.

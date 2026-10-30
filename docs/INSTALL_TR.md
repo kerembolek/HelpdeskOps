@@ -284,6 +284,22 @@ Ramazan ve Kurban Bayramı tarihleri 2030'a kadar uygulamanın içindedir. Köpr
 
 **Dizin kaybolursa:** `DIRECTORY_PROVIDER=None` yapıp uygulamayı yeniden başlatın. Bağlı hesaplar yerel şifrelerine döner; eşitlemeyle açılmış hesapların şifresi yoktur, **Şifremi unuttum** ile belirlerler.
 
+### 4.7 E-postayla talep
+
+İsteğe bağlıdır. Çalışanlar `destek@sirket.com` gibi bir adrese yazarak talep açar. Bu iş için ayrı bir posta kutusu açın; okunmamış her e-posta işlenir, kişisel bir kutu kullanmayın.
+
+1. Posta kutusunda IMAP'ı açın. Uygulama TLS ile 993 numaralı porta bağlanır.
+2. Ayarları yazın:
+   - Docker: `.env` içinde `IMAP_HOST`, `IMAP_PORT`, `IMAP_USER`, `IMAP_PASSWORD` ve `APP_PUBLIC_URL=https://helpdesk.sirket.com`.
+   - IIS: `appsettings.Production.json` içinde `Email:Inbound` ve `Email:PublicUrl` ([README.tr.md](../README.tr.md#e-posta) içindeki örnek).
+3. Onay ve bildirim e-postaları için [4.2](#42-e-posta) içindeki SMTP ayarları da gerekir.
+
+Kutu dakikada bir okunur, işlenen e-posta okundu işaretlenir ve kutuda kalır. Yalnızca açık hesabı olan kişilerin e-postaları talep olur. Talepler "Diğer" kategorisinde ve orta öncelikle açılır, BT bunları düzenler.
+
+Microsoft 365 uyarısı: Exchange Online temel kimlik doğrulamayı (kullanıcı adı ve şifre) IMAP için kapatmıştır. Bu sürüm yalnızca kullanıcı adı ve şifreyle bağlanır, bu yüzden Microsoft 365 posta kutularında çalışmaz. Şirket içi Exchange, Google Workspace (uygulama şifresiyle) ve kendi posta sunucunuz çalışır.
+
+Güvenlik: Posta sunucunuz gönderen adresini denetlemiyorsa dışarıdan biri çalışan adına e-posta gönderebilir. Etki alanınızda SPF ve DMARC'ı açın; uygulama sunucunun yazdığı denetim sonucunda DMARC ya da SPF başarısızsa e-postayı reddeder. E-postayla yalnızca talep açılır ve yorum eklenir, yetki gerektiren işlem yapılamaz.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.

@@ -111,7 +111,7 @@ The original roadmap is complete. The next phases target what a company asks bef
 - [x] Software license and consumables tracking: licenses with seats per person, renewal dates with 30-day and expired filters, no keys stored, and an automatic offboarding check for licenses still held; toner, cartridge, and paper stock with a minimum-stock "order now" filter, deliveries and usage per printer with a full history, and stock that never goes below zero
 
 ### Phase 3: Extras
-- [ ] Open tickets by e-mail
+- [x] Open tickets by e-mail: a mail to the helpdesk mailbox (IMAP) opens a ticket with its attachments and confirms the number, replies become comments, and unknown senders, robots, and failed sender checks are skipped
 - [ ] Microsoft Teams notifications
 - [ ] AI suggestions for category, priority, and matching self-service articles
 
@@ -195,6 +195,25 @@ The `Email` settings section picks how mail goes out. `Mode` is `None` (default,
 ```
 
 Mail is queued and sent in the background, so a slow or failing mail server never slows down a page. Every in-app notification is also mailed to its recipient. With `Smtp`, new accounts must confirm their e-mail address before signing in, and the sign-in page offers password reset.
+
+Staff can also open tickets by e-mail. The `Email:Inbound` section points at a helpdesk mailbox read over IMAP every minute. Set `Email:PublicUrl` too, so mails sent outside a web request have working links:
+
+```json
+{
+  "Email": {
+    "PublicUrl": "https://helpdesk.example.com",
+    "Inbound": {
+      "Host": "imap.example.com",
+      "Port": 993,
+      "UseSsl": true,
+      "UserName": "destek@example.com",
+      "Password": "..."
+    }
+  }
+}
+```
+
+A mail from an open account becomes a ticket, its allowed attachments are kept, and the sender gets the ticket number. A reply carrying that number becomes a comment when the sender is the requester or IT staff. Mail from unknown addresses, closed accounts, and robots (out-of-office replies, bounces, mailing lists) is skipped without an answer, a failed DMARC or SPF check is refused, and each person can send 20 mails an hour. The From address can be forged where the mail server does not check it, so a mail can only do what the sender could do on the site, and answers always go to the account's own address.
 
 ### Company Directory
 
