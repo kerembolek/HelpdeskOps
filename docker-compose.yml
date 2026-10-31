@@ -65,6 +65,7 @@ services:
       Email__Inbound__UserName: ${IMAP_USER:-}
       Email__Inbound__Password: ${IMAP_PASSWORD:-}
       Teams__WebhookUrl: ${TEAMS_WEBHOOK_URL:-}
+      Suggestions__ApiKey: ${SUGGESTIONS_API_KEY:-}
     volumes:
       - app-data:/app/App_Data
 
