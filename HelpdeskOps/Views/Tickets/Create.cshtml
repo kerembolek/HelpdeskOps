@@ -1,5 +1,6 @@
 @using HelpdeskOps.Models.Enums
 @model HelpdeskOps.Models.Ticket
+@inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.Suggestions.SuggestionsOptions> SuggestionSettings
 
 @{
     ViewData["Title"] = "Yeni Destek Talebi";
@@ -46,6 +47,10 @@
                 <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+            @if (SuggestionSettings.Value.IsEnabled)
+            {
+                <partial name="_SuggestionCard" />
+            }
             <partial name="_CategoryFields" />
             <div class="mb-3">
                 <label asp-for="Priority" class="form-label"></label>
