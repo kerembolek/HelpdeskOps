@@ -1,4 +1,5 @@
 ﻿@model PrivacyViewModel
+@inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.Suggestions.SuggestionsOptions> SuggestionSettings
 @{
     ViewData["Title"] = "KVKK Aydınlatma Metni";
     var kvkk = Model.Kvkk;
@@ -76,8 +77,22 @@
                 <p>
                     Verileriniz yalnızca şirket içinde, görevi gereği erişmesi gereken BT ekibi ve yöneticilerle paylaşılır.
                     Yasal bir zorunluluk olduğunda yetkili kamu kurum ve kuruluşlarına aktarılabilir. Uygulama şirketin kendi
-                    sunucusunda çalışır ve verileriniz yurt dışına aktarılmaz.
+                    sunucusunda çalışır.
+                    @if (!SuggestionSettings.Value.IsEnabled)
+                    {
+                        <span>Verileriniz yurt dışına aktarılmaz.</span>
+                    }
                 </p>
+                @if (SuggestionSettings.Value.IsEnabled)
+                {
+                    <p>
+                        Talep formundaki <strong>Öneri al</strong> düğmesine bastığınızda, yalnızca o anda yazdığınız başlık ve açıklama
+                        kategori ve öncelik önerisi almak için yurt dışında bulunan yapay zekâ hizmet sağlayıcısına (Anthropic, ABD) gönderilir.
+                        E-posta, telefon, T.C. kimlik, IBAN ve IP adresi gönderilmeden önce gizlenir; adınız ve hesap bilgileriniz eklenmez,
+                        ancak metne kendiniz yazdığınız bir kişi adı gizlenemez. Düğmeye basmadığınız sürece hiçbir talep metni gönderilmez.
+                        Öneri yalnızca yardımcıdır, kararı siz verirsiniz ve talebin sonucunu etkilemez.
+                    </p>
+                }
 
                 <h2 class="h5">6. Saklama süreleri</h2>
                 <p>
