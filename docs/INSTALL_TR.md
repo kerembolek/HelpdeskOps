@@ -316,6 +316,8 @@ Güvenlik: Posta sunucunuz gönderen adresini denetlemiyorsa dışarıdan biri �
 
 Kartta yalnızca talep numarası, kategori, öncelik, SLA hedefi ve **HelpdeskOps'ta Görüntüle** bağlantısı bulunur. Teams mesajları Microsoft'un sunucularında durduğu için başlık, açıklama ve talep eden kişi karta konmaz; aydınlatma metnindeki "verileriniz yurt dışına aktarılmaz" ifadesi bu sayede doğru kalır.
 
+Uygulama 5 dakikada bir SLA hedefini aşan aktif talepleri de arar ve her biri için **SLA hedefi aşıldı** kartı gönderir. Bu kart da aynı alanları taşır ve `APP_PUBLIC_URL` (IIS'te `Email:PublicUrl`) ister; ayar boşsa yalnızca yeni talep kartları gider. Her aşım bir kez bildirilir. 3 günden eski aşımlar gönderilmez, böylece bu sürüme geçtiğinizde kanal eski taleplerle dolmaz.
+
 Kart gönderilemezse uygulama günlüğüne `Could not post ticket` kaydı düşer, talep ise normal şekilde açılır; kart yeniden gönderilmez. Sürekli hata görürseniz iş akışının açık olduğunu ve onu kuran hesabın hâlâ etkin olduğunu kontrol edin: iş akışı o kişinin hesabına bağlıdır. Adres sızarsa iş akışını silip yenisini kurun.
 
 ### 4.9 Yapay zekâ önerileri

@@ -71,7 +71,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 - [x] BT yöneticileri için kullanıcı yönetimi: rolleri, zimmetli cihazları ve aktif talepleriyle aranabilir kullanıcı listesi ve kullanıcı bazında rol değiştirme (kimse kendi rolünü değiştiremez; BT personeli rolünden çıkan birinin aktif talepleri atanmamış taleplere döner)
 
 ### Kalite
-- [x] SLA kurallarını ve mesai takvimini, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini, yazılım lisanslarını, sarf stok kurallarını, KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını ve talep önerilerini kapsayan xUnit test projesi
+- [x] SLA kurallarını ve mesai takvimini, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini, yazılım lisanslarını, sarf stok kurallarını, KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını, talep önerilerini ve SLA aşımı kartlarını kapsayan xUnit test projesi
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -112,7 +112,7 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### 3. Aşama: Ek değer
 - [x] E-postayla talep açma: destek posta kutusuna (IMAP) gelen e-posta ekleriyle talep olur ve numarası bildirilir, yanıtlar yorum olur; bilinmeyen gönderenler, otomatik postalar ve gönderen denetiminden kalanlar atlanır
-- [x] Microsoft Teams bildirimleri: siteden ya da destek posta kutusundan gelen her yeni talep, numarası, kategorisi, önceliği, SLA hedefi ve bağlantısıyla Workflows webhook'u üzerinden BT kanalına kart olarak düşer; başlık, açıklama ve isimler şirket sunucusunda kalır
+- [x] Microsoft Teams bildirimleri: siteden ya da destek posta kutusundan gelen her yeni talep, numarası, kategorisi, önceliği, SLA hedefi ve bağlantısıyla Workflows webhook'u üzerinden BT kanalına kart olarak düşer; SLA hedefini aşan talepler bir kez daha kart olarak düşer; başlık, açıklama ve isimler şirket sunucusunda kalır
 - [x] Yapay zekâ önerileri: talep formundaki isteğe bağlı "Öneri al" düğmesi Claude'dan kategori, öncelik ve uygun çözüm makalelerini ister; varsayılan olarak kapalıdır, öneriyi kişi kendisi uygular, e-posta, telefon, T.C. kimlik, IBAN ve IP adresleri önce gizlenir
 
 ## Proje Durumu
@@ -226,6 +226,8 @@ Yeni talepler BT kanalına kart olarak düşebilir. Teams'te kanalın **Workflow
 ```
 
 Kartlar kuyruğa alınıp arka planda gönderilir, böylece yavaşlayan ya da hata veren Teams hiçbir sayfayı yavaşlatmaz; gönderilemeyen kart günlüğe yazılıp atlanır. Teams mesajlarını Microsoft'un sunucularında tuttuğu için kartta yalnızca talep numarası, kategori, öncelik, SLA hedefi ve bağlantı bulunur. Başlık, açıklama ve talep eden kişi oturum açmadan görülemez, böylece aydınlatma metni doğru kalır. Kişisel bildirimler (size atandı, yeni yorum) uygulamada ve e-postada kalır.
+
+Uygulama 5 dakikada bir SLA hedefini aşan aktif talepleri de arar ve her biri için aynı sınırlı alanlarla bir **SLA hedefi aşıldı** kartı gönderir. Kontrol web isteği dışında çalıştığı için `Email:PublicUrl` gerekir. Her aşım bir kez bildirilir; önceliği değiştirip yeni hedef koymak yeni bildirime izin verir. 3 günden eski aşımlar gönderilmez, böylece güncelleme sonrası kanal dolmaz.
 
 ### Talep Önerileri
 
