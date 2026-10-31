@@ -47,6 +47,8 @@ public class SlaDueInterceptor : SaveChangesInterceptor
             if (needsTarget)
             {
                 entry.Entity.SlaDueAt = TicketSla.CalculateDueAt(entry.Entity.CreatedAt, entry.Entity.Priority, _calendar);
+                // A new target can be missed again, and that is a new breach
+                entry.Entity.SlaBreachNotifiedAt = null;
             }
         }
     }

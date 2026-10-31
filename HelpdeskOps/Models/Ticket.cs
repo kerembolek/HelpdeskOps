@@ -59,6 +59,9 @@ public class Ticket
     [Display(Name = "SLA Hedefi")]
     public DateTime? SlaDueAt { get; set; }
 
+    // When the Teams channel heard that this ticket passed its target, so each breach is posted once
+    public DateTime? SlaBreachNotifiedAt { get; set; }
+
     [Display(Name = "Cihaz")]
     public int? DeviceId { get; set; }
 
