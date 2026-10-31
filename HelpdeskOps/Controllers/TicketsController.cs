@@ -3,9 +3,12 @@ using HelpdeskOps.Data;
 using HelpdeskOps.Models;
 using HelpdeskOps.Models.Enums;
 using HelpdeskOps.Services;
+using HelpdeskOps.Services.Suggestions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -416,6 +419,59 @@ public class TicketsController : Controller
             await LoadRequestersAsync(ticket.RequesterId);
         }
         return View(ticket);
+    }
+
+    // POST: TICKETS/Suggest
+    // Fills the suggestion card on the form; only runs when the person presses the button, and saves nothing
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [EnableRateLimiting(SuggestionsOptions.SectionName)]
+    public async Task<IActionResult> Suggest(string? title, string? description, [FromServices] ITicketSuggester suggester,
+        [FromServices] IOptions<SuggestionsOptions> options, CancellationToken cancellationToken)
+    {
+        if (!options.Value.IsEnabled)
+        {
+            return NotFound();
+        }
+
+        title = title?.Trim() ?? "";
+        description = description?.Trim() ?? "";
+        if (title.Length + description.Length < 10)
+        {
+            return BadRequest(new { error = "Öneri için sorunu birkaç kelimeyle yazın." });
+        }
+
+        if (title.Length + description.Length > TicketSuggestionPrompt.MaxTextLength)
+        {
+            return BadRequest(new { error = $"Öneri için başlık ve açıklama en fazla {TicketSuggestionPrompt.MaxTextLength} karakter olabilir." });
+        }
+
+        var articles = await _context.SolutionArticles.AsNoTracking()
+            .Where(a => a.IsPublished)
+            .OrderBy(a => a.Id)
+            .Select(a => new SuggestionArticle(a.Id, a.Title, a.Category, a.Symptoms))
+            .ToListAsync(cancellationToken);
+
+        var suggestion = await suggester.SuggestAsync(title, description, articles, cancellationToken);
+        if (suggestion == null)
+        {
+            return StatusCode(StatusCodes.Status503ServiceUnavailable,
+                new { error = "Şu anda öneri alınamadı. Alanları kendiniz seçebilirsiniz." });
+        }
+
+        return Json(new
+        {
+            category = (int)suggestion.Category,
+            subcategory = (int)suggestion.Subcategory,
+            priority = (int)suggestion.Priority,
+            summary = $"{suggestion.Category.GetDisplayName()} › {suggestion.Subcategory.GetDisplayName()} · {suggestion.Priority.GetDisplayName()} öncelik",
+            reason = suggestion.Reason,
+            articles = suggestion.Articles.Select(a => new
+            {
+                title = a.Title,
+                url = Url.Action("Index", "Solutions", new { category = a.Category }) + $"#solution-{a.Id}"
+            })
+        });
     }
 
     // GET: TICKETS/Edit/5
