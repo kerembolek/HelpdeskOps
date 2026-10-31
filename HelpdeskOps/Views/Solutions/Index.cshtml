@@ -101,3 +101,14 @@ else
         <a asp-controller="Tickets" asp-action="Create" asp-route-category="@category">bu konuda talep oluşturun</a>.
     </p>
 }
+
+@section Scripts {
+    <script>
+        // A suggestion on the ticket form links straight to one article, which opens here
+        const linkedArticle = location.hash.startsWith("#solution-") ? document.getElementById(location.hash.slice(1)) : null;
+        if (linkedArticle) {
+            bootstrap.Collapse.getOrCreateInstance(linkedArticle, { toggle: false }).show();
+            linkedArticle.closest(".accordion-item").scrollIntoView();
+        }
+    </script>
+}

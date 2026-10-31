@@ -1,0 +1,93 @@
+<div class="mb-3">
+    <button type="button" id="SuggestButton" class="btn btn-outline-primary btn-sm" data-url="@Url.Action("Suggest")">
+        <i class="bi bi-stars me-1"></i>Öneri al
+    </button>
+    <div class="form-text">
+        Başlık ve açıklama, e-posta ve telefon gibi bilgiler gizlenerek yapay zekâ hizmetine gönderilir.
+        Kişi adı veya özel bilgi yazdıysanız önce silin.
+    </div>
+    <div id="SuggestionError" class="text-danger small mt-2" role="alert" hidden></div>
+    <div id="SuggestionCard" class="card mt-2" hidden>
+        <div class="card-body p-3">
+            <div id="SuggestionSummary" class="fw-semibold"></div>
+            <div id="SuggestionReason" class="small text-muted mb-2"></div>
+            <button type="button" id="SuggestionApply" class="btn btn-primary btn-sm">Forma uygula</button>
+            <div id="SuggestionArticles" class="mt-2 small" hidden>
+                <div class="fw-semibold">Önce bunları deneyebilirsiniz:</div>
+                <ul class="mb-0"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (() => {
+        const button = document.getElementById("SuggestButton");
+        const error = document.getElementById("SuggestionError");
+        const card = document.getElementById("SuggestionCard");
+        const articles = document.getElementById("SuggestionArticles");
+        const form = button.closest("form");
+        let suggestion = null;
+
+        const showError = message => {
+            error.textContent = message;
+            error.hidden = false;
+        };
+
+        button.addEventListener("click", async () => {
+            button.disabled = true;
+            error.hidden = true;
+            card.hidden = true;
+            try {
+                const response = await fetch(button.dataset.url, {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        title: form.elements.Title.value,
+                        description: form.elements.Description.value,
+                        __RequestVerificationToken: form.elements.__RequestVerificationToken.value
+                    })
+                });
+                if (response.status === 429) {
+                    showError("Çok sık öneri istediniz. Bir dakika sonra yeniden deneyin.");
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok) {
+                    showError(result.error);
+                    return;
+                }
+
+                suggestion = result;
+                document.getElementById("SuggestionSummary").textContent = result.summary;
+                document.getElementById("SuggestionReason").textContent = result.reason;
+                const list = articles.querySelector("ul");
+                list.replaceChildren(...result.articles.map(article => {
+                    const link = document.createElement("a");
+                    link.href = article.url;
+                    link.target = "_blank";
+                    link.rel = "noopener";
+                    link.textContent = article.title;
+                    const item = document.createElement("li");
+                    item.append(link);
+                    return item;
+                }));
+                articles.hidden = result.articles.length === 0;
+                card.hidden = false;
+            } catch {
+                showError("Şu anda öneri alınamadı. Alanları kendiniz seçebilirsiniz.");
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        // The form changes only here, when the person accepts; the category change event refills the subcategory list
+        document.getElementById("SuggestionApply").addEventListener("click", () => {
+            form.elements.Category.value = suggestion.category;
+            form.elements.Category.dispatchEvent(new Event("change"));
+            form.elements.Subcategory.value = suggestion.subcategory;
+            form.elements.Subcategory.dispatchEvent(new Event("change"));
+            form.elements.Priority.value = suggestion.priority;
+        });
+    })();
+</script>
