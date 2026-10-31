@@ -10,7 +10,11 @@ namespace HelpdeskOps.Services.Teams;
 // and the free-text "Other" category stay behind the sign-in, and the button leads there (KVKK).
 public static class TeamsCard
 {
-    public static string Build(Ticket ticket, string link)
+    public static string Build(Ticket ticket, string link) => Compose($"Yeni talep #{ticket.Id}", ticket, link);
+
+    public static string BuildSlaBreach(Ticket ticket, string link) => Compose($"SLA hedefi aşıldı: talep #{ticket.Id}", ticket, link);
+
+    private static string Compose(string heading, Ticket ticket, string link)
     {
         var card = new JsonObject
         {
@@ -21,7 +25,7 @@ public static class TeamsCard
                 new JsonObject
                 {
                     ["type"] = "TextBlock",
-                    ["text"] = $"Yeni talep #{ticket.Id}",
+                    ["text"] = heading,
                     ["weight"] = "Bolder",
                     ["size"] = "Medium"
                 },

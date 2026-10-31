@@ -44,6 +44,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<TeamsQueue>();
 builder.Services.AddHostedService<TeamsDeliveryService>();
 builder.Services.AddSingleton<TicketTeamsInterceptor>();
+builder.Services.AddScoped<SlaBreachNotifier>();
+builder.Services.AddHostedService<SlaBreachService>();
 // Ticket suggestions: category, priority, and articles from Claude; off until "Suggestions:ApiKey" is set
 var suggestionsOptions = builder.Configuration.GetSection(SuggestionsOptions.SectionName).Get<SuggestionsOptions>() ?? new SuggestionsOptions();
 if (suggestionsOptions.Validate(builder.Environment.IsDevelopment()) is string suggestionsError)
