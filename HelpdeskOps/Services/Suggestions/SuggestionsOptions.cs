@@ -14,6 +14,9 @@ public class SuggestionsOptions
     // Only for pointing at a local test server; empty uses Anthropic's own address
     public string BaseUrl { get; set; } = "";
 
+    // How long a person waits on the form for one attempt
+    public int TimeoutSeconds { get; set; } = 20;
+
     public bool IsEnabled => !string.IsNullOrWhiteSpace(ApiKey);
 
     // Returns what is wrong with the settings, or null when they are usable, so a bad install stops at startup

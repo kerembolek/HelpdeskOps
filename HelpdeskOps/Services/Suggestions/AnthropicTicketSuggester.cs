@@ -8,8 +8,6 @@ namespace HelpdeskOps.Services.Suggestions;
 // see an error page over an optional helper. The log never carries the ticket text or the key.
 public class AnthropicTicketSuggester : ITicketSuggester
 {
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(20);
-
     private readonly SuggestionsOptions _options;
     private readonly ILogger<AnthropicTicketSuggester> _logger;
     private readonly AnthropicClient _client;
@@ -18,9 +16,10 @@ public class AnthropicTicketSuggester : ITicketSuggester
     {
         _options = options.Value;
         _logger = logger;
+        var timeout = TimeSpan.FromSeconds(_options.TimeoutSeconds);
         _client = string.IsNullOrWhiteSpace(_options.BaseUrl)
-            ? new AnthropicClient { ApiKey = _options.ApiKey, Timeout = RequestTimeout, MaxRetries = 1 }
-            : new AnthropicClient { ApiKey = _options.ApiKey, Timeout = RequestTimeout, MaxRetries = 1, BaseUrl = _options.BaseUrl };
+            ? new AnthropicClient { ApiKey = _options.ApiKey, Timeout = timeout, MaxRetries = 1 }
+            : new AnthropicClient { ApiKey = _options.ApiKey, Timeout = timeout, MaxRetries = 1, BaseUrl = _options.BaseUrl };
     }
 
     public async Task<TicketSuggestion?> SuggestAsync(string title, string description,
