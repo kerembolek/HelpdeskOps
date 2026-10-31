@@ -71,7 +71,7 @@ This project simulates a real-world internal IT operations platform: tracking ha
 - [x] User management for IT admins: a searchable user list with roles, assigned devices, and active tickets, and a role change per user (nobody can change their own role; a former IT admin's active tickets go back to the unassigned pool)
 
 ### Quality
-- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, consumable stock rules, the KVKK export, anonymization, and retention rules, and the directory sync and password rules
+- [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, consumable stock rules, the KVKK export, anonymization, and retention rules, the directory sync and password rules, and ticket suggestions
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -113,13 +113,13 @@ The original roadmap is complete. The next phases target what a company asks bef
 ### Phase 3: Extras
 - [x] Open tickets by e-mail: a mail to the helpdesk mailbox (IMAP) opens a ticket with its attachments and confirms the number, replies become comments, and unknown senders, robots, and failed sender checks are skipped
 - [x] Microsoft Teams notifications: every new ticket, from the site or the helpdesk mailbox, posts a card with its number, category, priority, SLA target, and a link to the IT channel through a Workflows webhook; titles, descriptions, and names stay on the company's server
-- [ ] AI suggestions for category, priority, and matching self-service articles
+- [x] AI suggestions: an optional "Öneri al" button on the ticket form asks Claude for a category, priority, and matching self-service articles; it is off by default, the person applies the suggestion themselves, and e-mail addresses, phone numbers, national IDs, IBANs, and IP addresses are masked first
 
 ## Project Status
 
 **Actively in development.** Core data models (`Device`, `Ticket`, `ApplicationUser`) with relationships and validation are complete, and device and ticket management screens are working with a Turkish user interface. Users sign in with ASP.NET Core Identity. Employees first try the self-service solution bank, then create and track their own tickets, while IT admins manage devices, assign them to users, keep a lifecycle history for each device, track warranties and service contacts, see whether each device answers ping, open an RDP connection to computers, map devices to Cisco switch ports, open tickets on behalf of employees, take tickets with one click, and assign, edit, and close them. Tickets are filed under a category and subcategory (with a free-text "Other"), and the ticket list can be searched and filtered. Requesters and IT staff talk through ticket comments, and every ticket keeps a history of its status, priority, and assignee changes. IT admins also have a dashboard with resolution times, chronic problem devices, department workload, and expiring warranties, and a reports page with period-based ticket figures, IT staff performance, and a CSV export. Managers can read every ticket and see the dashboard and reports without changing anything.
 
-Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, licenses, and tickets before a person starts or leaves. They also track software licenses (who holds a seat and when each license renews) and consumables (stock, what to order, and which printer used what). For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day. Companies can connect Microsoft Entra ID or Active Directory, so staff sign in with their company account and a daily sync keeps accounts in step with the directory. New tickets can also post a card to the IT channel in Microsoft Teams.
+Assigning a device opens a digital zimmet form that the employee signs in "My Devices". Employees request returns with a signature, and IT checks the device and signs to receive it. Every form, with its signatures, can be downloaded as a PDF. IT admins manage user roles from the user list and run onboarding and offboarding checklists that check accounts, devices, signed forms, licenses, and tickets before a person starts or leaves. They also track software licenses (who holds a seat and when each license renews) and consumables (stock, what to order, and which printer used what). For KVKK, everyone can read the privacy notice and download their own data, IT can anonymize former employees, and expired personal data is deleted every day. Companies can connect Microsoft Entra ID or Active Directory, so staff sign in with their company account and a daily sync keeps accounts in step with the directory. New tickets can also post a card to the IT channel in Microsoft Teams, and the ticket form can suggest a category, priority, and self-service articles.
 
 ---
 
@@ -226,6 +226,18 @@ New tickets can post a card to the IT channel. In Teams, open the channel's **Wo
 ```
 
 Cards are queued and posted in the background, so a slow or failing Teams never slows down a page; a failed card is logged and skipped. Teams keeps its messages on Microsoft's servers, so a card carries only the ticket number, category, priority, SLA target, and a link. The title, description, and requester stay behind the sign-in, which keeps the privacy notice true. Personal notifications (assigned to you, new comment) stay in the app and in e-mail.
+
+### Ticket Suggestions
+
+The ticket form can show an **Öneri al** button that asks Claude for a category, a priority, and matching self-service articles. It is off until an API key from the Claude Console is set. Keep the key in the git-ignored `appsettings.Production.json` or in an environment variable:
+
+```json
+{
+  "Suggestions": { "ApiKey": "...", "Model": "claude-opus-5-5" }
+}
+```
+
+Text leaves the server only when a person presses the button, and only the title and description of that form go out, after e-mail addresses, phone numbers, national IDs, IBANs, and IP addresses are masked. Names typed into the text cannot be masked, so turning this on is a transfer abroad that the company must assess under KVKK: the privacy notice shows it automatically, and `Kvkk:NoticeVersion` must be raised so everyone reads the new text. The answer is checked against the known categories and articles and only fills a card; the form changes when the person presses **Forma uygula**. Each person can ask 10 times a minute, and if the service fails the form simply stays as it is.
 
 ### Company Directory
 

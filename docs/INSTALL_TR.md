@@ -318,6 +318,23 @@ Kartta yalnızca talep numarası, kategori, öncelik, SLA hedefi ve **HelpdeskOp
 
 Kart gönderilemezse uygulama günlüğüne `Could not post ticket` kaydı düşer, talep ise normal şekilde açılır; kart yeniden gönderilmez. Sürekli hata görürseniz iş akışının açık olduğunu ve onu kuran hesabın hâlâ etkin olduğunu kontrol edin: iş akışı o kişinin hesabına bağlıdır. Adres sızarsa iş akışını silip yenisini kurun.
 
+### 4.9 Yapay zekâ önerileri
+
+İsteğe bağlıdır ve varsayılan olarak kapalıdır. Açıldığında talep formunda **Öneri al** düğmesi görünür; kişi düğmeye bastığında Claude kategori, öncelik ve uygun Kendin Çöz makalelerini önerir. Öneri, **Forma uygula** düğmesine basılmadan formu değiştirmez.
+
+**Açmadan önce KVKK:** Düğmeye basıldığında talep başlığı ve açıklaması ABD'deki Anthropic'e gönderilir. E-posta, telefon, T.C. kimlik, IBAN ve IP adresi önce gizlenir, kişinin adı ve hesabı eklenmez; ama metne yazılan isimler gizlenemez. Bu bir yurt dışı aktarımıdır. KVKK 9. maddeye göre aktarım dayanağını hukuk danışmanınızla değerlendirmeden açmayın.
+
+1. [Claude Console](https://platform.claude.com)'da kuruluş hesabı açıp API anahtarı oluşturun ve harcama sınırı koyun.
+2. Ayarları yazın:
+   - Docker: `.env` içinde `SUGGESTIONS_API_KEY=...`.
+   - IIS: `appsettings.Production.json` içinde `"Suggestions": { "ApiKey": "..." }`.
+3. `Kvkk:NoticeVersion` değerini yükseltin. Aydınlatma metninde aktarım paragrafı kendiliğinden çıkar, "yurt dışına aktarılmaz" cümlesi kalkar ve herkesten metni yeniden okuması istenir.
+4. Uygulamayı yeniden başlatıp bir taslak taleple deneyin.
+
+Varsayılan model `claude-opus-5-5`'tir. Daha ucuz bir model için `Suggestions:Model` ayarını değiştirin (örneğin `claude-haiku-5-5`), sonra birkaç gerçek taleple önerilerin kalitesine bakın. Her kişi dakikada en fazla 10 öneri isteyebilir.
+
+Öneri alınamazsa form kullanılmaya devam eder ve uygulama günlüğüne `Could not get a ticket suggestion` düşer; günlüğe talep metni ve anahtar yazılmaz. Sürekli hata görürseniz anahtarı ve Console'daki harcama sınırını kontrol edin. Anahtar sızarsa Console'dan silip yenisini oluşturun.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.
