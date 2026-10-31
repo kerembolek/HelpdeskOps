@@ -208,6 +208,8 @@ Talebin oluşturulma tarihi, durumu ve talep eden bilgisi sistem tarafından ata
 
 Şirketiniz yapay zekâ önerilerini açtıysa, açıklamanın altında **Öneri al** düğmesi görünür. Düğmeye bastığınızda bir kart kategori, alt kategori ve önceliği kısa gerekçesiyle gösterir; uygun Kendin Çöz makaleleri varsa bağlantılarını da verir. **Forma uygula** bu değerleri forma yazar, siz yine de değiştirebilirsiniz. Düğmeye basmazsanız metniniz gönderilmez. Gönderilmeden önce e-posta, telefon, T.C. kimlik, IBAN ve IP adresi gizlenir; kişi adı gizlenemediği için metne yazdıysanız önce silin.
 
+![Öneri kartı](images/28-suggestion.png)
+
 Şirketiniz destek posta kutusunu bağladıysa talebi e-postayla da açabilirsiniz: konu başlık, metin açıklama olur, izin verilen dosya türlerindeki ekler talebe eklenir. Size talep numarasını içeren bir onay gelir. Bu e-postayı ya da talep bildirimlerini yanıtladığınızda yazdıklarınız talebe yorum olarak eklenir. E-postayla açılan talepler "Diğer" kategorisinde ve orta öncelikle başlar, BT gerekirse değiştirir.
 
 ### 5.3 Talep Ayrıntıları
