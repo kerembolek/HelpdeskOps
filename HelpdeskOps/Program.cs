@@ -2,11 +2,15 @@
 using HelpdeskOps.Models;
 using HelpdeskOps.Services.CompanyDirectory;
 using HelpdeskOps.Services.Email;
+using HelpdeskOps.Services.Suggestions;
 using HelpdeskOps.Services.Teams;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 
 // QuestPDF is free under its Community license for individuals and companies under $1M annual revenue
@@ -40,6 +44,22 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<TeamsQueue>();
 builder.Services.AddHostedService<TeamsDeliveryService>();
 builder.Services.AddSingleton<TicketTeamsInterceptor>();
+// Ticket suggestions: category, priority, and articles from Claude; off until "Suggestions:ApiKey" is set
+var suggestionsOptions = builder.Configuration.GetSection(SuggestionsOptions.SectionName).Get<SuggestionsOptions>() ?? new SuggestionsOptions();
+if (suggestionsOptions.Validate(builder.Environment.IsDevelopment()) is string suggestionsError)
+{
+    throw new InvalidOperationException(suggestionsError);
+}
+builder.Services.Configure<SuggestionsOptions>(builder.Configuration.GetSection(SuggestionsOptions.SectionName));
+builder.Services.AddSingleton<ITicketSuggester, AnthropicTicketSuggester>();
+// Each press costs money, so one person cannot run up the bill
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy(SuggestionsOptions.SectionName, context => RateLimitPartition.GetFixedWindowLimiter(
+        context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
+});
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -183,6 +203,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 app.MapStaticAssets();
 
