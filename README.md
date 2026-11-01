@@ -314,6 +314,12 @@ New users who register through the sign-up page get the `Employee` role. The sig
 
 ---
 
+## License
+
+HelpdeskOps is source-available, not open source. You can read the code and run it on your own computer to evaluate it; using it in a company, hosting it, or distributing it needs written permission. See [LICENSE](LICENSE). Versions up to commit `c3c8077` remain under the MIT License.
+
+---
+
 ## Author
 
 **Kerem Bölek**
