@@ -314,6 +314,12 @@ Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir. �
 
 ---
 
+## Lisans
+
+HelpdeskOps'un kaynak kodu görünürdür ama açık kaynak değildir. Kodu okuyabilir, değerlendirmek için kendi bilgisayarınızda çalıştırabilirsiniz; bir şirkette kullanmak, sunucuda yayınlamak veya dağıtmak yazılı izin gerektirir. Ayrıntılar [LICENSE](LICENSE) dosyasındadır. `c3c8077` commit'ine kadarki sürümler MIT Lisansı altında kalır.
+
+---
+
 ## Yazar
 
 **Kerem Bölek**
