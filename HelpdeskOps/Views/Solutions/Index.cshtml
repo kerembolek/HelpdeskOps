@@ -103,7 +103,7 @@ else
 }
 
 @section Scripts {
-    <script>
+    <script nonce="@HelpdeskOps.Services.SecurityHeadersMiddleware.Nonce(Context)">
         // A suggestion on the ticket form links straight to one article, which opens here
         const linkedArticle = location.hash.startsWith("#solution-") ? document.getElementById(location.hash.slice(1)) : null;
         if (linkedArticle) {

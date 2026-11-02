@@ -140,7 +140,7 @@ else if (isRequester && isFinished)
 							@if (canDelete)
 							{
 								<form asp-controller="TicketAttachments" asp-action="Delete" asp-route-id="@attachment.Id" method="post" class="d-inline"
-									  onsubmit="return confirm('Bu dosya silinsin mi?');">
+									  data-confirm="Bu dosya silinsin mi?">
 									<button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
 								</form>
 							}

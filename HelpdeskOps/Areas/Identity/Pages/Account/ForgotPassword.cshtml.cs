@@ -16,6 +16,7 @@ using HelpdeskOps.Services.CompanyDirectory;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
+[Microsoft.AspNetCore.RateLimiting.EnableRateLimiting(HelpdeskOps.Services.SignInLimit.PolicyName)]
 public class ForgotPasswordModel : PageModel
 {
     private readonly DirectoryUserManager _userManager;

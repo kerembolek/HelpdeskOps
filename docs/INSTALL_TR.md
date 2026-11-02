@@ -141,6 +141,9 @@ Visual Studio'da aynı işlem **HelpdeskOps projesine sağ tık → Publish → 
     "DefaultConnection": "Server=.\\SQLEXPRESS;Database=HelpdeskOps;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"
   },
   "InitialAdminEmail": "ad.soyad@sirketiniz.com.tr",
+  "Registration": {
+    "AllowedDomains": [ "sirketiniz.com.tr" ]
+  },
   "Kvkk": {
     "ControllerName": "Şirketinizin Unvanı A.Ş.",
     "ControllerAddress": "Şirket adresi",
@@ -212,6 +215,8 @@ Yeni kurulumda hiç BT yöneticisi yoktur. Kayıt olan herkes "Çalışan" rolü
 4. Çıkış yapıp tekrar giriş yapın. Menüde **Cihazlar** ve **Kullanıcılar** görünür.
 
 Sistemde bir BT yöneticisi olduğu sürece bu ayar hiçbir şey yapmaz; bu yüzden ayarı yerinde bırakmak güvenlik riski oluşturmaz. Diğer çalışanların rolleri **Kullanıcılar** sayfasından verilir.
+
+**Çalışanların kaydı:** Şirket dizini bağlı değilse **Kayıt Ol** sayfası varsayılan olarak yalnızca `InitialAdminEmail` adresine açıktır. Çalışanların kendi hesabını açabilmesi için şirketin e-posta alan adını `Registration:AllowedDomains` ayarına (Docker'da `.env` içindeki `REGISTRATION_DOMAIN`) yazın. Alan adı kontrolü yalnızca gerçek e-posta gönderimi açıkken anlamlıdır: e-posta kapalıyken adresin gerçekten kişiye ait olduğu doğrulanamaz.
 
 ### 4.2 E-posta
 
@@ -337,6 +342,12 @@ Varsayılan model `claude-opus-5-5`'tir. Daha ucuz bir model için `Suggestions:
 
 Öneri alınamazsa form kullanılmaya devam eder ve uygulama günlüğüne `Could not get a ticket suggestion` düşer; günlüğe talep metni ve anahtar yazılmaz. Sürekli hata görürseniz anahtarı ve Console'daki harcama sınırını kontrol edin. Anahtar sızarsa Console'dan silip yenisini oluşturun.
 
+### 4.10 İzleme ve giriş sınırı
+
+**Sağlık kontrolü:** `https://helpdesk.sirketiniz.com.tr/health` adresi uygulama ve veritabanı çalışıyorsa `Healthy`, veritabanına ulaşılamıyorsa `Unhealthy` yazar. Giriş gerektirmez ve ayrıntı vermez. Şirketinizin izleme aracını bu adrese bağlayarak kesintiyi kullanıcılar haber vermeden görebilirsiniz.
+
+**Giriş sınırı:** Aynı IP adresinden giriş, kayıt ve şifre sayfalarına dakikada en fazla 30 deneme yapılabilir. Sınır aşılırsa bir dakika beklenir. Ters vekil kullanıyorsanız `BEHIND_PROXY=true` ayarı açık olmalıdır, aksi hâlde tüm kullanıcılar tek adresten geliyor görünür.
+
 ## 5. Güncelleme
 
 Her güncellemeden önce yedek alın (bkz. [6](#6-yedekleme-planı)). Veritabanı değişiklikleri uygulama açılırken kendiliğinden uygulanır.
@@ -451,4 +462,6 @@ Günlük yedekle, en kötü durumda son yedekten sonra girilen bir günlük veri
 | Eklenen dosyalar yüklenmiyor | `App_Data` klasörüne yazma izni yok (IIS'te bkz. [3.3](#33-uygulama-havuzu-ve-site)). |
 | Uygulama her açıldığında herkesin oturumu kapanıyor | `App_Data/keys` klasörü korunmuyor. Docker'da `app-data` biriminin silinmediğinden, IIS'te klasöre yazma izni olduğundan emin olun. |
 | İlk yönetici atanmadı | Günlükte `InitialAdminEmail` uyarısını arayın. Adres, kayıt olunan adresle aynı olmalı ve uygulama kayıttan sonra yeniden başlatılmalıdır. |
+| **Kayıt Ol** bağlantısı görünmüyor | Kayıt varsayılan olarak kapalıdır. Şirket alan adını `Registration:AllowedDomains` ayarına yazın (bkz. [4.1](#41-i̇lk-bt-yöneticisi)). |
+| Herkes "Çok fazla deneme yapıldı" uyarısı alıyor | Ters vekil arkasında `BEHIND_PROXY=true` ayarını açın (bkz. [4.10](#410-i̇zleme-ve-giriş-sınırı)). |
 | Cihazların ping durumu hep kapalı | Sunucunun cihazlara ICMP (ping) ile ulaşabildiğinden emin olun. Güvenlik duvarı ICMP'yi engelliyor olabilir. |

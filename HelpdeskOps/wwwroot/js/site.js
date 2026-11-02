@@ -29,4 +29,13 @@ function refreshPingDots() {
 document.addEventListener('DOMContentLoaded', () => {
     refreshPingDots();
     document.querySelectorAll('[data-ping-refresh]').forEach(button => button.addEventListener('click', refreshPingDots));
+    document.querySelectorAll('[data-print]').forEach(button => button.addEventListener('click', () => window.print()));
+});
+
+// Forms with data-confirm ask first; the Content-Security-Policy blocks inline onsubmit handlers
+document.addEventListener('submit', event => {
+    const message = event.target.dataset.confirm;
+    if (message && !confirm(message)) {
+        event.preventDefault();
+    }
 });

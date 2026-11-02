@@ -4,6 +4,7 @@
 @inject IWebHostEnvironment Environment
 @inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.Email.EmailOptions> EmailOptions
 @inject Microsoft.Extensions.Options.IOptions<HelpdeskOps.Services.CompanyDirectory.DirectoryOptions> DirectoryOptions
+@inject HelpdeskOps.Services.RegistrationPolicy Registration
 
 @{
     ViewData["Title"] = "Giriş Yap";
@@ -65,8 +66,7 @@
                     </div>
                 }
 
-                @* The read-only demo has no registration, and with a company directory accounts come from the directory *@
-                @if (!readOnlyDemo && !DirectoryOptions.Value.IsEnabled)
+                @if (Registration.IsOpen)
                 {
                     <p class="text-center small mt-3 mb-0">
                         Hesabınız yok mu? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Kayıt olun</a>
@@ -99,7 +99,7 @@
     <partial name="_ValidationScriptsPartial" />
     @if (showDemoAccounts)
     {
-        <script>
+        <script nonce="@HelpdeskOps.Services.SecurityHeadersMiddleware.Nonce(HttpContext)">
             // Demo buttons fill the form with a published demo account; the visitor still presses "Giriş Yap"
             document.querySelectorAll('[data-demo-email]').forEach(function (button) {
                 button.addEventListener('click', function () {

@@ -32,7 +32,7 @@
     <span asp-validation-for="OtherCategoryText" class="text-danger"></span>
 </div>
 
-<script>
+<script nonce="@HelpdeskOps.Services.SecurityHeadersMiddleware.Nonce(Context)">
     (() => {
         const category = document.getElementById("Category");
         const subcategory = document.getElementById("Subcategory");

@@ -72,6 +72,8 @@ Bu proje, gerçek bir kurum içi BT operasyon platformunu simüle eder: donanım
 
 ### Kalite
 - [x] SLA kurallarını ve mesai takvimini, Türkiye saatini, CSV içe aktarmayı, imza doğrulamasını, sayfalamayı, QR okutma yönlendirmesini, otomatik envanteri, salt okunur demo ara katmanını, denetim kaydını, işe giriş ve çıkış listelerini, yazılım lisanslarını, sarf stok kurallarını, KVKK dışa aktarma, anonimleştirme ve saklama süresi kurallarını, talep önerilerini ve SLA aşımı kartlarını kapsayan xUnit test projesi
+- [x] Çalışan uygulama üzerinde testler: hangi rolün hangi sayfayı açabildiği, talep sahipliği, güvenlik başlıkları, kaydın varsayılan durumu, sağlık kontrolü ve giriş denemesi sınırı
+- [x] Sağlamlaştırma: şirket e-posta alan adları açılmadıkça kapalı kayıt, adres başına giriş denemesi sınırı, betik nonce'lu Content-Security-Policy ve diğer güvenlik başlıkları, izleme için `/health` adresi, numaralı sürümler ve [sürüm notları](CHANGELOG.md)
 - [x] main'e her push'ta ve her pull request'te çözümü derleyip testleri çalıştıran GitHub Actions CI
 
 ### Arayüz
@@ -310,7 +312,7 @@ Demo cihazlar uydurma `10.10.x.x` adresleri kullanır; ağınızda bu adreslerde
 
 Panoda departmanların karşılaştırılabilmesi için iki çalışan hesabı daha oluşturulur (`ik@helpdeskops.com`, `satis@helpdeskops.com`, parola aynı).
 
-Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir. Şirket dizini bağlıyken kayıt sayfası kapanır.
+Kayıt sayfasından yeni kayıt olan kullanıcılara `Employee` rolü verilir. Kayıt varsayılan olarak kapalıdır: `Registration:AllowedDomains` ayarı şirketin e-posta alan adlarına açar, `InitialAdminEmail` adresi her zaman kayıt olabilir, şirket dizini bağlıyken kayıt sayfası kapanır.
 
 ---
 

@@ -17,12 +17,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using HelpdeskOps.Models;
-using HelpdeskOps.Services.CompanyDirectory;
+using HelpdeskOps.Services;
 using HelpdeskOps.Services.Kvkk;
 using Microsoft.Extensions.Options;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
+[Microsoft.AspNetCore.RateLimiting.EnableRateLimiting(HelpdeskOps.Services.SignInLimit.PolicyName)]
 public class RegisterModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
@@ -32,7 +33,7 @@ public class RegisterModel : PageModel
     private readonly ILogger<RegisterModel> _logger;
     private readonly IEmailSender _emailSender;
     private readonly KvkkOptions _kvkk;
-    private readonly DirectoryOptions _directory;
+    private readonly RegistrationPolicy _registration;
 
     public RegisterModel(
         UserManager<ApplicationUser> userManager,
@@ -41,7 +42,7 @@ public class RegisterModel : PageModel
         ILogger<RegisterModel> logger,
         IEmailSender emailSender,
         IOptions<KvkkOptions> kvkk,
-        IOptions<DirectoryOptions> directory)
+        RegistrationPolicy registration)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -50,13 +51,12 @@ public class RegisterModel : PageModel
         _logger = logger;
         _emailSender = emailSender;
         _kvkk = kvkk.Value;
-        _directory = directory.Value;
+        _registration = registration;
     }
 
-    // With a company directory, accounts come from the directory, so nobody can sign themselves up
     public override void OnPageHandlerExecuting(Microsoft.AspNetCore.Mvc.Filters.PageHandlerExecutingContext context)
     {
-        if (_directory.IsEnabled)
+        if (!_registration.IsOpen)
         {
             context.Result = RedirectToPage("./Login");
         }
@@ -120,6 +120,11 @@ public class RegisterModel : PageModel
     {
         returnUrl ??= Url.Content("~/");
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        if (ModelState.IsValid && !_registration.Allows(Input.Email))
+        {
+            ModelState.AddModelError(nameof(Input) + "." + nameof(Input.Email), "Bu e-posta adresiyle kayıt olunamaz. Şirket adresinizi kullanın veya BT ekibine başvurun.");
+        }
+
         if (ModelState.IsValid)
         {
             var user = CreateUser();
