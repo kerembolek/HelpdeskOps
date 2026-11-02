@@ -20,7 +20,7 @@ HelpdeskOps, kurumsal bir BT ortamında cihaz envanterini ve destek taleplerini 
 
 ## 1. Giriş ve Roller
 
-Uygulamayı kullanmak için **Giriş Yap** sayfasında e-posta ve parolayla oturum açılır. Hesabı olmayan kullanıcılar **Kayıt olun** bağlantısıyla ad, soyad ve departman bilgisini girerek kayıt olabilir; yeni hesaplar **Çalışan** rolüyle açılır. Demo sitesinde giriş formunun altındaki **Çalışan**, **BT Uzmanı** ve **Yönetici** düğmeleri formu ilgili demo hesabıyla doldurur.
+Uygulamayı kullanmak için **Giriş Yap** sayfasında e-posta ve parolayla oturum açılır. Kayıt açıksa hesabı olmayan kullanıcılar **Kayıt olun** bağlantısıyla ad, soyad ve departman bilgisini girerek şirket e-posta adresleriyle kayıt olabilir; yeni hesaplar **Çalışan** rolüyle açılır. Demo sitesinde giriş formunun altındaki **Çalışan**, **BT Uzmanı** ve **Yönetici** düğmeleri formu ilgili demo hesabıyla doldurur.
 
 E-posta gönderimi ayarlanmışsa giriş sayfasında iki bağlantı daha görünür:
 

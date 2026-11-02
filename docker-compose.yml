@@ -38,6 +38,7 @@ services:
       # Keep the SQL text of every query out of the logs
       Logging__LogLevel__Microsoft.EntityFrameworkCore.Database.Command: Warning
       InitialAdminEmail: ${INITIAL_ADMIN_EMAIL:-}
+      Registration__AllowedDomains__0: ${REGISTRATION_DOMAIN:-}
       Kvkk__ControllerName: ${KVKK_CONTROLLER_NAME:?Set KVKK_CONTROLLER_NAME in .env}
       Kvkk__ControllerAddress: ${KVKK_CONTROLLER_ADDRESS:-}
       Kvkk__ContactEmail: ${KVKK_CONTACT_EMAIL:-}

@@ -203,7 +203,7 @@ else
     @if (isOpen)
     {
         <form asp-action="Complete" asp-route-id="@checklist.Id" method="post"
-              onsubmit="@(isOffboarding ? "return confirm('Liste tamamlanınca kişinin hesabı kapanır ve giriş yapamaz. Devam edilsin mi?');" : null)">
+              data-confirm="@(isOffboarding ? "Liste tamamlanınca kişinin hesabı kapanır ve giriş yapamaz. Devam edilsin mi?" : null)">
             <button type="submit" class="btn @(isOffboarding ? "btn-danger" : "btn-success")" disabled="@(Model.CompletionBlocker != null)">
                 <i class="bi bi-check2-all me-1"></i>@(isOffboarding ? "Tamamla ve Hesabı Kapat" : "Tamamla")
             </button>
@@ -212,7 +212,7 @@ else
         {
             <span class="small text-muted">@Model.CompletionBlocker</span>
         }
-        <form asp-action="Delete" asp-route-id="@checklist.Id" method="post" class="ms-auto" onsubmit="return confirm('Liste silinsin mi?');">
+        <form asp-action="Delete" asp-route-id="@checklist.Id" method="post" class="ms-auto" data-confirm="Liste silinsin mi?">
             <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="bi bi-trash me-1"></i>Listeyi Sil</button>
         </form>
     }

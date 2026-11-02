@@ -34,7 +34,7 @@
             @Model.Count etiket. Etiketi okutan çalışan o cihaz için talep açar, BT ise cihaz kartını görür.
             A4 boyutunda 21'li (63,5 x 38,1 mm) etiket kâğıdına, ölçeklendirme kapalıyken (%100) yazdırın.
         </p>
-        <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
+        <button type="button" class="btn btn-primary" data-print>Yazdır</button>
         <a href="@Url.Action("Index")" class="btn btn-secondary ms-2">Cihazlara Dön</a>
     </div>
 
@@ -58,5 +58,6 @@
             }
         </div>
     }
+    <script src="~/js/site.js" asp-append-version="true"></script>
 </body>
 </html>

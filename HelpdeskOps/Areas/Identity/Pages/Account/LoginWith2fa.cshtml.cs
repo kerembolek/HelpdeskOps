@@ -14,6 +14,7 @@ using HelpdeskOps.Models;
 
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
+[Microsoft.AspNetCore.RateLimiting.EnableRateLimiting(HelpdeskOps.Services.SignInLimit.PolicyName)]
 public class LoginWith2faModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;

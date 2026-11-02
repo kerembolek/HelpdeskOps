@@ -72,6 +72,8 @@ This project simulates a real-world internal IT operations platform: tracking ha
 
 ### Quality
 - [x] xUnit test project covering SLA rules and the business-hours calendar, Turkey time, CSV import, signature validation, the read-only demo middleware, paging, QR scan routing, automatic inventory, the audit log, onboarding and offboarding checklists, software licenses, consumable stock rules, the KVKK export, anonymization, and retention rules, the directory sync and password rules, ticket suggestions, and SLA breach cards
+- [x] Tests on the running app: which roles can open each page, ticket ownership, security headers, the sign-up default, the health check, and the sign-in limit
+- [x] Hardening: sign-up closed unless company e-mail domains are allowed, a limit on sign-in attempts per address, a Content-Security-Policy with script nonces and other security headers, a `/health` endpoint for monitoring, and numbered releases with a [changelog](CHANGELOG.md)
 - [x] GitHub Actions CI that builds the solution and runs the tests on every push to main and every pull request
 
 ### Interface
@@ -310,7 +312,7 @@ The demo devices use made-up `10.10.x.x` addresses, so their network status dots
 
 Two more employee accounts (`ik@helpdeskops.com`, `satis@helpdeskops.com`, same password) are created so the dashboard can compare departments.
 
-New users who register through the sign-up page get the `Employee` role. The sign-up page closes when a company directory is connected.
+New users who register through the sign-up page get the `Employee` role. Sign-up is closed by default: `Registration:AllowedDomains` opens it for the company's e-mail domains, the `InitialAdminEmail` address can always register, and a connected company directory closes it.
 
 ---
 

@@ -16,6 +16,7 @@ using HelpdeskOps.Models;
 namespace HelpdeskOps.Areas.Identity.Pages.Account;
 
 [AllowAnonymous]
+[Microsoft.AspNetCore.RateLimiting.EnableRateLimiting(HelpdeskOps.Services.SignInLimit.PolicyName)]
 public class ResendEmailConfirmationModel : PageModel
 {
     private readonly UserManager<ApplicationUser> _userManager;

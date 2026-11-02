@@ -84,7 +84,7 @@ else
 <div class="d-flex flex-wrap gap-2">
     <a asp-action="Index" class="btn btn-outline-secondary">Lisanslara Dön</a>
     <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="ms-auto"
-          onsubmit="return confirm('Lisans ve @used atama kaydı silinsin mi?');">
+          data-confirm="Lisans ve @used atama kaydı silinsin mi?">
         <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Lisansı Sil</button>
     </form>
 </div>

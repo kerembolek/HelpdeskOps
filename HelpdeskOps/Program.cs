@@ -58,6 +58,12 @@ builder.Services.AddSingleton<ITicketSuggester, AnthropicTicketSuggester>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "text/plain; charset=utf-8";
+        await context.HttpContext.Response.WriteAsync("Çok fazla deneme yapıldı. Bir dakika sonra tekrar deneyin.", cancellationToken);
+    };
+    options.AddPolicy(HelpdeskOps.Services.SignInLimit.PolicyName, HelpdeskOps.Services.SignInLimit.Partition);
     options.AddPolicy(SuggestionsOptions.SectionName, context => RateLimitPartition.GetFixedWindowLimiter(
         context.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
@@ -141,6 +147,10 @@ if (directoryOptions.Provider == DirectoryProvider.Entra)
 // Re-check sign-in cookies against the security stamp every minute, so a role change takes effect quickly
 builder.Services.Configure<SecurityStampValidatorOptions>(options => options.ValidationInterval = TimeSpan.FromMinutes(1));
 
+// Who can sign themselves up: closed unless "Registration:AllowedDomains" opens it
+builder.Services.Configure<HelpdeskOps.Services.RegistrationOptions>(builder.Configuration.GetSection(HelpdeskOps.Services.RegistrationOptions.SectionName));
+builder.Services.AddSingleton<HelpdeskOps.Services.RegistrationPolicy>();
+
 builder.Services.AddSingleton<HelpdeskOps.Services.AttachmentStorage>();
 
 // KVKK: data controller details for the privacy notice, personal data export, anonymization, and daily retention
@@ -158,14 +168,22 @@ builder.Services.AddDataProtection()
 builder.Services.Configure<HelpdeskOps.Services.Inventory.InventoryOptions>(builder.Configuration.GetSection(HelpdeskOps.Services.Inventory.InventoryOptions.SectionName));
 builder.Services.AddScoped<HelpdeskOps.Services.Inventory.InventoryImporter>();
 
+// Monitoring tools call /health; it answers Healthy or Unhealthy and shares no details
+builder.Services.AddHealthChecks().AddCheck<HelpdeskOps.Services.DatabaseHealthCheck>("database");
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    // Apply pending migrations on startup, since the hosted database is not reachable from development tools
-    await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+    // Apply pending migrations on startup, since the hosted database is not reachable from development tools.
+    // The migrations are written for SQL Server, so the tests build their SQLite database from the model instead.
+    var database = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database;
+    if (database.IsSqlServer())
+        await database.MigrateAsync();
+    else
+        await database.EnsureCreatedAsync();
     await scope.ServiceProvider.GetRequiredService<HelpdeskOps.Services.SlaDueInterceptor>()
         .BackfillAsync(scope.ServiceProvider.GetRequiredService<ApplicationDbContext>());
 
@@ -188,6 +206,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<HelpdeskOps.Services.SecurityHeadersMiddleware>();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -215,5 +234,7 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapRazorPages();
+
+app.MapHealthChecks("/health");
 
 app.Run();
